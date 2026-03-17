@@ -5,11 +5,11 @@ import { TooltipProvider } from '@/components/ui/tooltip'
 import { FavoritesProvider } from '@/context/FavoritesContext'
 import { AccessProvider } from '@/context/AccessContext'
 import { GeoProvider } from '@/context/GeoContext'
-import { RestaurantsProvider } from '@/context/RestaurantsContext'
+import { PlacesProvider } from '@/context/PlacesContext'
 
 import Layout from './components/Layout'
 import Index from './pages/Index'
-import RestaurantDetails from './pages/RestaurantDetails'
+import PlaceDetails from './pages/PlaceDetails'
 import Favorites from './pages/Favorites'
 import MapView from './pages/MapView'
 import Admin from './pages/Admin'
@@ -19,7 +19,7 @@ const App = () => (
   <BrowserRouter future={{ v7_startTransition: false, v7_relativeSplatPath: false }}>
     <AccessProvider>
       <GeoProvider>
-        <RestaurantsProvider>
+        <PlacesProvider>
           <FavoritesProvider>
             <TooltipProvider>
               <Toaster />
@@ -27,7 +27,7 @@ const App = () => (
               <Routes>
                 <Route element={<Layout />}>
                   <Route path="/" element={<Index />} />
-                  <Route path="/restaurant/:id" element={<RestaurantDetails />} />
+                  <Route path="/place/:id" element={<PlaceDetails />} />
                   <Route path="/favorites" element={<Favorites />} />
                   <Route path="/map" element={<MapView />} />
                   <Route path="/admin" element={<Admin />} />
@@ -36,7 +36,7 @@ const App = () => (
               </Routes>
             </TooltipProvider>
           </FavoritesProvider>
-        </RestaurantsProvider>
+        </PlacesProvider>
       </GeoProvider>
     </AccessProvider>
   </BrowserRouter>

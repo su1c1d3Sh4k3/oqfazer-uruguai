@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils'
 
 export default function Layout() {
   const location = useLocation()
-  const isDetailsPage = location.pathname.startsWith('/restaurant/')
+  const isDetailsPage = location.pathname.startsWith('/place/')
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-slate-50 md:flex-row">
@@ -29,23 +29,23 @@ export default function Layout() {
           <NavItem to="/map" icon={<MapIcon />} label="Mapa" />
         </nav>
 
-        <nav className="flex flex-col gap-2 border-t pt-4 mt-4">
+        <nav className="mt-4 flex flex-col gap-2 border-t pt-4">
           <NavItem to="/admin" icon={<Settings />} label="Admin" />
         </nav>
       </aside>
 
       <div className="flex flex-1 flex-col overflow-hidden pb-16 md:pb-0">
         {!isDetailsPage && (
-          <header className="sticky top-0 z-40 flex items-center justify-between border-b bg-white/80 px-4 py-3 backdrop-blur-md md:hidden shadow-sm">
+          <header className="sticky top-0 z-40 flex items-center justify-between border-b bg-white/80 px-4 py-3 shadow-sm backdrop-blur-md md:hidden">
             <div className="flex items-center gap-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-white">
                 <Compass className="h-5 w-5" />
               </div>
               <div className="flex flex-col">
-                <span className="font-display text-sm font-bold text-slate-900 leading-none">
+                <span className="font-display text-sm font-bold leading-none text-slate-900">
                   O que Fazer no Uruguai
                 </span>
-                <span className="text-[8px] text-secondary font-bold uppercase tracking-wider mt-0.5">
+                <span className="mt-0.5 text-[8px] font-bold uppercase tracking-wider text-secondary">
                   by Brasileiros no Uruguai
                 </span>
               </div>
@@ -64,8 +64,8 @@ export default function Layout() {
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
-              placeholder="Buscar estabelecimentos..."
-              className="h-10 w-full rounded-full border border-slate-200 bg-slate-50 pl-10 pr-4 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+              placeholder="Buscar atividades..."
+              className="h-10 w-full rounded-full border border-slate-200 bg-slate-50 pl-10 pr-4 text-sm outline-none transition-all focus:border-primary focus:ring-1 focus:ring-primary"
             />
           </div>
         </header>
@@ -75,7 +75,7 @@ export default function Layout() {
         </main>
       </div>
 
-      <nav className="fixed bottom-0 left-0 right-0 z-50 flex h-16 items-center justify-around border-t bg-white px-2 pb-safe md:hidden shadow-[0_-4px_6px_-1px_rgb(0,0,0,0.05)]">
+      <nav className="pb-safe fixed bottom-0 left-0 right-0 z-50 flex h-16 items-center justify-around border-t bg-white px-2 shadow-[0_-4px_6px_-1px_rgb(0,0,0,0.05)] md:hidden">
         <MobileNavItem to="/" icon={<Home />} label="Início" />
         <MobileNavItem to="/favorites" icon={<Heart />} label="Favoritos" />
         <MobileNavItem to="/map" icon={<MapIcon />} label="Mapa" />

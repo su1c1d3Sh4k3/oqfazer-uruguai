@@ -1,6 +1,6 @@
-import { useRestaurants } from '@/context/RestaurantsContext'
+import { usePlaces } from '@/context/PlacesContext'
 import { useGeo } from '@/context/GeoContext'
-import { RestaurantCard } from '@/components/RestaurantCard'
+import { PlaceCard } from '@/components/PlaceCard'
 import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel'
 import Autoplay from 'embla-carousel-autoplay'
 import { useRef, useState, useMemo } from 'react'
@@ -8,29 +8,39 @@ import { Link } from 'react-router-dom'
 import { Badge } from '@/components/ui/badge'
 
 export default function Index() {
-  const { restaurants } = useRestaurants()
+  const { places, categories } = usePlaces()
   const { calculateDistance } = useGeo()
   const plugin = useRef(Autoplay({ delay: 4000, stopOnInteraction: true }))
 
   const [selectedCity, setSelectedCity] = useState('Todas')
   const [selectedCategory, setSelectedCategory] = useState('Todas')
+  const [maxDistance, setMaxDistance] = useState('Qualquer')
 
   const CITIES = ['Todas', 'Montevideo', 'Punta del Este', 'Colonia del Sacramento']
-  const CATEGORIES = ['Todas', ...Array.from(new Set(restaurants.map((r) => r.category)))]
+  const DISTANCES = ['Qualquer', '5km', '10km', '20km', '50km']
+  const CATEGORIES = ['Todas', ...categories]
 
-  const filteredRestaurants = useMemo(() => {
-    let result = restaurants
-    if (selectedCity !== 'Todas') result = result.filter((r) => r.city === selectedCity)
-    if (selectedCategory !== 'Todas') result = result.filter((r) => r.category === selectedCategory)
+  const filteredPlaces = useMemo(() => {
+    let result = places
+    if (selectedCity !== 'Todas') result = result.filter((p) => p.city === selectedCity)
+    if (selectedCategory !== 'Todas') result = result.filter((p) => p.category === selectedCategory)
+
+    if (maxDistance !== 'Qualquer') {
+      const limit = parseInt(maxDistance.replace('km', ''))
+      result = result.filter((p) => {
+        const d = calculateDistance(p.coordinates.lat, p.coordinates.lng)
+        return d !== null && d <= limit
+      })
+    }
 
     return result.sort((a, b) => {
       const distA = calculateDistance(a.coordinates.lat, a.coordinates.lng) || 9999
       const distB = calculateDistance(b.coordinates.lat, b.coordinates.lng) || 9999
       return distA - distB
     })
-  }, [restaurants, selectedCity, selectedCategory, calculateDistance])
+  }, [places, selectedCity, selectedCategory, maxDistance, calculateDistance])
 
-  const featured = restaurants.filter((r) => r.featured)
+  const featured = places.filter((p) => p.featured)
 
   return (
     <div className="flex flex-col gap-6 pb-8 pt-4 md:px-8 md:pt-8">
@@ -41,28 +51,28 @@ export default function Index() {
           </h2>
           <Carousel plugins={[plugin.current]} className="w-full" opts={{ loop: true }}>
             <CarouselContent className="-ml-2 md:-ml-4">
-              {featured.map((restaurant) => (
+              {featured.map((place) => (
                 <CarouselItem
-                  key={`feat-${restaurant.id}`}
+                  key={`feat-${place.id}`}
                   className="pl-2 md:basis-3/4 md:pl-4 lg:basis-2/3 xl:basis-1/2"
                 >
-                  <Link to={`/restaurant/${restaurant.id}`}>
+                  <Link to={`/place/${place.id}`}>
                     <div className="group relative h-48 w-full overflow-hidden rounded-2xl md:h-64">
                       <img
-                        src={restaurant.coverImage}
-                        alt={restaurant.name}
+                        src={place.coverImage}
+                        alt={place.name}
                         className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
                       <div className="absolute bottom-0 left-0 p-4 md:p-6">
-                        <Badge className="mb-2 bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary border-none">
-                          {restaurant.discountBadge}
+                        <Badge className="mb-2 border-none bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary">
+                          {place.discountBadge}
                         </Badge>
                         <h3 className="font-display text-xl font-bold text-white md:text-3xl">
-                          {restaurant.name}
+                          {place.name}
                         </h3>
                         <p className="text-sm text-slate-200 md:text-base">
-                          {restaurant.city} • {restaurant.category}
+                          {place.city} • {place.category}
                         </p>
                       </div>
                     </div>
@@ -74,24 +84,7 @@ export default function Index() {
         </section>
       )}
 
-      <section className="px-4 md:px-0 flex flex-col gap-4">
-        <div className="hide-scrollbar -mx-4 flex overflow-x-auto px-4 md:mx-0 md:px-0">
-          <div className="flex gap-2">
-            {CITIES.map((city) => (
-              <button
-                key={city}
-                onClick={() => setSelectedCity(city)}
-                className={`whitespace-nowrap rounded-full px-5 py-2 text-sm font-semibold transition-all ${
-                  selectedCity === city
-                    ? 'bg-secondary text-slate-900 shadow-md'
-                    : 'bg-white text-slate-600 shadow-sm border border-slate-200 hover:bg-slate-50'
-                }`}
-              >
-                {city}
-              </button>
-            ))}
-          </div>
-        </div>
+      <section className="flex flex-col gap-4 px-4 md:px-0">
         <div className="hide-scrollbar -mx-4 flex overflow-x-auto px-4 md:mx-0 md:px-0">
           <div className="flex gap-2">
             {CATEGORIES.map((category) => (
@@ -109,6 +102,43 @@ export default function Index() {
             ))}
           </div>
         </div>
+        <div className="hide-scrollbar -mx-4 flex overflow-x-auto px-4 md:mx-0 md:px-0">
+          <div className="flex gap-2">
+            {CITIES.map((city) => (
+              <button
+                key={city}
+                onClick={() => setSelectedCity(city)}
+                className={`whitespace-nowrap rounded-full px-5 py-2 text-sm font-semibold transition-all ${
+                  selectedCity === city
+                    ? 'bg-secondary text-slate-900 shadow-md'
+                    : 'border border-slate-200 bg-white text-slate-600 shadow-sm hover:bg-slate-50'
+                }`}
+              >
+                {city}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="hide-scrollbar -mx-4 flex overflow-x-auto px-4 md:mx-0 md:px-0">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+              Distância:
+            </span>
+            {DISTANCES.map((dist) => (
+              <button
+                key={dist}
+                onClick={() => setMaxDistance(dist)}
+                className={`whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
+                  maxDistance === dist
+                    ? 'bg-slate-800 text-white shadow-md'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                }`}
+              >
+                {dist}
+              </button>
+            ))}
+          </div>
+        </div>
       </section>
 
       <section className="px-4 md:px-0">
@@ -118,18 +148,18 @@ export default function Index() {
           </h2>
         </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {filteredRestaurants.map((restaurant, index) => (
+          {filteredPlaces.map((place, index) => (
             <div
-              key={restaurant.id}
+              key={place.id}
               className="animate-fade-in-up"
               style={{ animationDelay: `${index * 50}ms` }}
             >
-              <RestaurantCard restaurant={restaurant} />
+              <PlaceCard place={place} />
             </div>
           ))}
-          {filteredRestaurants.length === 0 && (
+          {filteredPlaces.length === 0 && (
             <p className="col-span-full py-8 text-center text-slate-500">
-              Nenhum local encontrado para os filtros selecionados.
+              Nenhuma atividade encontrada para os filtros selecionados.
             </p>
           )}
         </div>

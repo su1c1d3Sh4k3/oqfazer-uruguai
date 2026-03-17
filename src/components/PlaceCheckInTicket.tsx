@@ -1,0 +1,51 @@
+import { CheckCircle2, XCircle } from 'lucide-react'
+import { format } from 'date-fns'
+
+export function PlaceCheckInTicket({ checkInTime }: { checkInTime: number }) {
+  const expirationTime = checkInTime + 86400000
+  const isExpired = Date.now() > expirationTime
+
+  if (isExpired) {
+    return (
+      <div className="mb-8 rounded-2xl bg-slate-100 p-6 text-center text-slate-500 shadow-sm">
+        <XCircle className="mx-auto mb-2 h-8 w-8 text-slate-400" />
+        <p className="font-bold">Check-in Expirado</p>
+        <p className="text-sm">Você já utilizou o desconto deste estabelecimento.</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="mb-8 rounded-3xl bg-gradient-to-br from-green-500 to-green-600 p-6 text-white shadow-xl">
+      <div className="mb-4 flex items-center gap-3">
+        <CheckCircle2 className="h-8 w-8 text-white" />
+        <h3 className="font-display text-xl font-bold">Check-in Ativo</h3>
+      </div>
+      <div className="mb-4 space-y-3 rounded-xl bg-white/10 p-4 backdrop-blur-sm">
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-green-100">Check-in:</span>
+          <span className="font-bold">{format(new Date(checkInTime), 'dd/MM/yyyy - HH:mm')}</span>
+        </div>
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-green-100">Expira:</span>
+          <span className="font-bold">
+            {format(new Date(expirationTime), 'dd/MM/yyyy - HH:mm')}
+          </span>
+        </div>
+      </div>
+      <div className="rounded-xl bg-white p-4 text-center shadow-inner">
+        <p className="mb-1 text-xs font-bold uppercase tracking-wide text-green-700">
+          Validação Oficial
+        </p>
+        <p className="text-lg font-black leading-tight text-slate-900">
+          esse cupom vale até
+          <br />
+          <span className="text-xl text-green-600">
+            {format(new Date(expirationTime), 'dd/MM/yyyy')} às{' '}
+            {format(new Date(expirationTime), 'HH:mm')}
+          </span>
+        </p>
+      </div>
+    </div>
+  )
+}
