@@ -17881,7 +17881,7 @@ function createCollection(name) {
 }
 //#endregion
 //#region ../../cache/modules/app-descontos-restaurantes-36a48/node_modules/.pnpm/@radix-ui+react-primitive@2.1.3_@types+react-dom@19.2.3_@types+react@19.2.14__@types+re_1181ea5061ec9212248424669240e4ec/node_modules/@radix-ui/react-primitive/dist/index.mjs
-var Primitive = [
+var Primitive$1 = [
 	"a",
 	"button",
 	"div",
@@ -18021,7 +18021,7 @@ var DismissableLayer = import_react.forwardRef((props, forwardedRef) => {
 		document.addEventListener(CONTEXT_UPDATE, handleUpdate);
 		return () => document.removeEventListener(CONTEXT_UPDATE, handleUpdate);
 	}, []);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.div, {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive$1.div, {
 		...layerProps,
 		ref: composedRefs,
 		style: {
@@ -18048,7 +18048,7 @@ var DismissableLayerBranch = import_react.forwardRef((props, forwardedRef) => {
 			};
 		}
 	}, [context.branches]);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.div, {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive$1.div, {
 		...props,
 		ref: composedRefs
 	});
@@ -18114,7 +18114,7 @@ function handleAndDispatchCustomEvent$1(name, handler, detail, { discrete }) {
 	if (discrete) dispatchDiscreteCustomEvent(target, event);
 	else target.dispatchEvent(event);
 }
-var Root$3 = DismissableLayer;
+var Root$4 = DismissableLayer;
 var Branch = DismissableLayerBranch;
 //#endregion
 //#region ../../cache/modules/app-descontos-restaurantes-36a48/node_modules/.pnpm/@radix-ui+react-use-layout-effect@1.1.1_@types+react@19.2.14_react@19.2.4/node_modules/@radix-ui/react-use-layout-effect/dist/index.mjs
@@ -18127,7 +18127,7 @@ var Portal$1 = import_react.forwardRef((props, forwardedRef) => {
 	const [mounted, setMounted] = import_react.useState(false);
 	useLayoutEffect2(() => setMounted(true), []);
 	const container = containerProp || mounted && globalThis?.document?.body;
-	return container ? import_react_dom.createPortal(/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.div, {
+	return container ? import_react_dom.createPortal(/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive$1.div, {
 		...portalProps,
 		ref: forwardedRef
 	}), container) : null;
@@ -18302,9 +18302,9 @@ var VISUALLY_HIDDEN_STYLES = Object.freeze({
 	whiteSpace: "nowrap",
 	wordWrap: "normal"
 });
-var NAME$1 = "VisuallyHidden";
+var NAME$2 = "VisuallyHidden";
 var VisuallyHidden = import_react.forwardRef((props, forwardedRef) => {
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.span, {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive$1.span, {
 		...props,
 		ref: forwardedRef,
 		style: {
@@ -18313,8 +18313,8 @@ var VisuallyHidden = import_react.forwardRef((props, forwardedRef) => {
 		}
 	});
 });
-VisuallyHidden.displayName = NAME$1;
-var Root$2 = VisuallyHidden;
+VisuallyHidden.displayName = NAME$2;
+var Root$3 = VisuallyHidden;
 //#endregion
 //#region ../../cache/modules/app-descontos-restaurantes-36a48/node_modules/.pnpm/@radix-ui+react-toast@1.2.15_@types+react-dom@19.2.3_@types+react@19.2.14__@types+react_4581e89c6ba13e4159ce65546c8b2a16/node_modules/@radix-ui/react-toast/dist/index.mjs
 var PROVIDER_NAME$1 = "ToastProvider";
@@ -18455,7 +18455,7 @@ var ToastViewport$1 = import_react.forwardRef((props, forwardedRef) => {
 			}),
 			/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Collection.Slot, {
 				scope: __scopeToast,
-				children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.ol, {
+				children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive$1.ol, {
 					tabIndex: -1,
 					...viewportProps,
 					ref: composedRefs
@@ -18614,13 +18614,13 @@ var ToastImpl = import_react.forwardRef((props, forwardedRef) => {
 		onClose: handleClose,
 		children: import_react_dom.createPortal(/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Collection.ItemSlot, {
 			scope: __scopeToast,
-			children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Root$3, {
+			children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Root$4, {
 				asChild: true,
 				onEscapeKeyDown: composeEventHandlers(onEscapeKeyDown, () => {
 					if (!context.isFocusedToastEscapeKeyDownRef.current) handleClose();
 					context.isFocusedToastEscapeKeyDownRef.current = false;
 				}),
-				children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.li, {
+				children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive$1.li, {
 					tabIndex: 0,
 					"data-state": open ? "open" : "closed",
 					"data-swipe-direction": context.swipeDirection,
@@ -18720,7 +18720,7 @@ var ToastAnnounce = (props) => {
 var TITLE_NAME$1 = "ToastTitle";
 var ToastTitle$1 = import_react.forwardRef((props, forwardedRef) => {
 	const { __scopeToast, ...titleProps } = props;
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.div, {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive$1.div, {
 		...titleProps,
 		ref: forwardedRef
 	});
@@ -18729,7 +18729,7 @@ ToastTitle$1.displayName = TITLE_NAME$1;
 var DESCRIPTION_NAME$1 = "ToastDescription";
 var ToastDescription$1 = import_react.forwardRef((props, forwardedRef) => {
 	const { __scopeToast, ...descriptionProps } = props;
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.div, {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive$1.div, {
 		...descriptionProps,
 		ref: forwardedRef
 	});
@@ -18758,7 +18758,7 @@ var ToastClose$1 = import_react.forwardRef((props, forwardedRef) => {
 	const interactiveContext = useToastInteractiveContext(CLOSE_NAME$1, __scopeToast);
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ToastAnnounceExclude, {
 		asChild: true,
-		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.button, {
+		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive$1.button, {
 			type: "button",
 			...closeProps,
 			ref: forwardedRef,
@@ -18769,7 +18769,7 @@ var ToastClose$1 = import_react.forwardRef((props, forwardedRef) => {
 ToastClose$1.displayName = CLOSE_NAME$1;
 var ToastAnnounceExclude = import_react.forwardRef((props, forwardedRef) => {
 	const { __scopeToast, altText, ...announceExcludeProps } = props;
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.div, {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive$1.div, {
 		"data-radix-toast-announce-exclude": "",
 		"data-radix-toast-announce-alt": altText || void 0,
 		...announceExcludeProps,
@@ -19049,6 +19049,15 @@ var Clock = createLucideIcon("clock", [["circle", {
 	d: "M12 6v6l4 2",
 	key: "mmk7yg"
 }]]);
+var Compass = createLucideIcon("compass", [["circle", {
+	cx: "12",
+	cy: "12",
+	r: "10",
+	key: "1mglay"
+}], ["path", {
+	d: "m16.24 7.76-1.804 5.411a2 2 0 0 1-1.265 1.265L7.76 16.24l1.804-5.411a2 2 0 0 1 1.265-1.265z",
+	key: "9ktpf1"
+}]]);
 var HeartCrack = createLucideIcon("heart-crack", [["path", {
 	d: "M12.409 5.824c-.702.792-1.15 1.496-1.415 2.166l2.153 2.156a.5.5 0 0 1 0 .707l-2.293 2.293a.5.5 0 0 0 0 .707L12 15",
 	key: "idzbju"
@@ -19106,6 +19115,13 @@ var Map$1 = createLucideIcon("map", [
 		key: "1uimfh"
 	}]
 ]);
+var Plus = createLucideIcon("plus", [["path", {
+	d: "M5 12h14",
+	key: "1ays0h"
+}], ["path", {
+	d: "M12 5v14",
+	key: "s699le"
+}]]);
 var QrCode = createLucideIcon("qr-code", [
 	["rect", {
 		width: "5",
@@ -19177,6 +19193,15 @@ var Search = createLucideIcon("search", [["path", {
 	r: "8",
 	key: "4ej97u"
 }]]);
+var Settings = createLucideIcon("settings", [["path", {
+	d: "M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915",
+	key: "1i5ecw"
+}], ["circle", {
+	cx: "12",
+	cy: "12",
+	r: "3",
+	key: "1v7zrd"
+}]]);
 var Share2 = createLucideIcon("share-2", [
 	["circle", {
 		cx: "18",
@@ -19211,6 +19236,13 @@ var Share2 = createLucideIcon("share-2", [
 		key: "1n3mei"
 	}]
 ]);
+var SquarePen = createLucideIcon("square-pen", [["path", {
+	d: "M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7",
+	key: "1m0v6g"
+}], ["path", {
+	d: "M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z",
+	key: "ohrbg2"
+}]]);
 var Star = createLucideIcon("star", [["path", {
 	d: "M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z",
 	key: "r04s7s"
@@ -19233,22 +19265,18 @@ var Ticket = createLucideIcon("ticket", [
 		key: "1wjjxi"
 	}]
 ]);
-var UtensilsCrossed = createLucideIcon("utensils-crossed", [
+var Trash = createLucideIcon("trash", [
 	["path", {
-		d: "m16 2-2.3 2.3a3 3 0 0 0 0 4.2l1.8 1.8a3 3 0 0 0 4.2 0L22 8",
-		key: "n7qcjb"
+		d: "M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6",
+		key: "miytrc"
 	}],
 	["path", {
-		d: "M15 15 3.3 3.3a4.2 4.2 0 0 0 0 6l7.3 7.3c.7.7 2 .7 2.8 0L15 15Zm0 0 7 7",
-		key: "d0u48b"
+		d: "M3 6h18",
+		key: "d0wm0j"
 	}],
 	["path", {
-		d: "m2.1 21.8 6.4-6.3",
-		key: "yn04lh"
-	}],
-	["path", {
-		d: "m19 5-7 7",
-		key: "194lzd"
+		d: "M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2",
+		key: "e791ji"
 	}]
 ]);
 var X = createLucideIcon("x", [["path", {
@@ -23418,10 +23446,10 @@ var arrow = (options, deps) => {
 };
 //#endregion
 //#region ../../cache/modules/app-descontos-restaurantes-36a48/node_modules/.pnpm/@radix-ui+react-arrow@1.1.7_@types+react-dom@19.2.3_@types+react@19.2.14__@types+react@_e05f2c19a58a99fddf374207b5e3778c/node_modules/@radix-ui/react-arrow/dist/index.mjs
-var NAME = "Arrow";
+var NAME$1 = "Arrow";
 var Arrow$1 = import_react.forwardRef((props, forwardedRef) => {
 	const { children, width = 10, height = 5, ...arrowProps } = props;
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.svg, {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive$1.svg, {
 		...arrowProps,
 		ref: forwardedRef,
 		width,
@@ -23431,8 +23459,8 @@ var Arrow$1 = import_react.forwardRef((props, forwardedRef) => {
 		children: props.asChild ? children : /* @__PURE__ */ (0, import_jsx_runtime.jsx)("polygon", { points: "0,0 30,0 15,10" })
 	});
 });
-Arrow$1.displayName = NAME;
-var Root$1 = Arrow$1;
+Arrow$1.displayName = NAME$1;
+var Root$2 = Arrow$1;
 //#endregion
 //#region ../../cache/modules/app-descontos-restaurantes-36a48/node_modules/.pnpm/@radix-ui+react-use-size@1.1.1_@types+react@19.2.14_react@19.2.4/node_modules/@radix-ui/react-use-size/dist/index.mjs
 function useSize(element) {
@@ -23497,7 +23525,7 @@ var PopperAnchor = import_react.forwardRef((props, forwardedRef) => {
 		anchorRef.current = virtualRef?.current || ref.current;
 		if (previousAnchor !== anchorRef.current) context.onAnchorChange(anchorRef.current);
 	});
-	return virtualRef ? null : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.div, {
+	return virtualRef ? null : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive$1.div, {
 		...anchorProps,
 		ref: composedRefs
 	});
@@ -23607,7 +23635,7 @@ var PopperContent = import_react.forwardRef((props, forwardedRef) => {
 			arrowX,
 			arrowY,
 			shouldHideArrow: cannotCenterArrow,
-			children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.div, {
+			children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive$1.div, {
 				"data-side": placedSide,
 				"data-align": placedAlign,
 				...contentProps,
@@ -23653,7 +23681,7 @@ var PopperArrow = import_react.forwardRef(function PopperArrow2(props, forwarded
 			}[contentContext.placedSide],
 			visibility: contentContext.shouldHideArrow ? "hidden" : void 0
 		},
-		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Root$1, {
+		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Root$2, {
 			...arrowProps,
 			ref: forwardedRef,
 			style: {
@@ -23852,7 +23880,7 @@ var TooltipTrigger$1 = import_react.forwardRef((props, forwardedRef) => {
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Anchor, {
 		asChild: true,
 		...popperScope,
-		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.button, {
+		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive$1.button, {
 			"aria-describedby": context.open ? context.contentId : void 0,
 			"data-state": context.stateAttribute,
 			...triggerProps,
@@ -24037,7 +24065,7 @@ var TooltipContentImpl = import_react.forwardRef((props, forwardedRef) => {
 			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Slottable, { children }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(VisuallyHiddenContentContextProvider, {
 				scope: __scopeTooltip,
 				isInside: true,
-				children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Root$2, {
+				children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Root$3, {
 					id: context.contentId,
 					role: "tooltip",
 					children: ariaLabel || children
@@ -24233,6 +24261,208 @@ function useFavorites() {
 	return context;
 }
 //#endregion
+//#region src/context/AccessContext.tsx
+var AccessContext = (0, import_react.createContext)(void 0);
+function AccessProvider({ children }) {
+	const [firstCheckIn, setFirstCheckIn] = (0, import_react.useState)(() => {
+		try {
+			const stored = localStorage.getItem("@uruguai:checkin");
+			return stored ? parseInt(stored, 10) : null;
+		} catch {
+			return null;
+		}
+	});
+	(0, import_react.useEffect)(() => {
+		if (firstCheckIn) localStorage.setItem("@uruguai:checkin", firstCheckIn.toString());
+	}, [firstCheckIn]);
+	const recordCheckIn = () => {
+		if (!firstCheckIn) setFirstCheckIn(Date.now());
+	};
+	const isExpired = firstCheckIn ? Date.now() > firstCheckIn + 14400 * 60 * 1e3 : false;
+	return import_react.createElement(AccessContext.Provider, { value: {
+		firstCheckIn,
+		isExpired,
+		recordCheckIn
+	} }, children);
+}
+function useAccess() {
+	const context = (0, import_react.useContext)(AccessContext);
+	if (context === void 0) throw new Error("useAccess must be used within an AccessProvider");
+	return context;
+}
+//#endregion
+//#region src/context/GeoContext.tsx
+var GeoContext = (0, import_react.createContext)(void 0);
+function GeoProvider({ children }) {
+	const [location, setLocation] = (0, import_react.useState)(null);
+	const [error, setError] = (0, import_react.useState)(null);
+	(0, import_react.useEffect)(() => {
+		if ("geolocation" in navigator) navigator.geolocation.getCurrentPosition((position) => {
+			setLocation({
+				lat: position.coords.latitude,
+				lng: position.coords.longitude
+			});
+		}, (err) => {
+			setError(err.message);
+		});
+		else setError("Geolocalização não suportada");
+	}, []);
+	const calculateDistance = (lat2, lng2) => {
+		if (!location) return null;
+		const lat1 = location.lat;
+		const lng1 = location.lng;
+		const R = 6371;
+		const dLat = deg2rad(lat2 - lat1);
+		const dLng = deg2rad(lng2 - lng1);
+		const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+		return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+	};
+	function deg2rad(deg) {
+		return deg * (Math.PI / 180);
+	}
+	return import_react.createElement(GeoContext.Provider, { value: {
+		location,
+		error,
+		calculateDistance
+	} }, children);
+}
+function useGeo() {
+	const context = (0, import_react.useContext)(GeoContext);
+	if (context === void 0) throw new Error("useGeo must be used within a GeoProvider");
+	return context;
+}
+//#endregion
+//#region src/data/restaurants.ts
+var DEFAULT_RESTAURANTS = [
+	{
+		id: "1",
+		name: "Parrilla del Sur",
+		category: "Steakhouse",
+		city: "Montevideo",
+		discountBadge: "20% OFF",
+		rating: 4.8,
+		coverImage: "https://img.usecurling.com/p/600/400?q=steak",
+		galleryImages: [
+			"https://img.usecurling.com/p/800/600?q=steak&seed=1",
+			"https://img.usecurling.com/p/800/600?q=steakhouse&seed=2",
+			"https://img.usecurling.com/p/800/600?q=wine&seed=3",
+			"https://img.usecurling.com/p/800/600?q=grill&seed=4",
+			"https://img.usecurling.com/p/800/600?q=dessert&seed=5"
+		],
+		description: "A melhor parrilla de Montevideo com cortes nobres e ambiente aconchegante, ideal para casais e grupos de amigos.",
+		discountDescription: "20% de desconto em todas as carnes da parrilla. Bebidas não inclusas.",
+		address: "Rambla República del Perú, 1234 - Montevideo",
+		coordinates: {
+			lat: -34.912,
+			lng: -56.155
+		},
+		featured: true
+	},
+	{
+		id: "2",
+		name: "Café de los Pájaros",
+		category: "Cafeteria",
+		city: "Colonia del Sacramento",
+		discountBadge: "Café + Alfajor 50% OFF",
+		rating: 4.9,
+		coverImage: "https://img.usecurling.com/p/600/400?q=cafe",
+		galleryImages: [
+			"https://img.usecurling.com/p/800/600?q=coffee&seed=1",
+			"https://img.usecurling.com/p/800/600?q=alfajor&seed=2",
+			"https://img.usecurling.com/p/800/600?q=cafe%20interior&seed=3",
+			"https://img.usecurling.com/p/800/600?q=historic%20building&seed=4",
+			"https://img.usecurling.com/p/800/600?q=latte&seed=5"
+		],
+		description: "Café charmoso no centro histórico de Colonia. Especialistas em doces de leite locais e alfajores caseiros.",
+		discountDescription: "Na compra de um café especial, ganhe 50% de desconto no nosso alfajor artesanal de doce de leite.",
+		address: "Calle de los Suspiros, 45 - Colonia del Sacramento",
+		coordinates: {
+			lat: -34.471,
+			lng: -57.852
+		},
+		featured: true
+	},
+	{
+		id: "3",
+		name: "Barra Sunset",
+		category: "Bar",
+		city: "Punta del Este",
+		discountBadge: "2x1 Drinks",
+		rating: 4.7,
+		coverImage: "https://img.usecurling.com/p/600/400?q=cocktail",
+		galleryImages: [
+			"https://img.usecurling.com/p/800/600?q=drinks&seed=1",
+			"https://img.usecurling.com/p/800/600?q=beach%20bar&seed=2",
+			"https://img.usecurling.com/p/800/600?q=sunset&seed=3",
+			"https://img.usecurling.com/p/800/600?q=dj&seed=4",
+			"https://img.usecurling.com/p/800/600?q=beer&seed=5"
+		],
+		description: "O melhor bar de praia para curtir o pôr do sol em Punta del Este com música ao vivo e drinks de autor.",
+		discountDescription: "Compre 1 drink e ganhe outro igual. Válido das 17h às 20h todos os dias.",
+		address: "Ruta 10, km 161 - Punta del Este",
+		coordinates: {
+			lat: -34.908,
+			lng: -54.856
+		}
+	},
+	{
+		id: "4",
+		name: "Bodega Clásica",
+		category: "Restaurante",
+		city: "Montevideo",
+		discountBadge: "Vinho Cortesia",
+		rating: 4.6,
+		coverImage: "https://img.usecurling.com/p/600/400?q=winery",
+		galleryImages: [
+			"https://img.usecurling.com/p/800/600?q=wine%20glass&seed=6",
+			"https://img.usecurling.com/p/800/600?q=pasta&seed=7",
+			"https://img.usecurling.com/p/800/600?q=restaurant&seed=8",
+			"https://img.usecurling.com/p/800/600?q=cheese&seed=9",
+			"https://img.usecurling.com/p/800/600?q=vineyard&seed=10"
+		],
+		description: "Gastronomia sofisticada harmonizada com os melhores vinhos Tannat do Uruguai.",
+		discountDescription: "Ao pedir dois pratos principais, ganhe uma garrafa de vinho Tannat reserva da casa.",
+		address: "Camino de los Viñedos, 88 - Montevideo",
+		coordinates: {
+			lat: -34.821,
+			lng: -56.234
+		}
+	}
+];
+//#endregion
+//#region src/context/RestaurantsContext.tsx
+var RestaurantsContext = (0, import_react.createContext)(void 0);
+function RestaurantsProvider({ children }) {
+	const [restaurants, setRestaurants] = (0, import_react.useState)(() => {
+		try {
+			const saved = localStorage.getItem("@uruguai:restaurants");
+			return saved ? JSON.parse(saved) : DEFAULT_RESTAURANTS;
+		} catch {
+			return DEFAULT_RESTAURANTS;
+		}
+	});
+	(0, import_react.useEffect)(() => {
+		localStorage.setItem("@uruguai:restaurants", JSON.stringify(restaurants));
+	}, [restaurants]);
+	const addRestaurant = (r) => setRestaurants((prev) => [...prev, r]);
+	const updateRestaurant = (id, data) => setRestaurants((prev) => prev.map((r) => r.id === id ? {
+		...r,
+		...data
+	} : r));
+	const deleteRestaurant = (id) => setRestaurants((prev) => prev.filter((r) => r.id !== id));
+	return import_react.createElement(RestaurantsContext.Provider, { value: {
+		restaurants,
+		addRestaurant,
+		updateRestaurant,
+		deleteRestaurant
+	} }, children);
+}
+function useRestaurants() {
+	const context = (0, import_react.useContext)(RestaurantsContext);
+	if (context === void 0) throw new Error("useRestaurants must be used within a RestaurantsProvider");
+	return context;
+}
+//#endregion
 //#region src/components/Layout.tsx
 function Layout() {
 	const isDetailsPage = useLocation().pathname.startsWith("/restaurant/");
@@ -24242,178 +24472,207 @@ function Layout() {
 		className: "flex min-h-screen w-full flex-col bg-slate-50 md:flex-row",
 		children: [
 			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("aside", {
-				"data-uid": "src/components/Layout.tsx:12:7",
+				"data-uid": "src/components/Layout.tsx:11:7",
 				"data-prohibitions": "[]",
-				className: "sticky top-0 hidden h-screen w-64 flex-col border-r bg-white px-4 py-6 md:flex",
-				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					"data-uid": "src/components/Layout.tsx:13:9",
-					"data-prohibitions": "[]",
-					className: "mb-8 flex items-center gap-2 px-2",
-					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-						"data-uid": "src/components/Layout.tsx:14:11",
+				className: "sticky top-0 hidden h-screen w-72 flex-col border-r bg-white px-4 py-6 md:flex",
+				children: [
+					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						"data-uid": "src/components/Layout.tsx:12:9",
 						"data-prohibitions": "[]",
-						className: "flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white",
-						children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(UtensilsCrossed, {
-							"data-uid": "src/components/Layout.tsx:15:13",
-							"data-prohibitions": "[editContent]",
-							className: "h-6 w-6"
-						})
-					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-						"data-uid": "src/components/Layout.tsx:17:11",
-						"data-prohibitions": "[]",
-						className: "font-display text-xl font-bold tracking-tight text-slate-900",
-						children: ["Savor", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-							"data-uid": "src/components/Layout.tsx:18:18",
+						className: "mb-8 flex items-center gap-3 px-2",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+							"data-uid": "src/components/Layout.tsx:13:11",
 							"data-prohibitions": "[]",
-							className: "text-primary",
-							children: "Discount"
+							className: "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-white shadow-md shadow-primary/20",
+							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Compass, {
+								"data-uid": "src/components/Layout.tsx:14:13",
+								"data-prohibitions": "[editContent]",
+								className: "h-6 w-6"
+							})
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							"data-uid": "src/components/Layout.tsx:16:11",
+							"data-prohibitions": "[]",
+							className: "flex flex-col",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+								"data-uid": "src/components/Layout.tsx:17:13",
+								"data-prohibitions": "[]",
+								className: "font-display text-[15px] font-bold text-slate-900 leading-tight",
+								children: "O que Fazer no Uruguai"
+							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+								"data-uid": "src/components/Layout.tsx:20:13",
+								"data-prohibitions": "[]",
+								className: "text-[9px] text-secondary font-bold uppercase tracking-wider",
+								children: "by Brasileiros no Uruguai"
+							})]
 						})]
-					})]
-				}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("nav", {
-					"data-uid": "src/components/Layout.tsx:22:9",
-					"data-prohibitions": "[]",
-					className: "flex flex-1 flex-col gap-2",
-					children: [
-						/* @__PURE__ */ (0, import_jsx_runtime.jsx)(NavItem, {
-							"data-uid": "src/components/Layout.tsx:23:11",
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("nav", {
+						"data-uid": "src/components/Layout.tsx:26:9",
+						"data-prohibitions": "[]",
+						className: "flex flex-1 flex-col gap-2",
+						children: [
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)(NavItem, {
+								"data-uid": "src/components/Layout.tsx:27:11",
+								"data-prohibitions": "[editContent]",
+								to: "/",
+								icon: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(House, {
+									"data-uid": "src/components/Layout.tsx:27:33",
+									"data-prohibitions": "[editContent]"
+								}),
+								label: "Início"
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)(NavItem, {
+								"data-uid": "src/components/Layout.tsx:28:11",
+								"data-prohibitions": "[editContent]",
+								to: "/favorites",
+								icon: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Heart, {
+									"data-uid": "src/components/Layout.tsx:28:42",
+									"data-prohibitions": "[editContent]"
+								}),
+								label: "Favoritos"
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)(NavItem, {
+								"data-uid": "src/components/Layout.tsx:29:11",
+								"data-prohibitions": "[editContent]",
+								to: "/map",
+								icon: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Map$1, {
+									"data-uid": "src/components/Layout.tsx:29:36",
+									"data-prohibitions": "[editContent]"
+								}),
+								label: "Mapa"
+							})
+						]
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("nav", {
+						"data-uid": "src/components/Layout.tsx:32:9",
+						"data-prohibitions": "[]",
+						className: "flex flex-col gap-2 border-t pt-4 mt-4",
+						children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(NavItem, {
+							"data-uid": "src/components/Layout.tsx:33:11",
 							"data-prohibitions": "[editContent]",
-							to: "/",
-							icon: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(House, {
-								"data-uid": "src/components/Layout.tsx:23:33",
+							to: "/admin",
+							icon: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Settings, {
+								"data-uid": "src/components/Layout.tsx:33:38",
 								"data-prohibitions": "[editContent]"
 							}),
-							label: "Início"
-						}),
-						/* @__PURE__ */ (0, import_jsx_runtime.jsx)(NavItem, {
-							"data-uid": "src/components/Layout.tsx:24:11",
-							"data-prohibitions": "[editContent]",
-							to: "/favorites",
-							icon: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Heart, {
-								"data-uid": "src/components/Layout.tsx:24:42",
-								"data-prohibitions": "[editContent]"
-							}),
-							label: "Favoritos"
-						}),
-						/* @__PURE__ */ (0, import_jsx_runtime.jsx)(NavItem, {
-							"data-uid": "src/components/Layout.tsx:25:11",
-							"data-prohibitions": "[editContent]",
-							to: "/map",
-							icon: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Map$1, {
-								"data-uid": "src/components/Layout.tsx:25:36",
-								"data-prohibitions": "[editContent]"
-							}),
-							label: "Mapa"
+							label: "Admin"
 						})
-					]
-				})]
+					})
+				]
 			}),
 			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				"data-uid": "src/components/Layout.tsx:29:7",
+				"data-uid": "src/components/Layout.tsx:37:7",
 				"data-prohibitions": "[editContent]",
 				className: "flex flex-1 flex-col overflow-hidden pb-16 md:pb-0",
 				children: [
 					!isDetailsPage && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("header", {
-						"data-uid": "src/components/Layout.tsx:32:11",
+						"data-uid": "src/components/Layout.tsx:39:11",
 						"data-prohibitions": "[]",
-						className: "sticky top-0 z-40 flex items-center justify-between border-b bg-white/80 px-4 py-3 backdrop-blur-md md:hidden",
+						className: "sticky top-0 z-40 flex items-center justify-between border-b bg-white/80 px-4 py-3 backdrop-blur-md md:hidden shadow-sm",
 						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							"data-uid": "src/components/Layout.tsx:33:13",
+							"data-uid": "src/components/Layout.tsx:40:13",
 							"data-prohibitions": "[]",
 							className: "flex items-center gap-2",
 							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-								"data-uid": "src/components/Layout.tsx:34:15",
+								"data-uid": "src/components/Layout.tsx:41:15",
 								"data-prohibitions": "[]",
 								className: "flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-white",
-								children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(UtensilsCrossed, {
-									"data-uid": "src/components/Layout.tsx:35:17",
+								children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Compass, {
+									"data-uid": "src/components/Layout.tsx:42:17",
 									"data-prohibitions": "[editContent]",
 									className: "h-5 w-5"
 								})
-							}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-								"data-uid": "src/components/Layout.tsx:37:15",
+							}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								"data-uid": "src/components/Layout.tsx:44:15",
 								"data-prohibitions": "[]",
-								className: "font-display text-lg font-bold tracking-tight text-slate-900",
-								children: ["Savor", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-									"data-uid": "src/components/Layout.tsx:38:22",
+								className: "flex flex-col",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+									"data-uid": "src/components/Layout.tsx:45:17",
 									"data-prohibitions": "[]",
-									className: "text-primary",
-									children: "Discount"
+									className: "font-display text-sm font-bold text-slate-900 leading-none",
+									children: "O que Fazer no Uruguai"
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+									"data-uid": "src/components/Layout.tsx:48:17",
+									"data-prohibitions": "[]",
+									className: "text-[8px] text-secondary font-bold uppercase tracking-wider mt-0.5",
+									children: "by Brasileiros no Uruguai"
 								})]
 							})]
-						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-							"data-uid": "src/components/Layout.tsx:41:13",
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(NavLink, {
+							"data-uid": "src/components/Layout.tsx:53:13",
 							"data-prohibitions": "[]",
-							className: "flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-600",
-							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, {
-								"data-uid": "src/components/Layout.tsx:42:15",
+							to: "/admin",
+							className: "flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-600",
+							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Settings, {
+								"data-uid": "src/components/Layout.tsx:57:15",
 								"data-prohibitions": "[editContent]",
-								className: "h-5 w-5"
+								className: "h-4 w-4"
 							})
 						})]
 					}),
 					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("header", {
-						"data-uid": "src/components/Layout.tsx:48:9",
+						"data-uid": "src/components/Layout.tsx:62:9",
 						"data-prohibitions": "[]",
 						className: "sticky top-0 z-40 hidden h-16 items-center justify-end border-b bg-white/80 px-8 backdrop-blur-md md:flex",
 						children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							"data-uid": "src/components/Layout.tsx:49:11",
+							"data-uid": "src/components/Layout.tsx:63:11",
 							"data-prohibitions": "[]",
-							className: "relative w-64",
+							className: "relative w-72",
 							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, {
-								"data-uid": "src/components/Layout.tsx:50:13",
+								"data-uid": "src/components/Layout.tsx:64:13",
 								"data-prohibitions": "[editContent]",
 								className: "absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
 							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-								"data-uid": "src/components/Layout.tsx:51:13",
+								"data-uid": "src/components/Layout.tsx:65:13",
 								"data-prohibitions": "[editContent]",
 								type: "text",
-								placeholder: "Buscar restaurantes...",
-								className: "h-10 w-full rounded-full border border-slate-200 bg-slate-50 pl-10 pr-4 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+								placeholder: "Buscar estabelecimentos...",
+								className: "h-10 w-full rounded-full border border-slate-200 bg-slate-50 pl-10 pr-4 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
 							})]
 						})
 					}),
 					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("main", {
-						"data-uid": "src/components/Layout.tsx:59:9",
+						"data-uid": "src/components/Layout.tsx:73:9",
 						"data-prohibitions": "[]",
 						className: "flex-1 animate-fade-in",
 						children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Outlet, {
-							"data-uid": "src/components/Layout.tsx:60:11",
+							"data-uid": "src/components/Layout.tsx:74:11",
 							"data-prohibitions": "[editContent]"
 						})
 					})
 				]
 			}),
 			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("nav", {
-				"data-uid": "src/components/Layout.tsx:65:7",
+				"data-uid": "src/components/Layout.tsx:78:7",
 				"data-prohibitions": "[]",
-				className: "fixed bottom-0 left-0 right-0 z-50 flex h-16 items-center justify-around border-t bg-white px-2 pb-safe md:hidden",
+				className: "fixed bottom-0 left-0 right-0 z-50 flex h-16 items-center justify-around border-t bg-white px-2 pb-safe md:hidden shadow-[0_-4px_6px_-1px_rgb(0,0,0,0.05)]",
 				children: [
 					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(MobileNavItem, {
-						"data-uid": "src/components/Layout.tsx:66:9",
+						"data-uid": "src/components/Layout.tsx:79:9",
 						"data-prohibitions": "[editContent]",
 						to: "/",
 						icon: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(House, {
-							"data-uid": "src/components/Layout.tsx:66:37",
+							"data-uid": "src/components/Layout.tsx:79:37",
 							"data-prohibitions": "[editContent]"
 						}),
 						label: "Início"
 					}),
 					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(MobileNavItem, {
-						"data-uid": "src/components/Layout.tsx:67:9",
+						"data-uid": "src/components/Layout.tsx:80:9",
 						"data-prohibitions": "[editContent]",
 						to: "/favorites",
 						icon: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Heart, {
-							"data-uid": "src/components/Layout.tsx:67:46",
+							"data-uid": "src/components/Layout.tsx:80:46",
 							"data-prohibitions": "[editContent]"
 						}),
 						label: "Favoritos"
 					}),
 					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(MobileNavItem, {
-						"data-uid": "src/components/Layout.tsx:68:9",
+						"data-uid": "src/components/Layout.tsx:81:9",
 						"data-prohibitions": "[editContent]",
 						to: "/map",
 						icon: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Map$1, {
-							"data-uid": "src/components/Layout.tsx:68:40",
+							"data-uid": "src/components/Layout.tsx:81:40",
 							"data-prohibitions": "[editContent]"
 						}),
 						label: "Mapa"
@@ -24425,12 +24684,12 @@ function Layout() {
 }
 function NavItem({ to, icon, label }) {
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(NavLink, {
-		"data-uid": "src/components/Layout.tsx:76:5",
+		"data-uid": "src/components/Layout.tsx:89:5",
 		"data-prohibitions": "[editContent]",
 		to,
 		className: ({ isActive }) => cn$1("flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors", isActive ? "bg-primary/10 text-primary" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"),
 		children: ({ isActive }) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-			"data-uid": "src/components/Layout.tsx:89:11",
+			"data-uid": "src/components/Layout.tsx:102:11",
 			"data-prohibitions": "[editContent]",
 			className: cn$1("[&>svg]:h-5 [&>svg]:w-5", isActive ? "[&>svg]:stroke-[2.5px]" : ""),
 			children: icon
@@ -24439,163 +24698,18 @@ function NavItem({ to, icon, label }) {
 }
 function MobileNavItem({ to, icon, label }) {
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(NavLink, {
-		"data-uid": "src/components/Layout.tsx:101:5",
+		"data-uid": "src/components/Layout.tsx:114:5",
 		"data-prohibitions": "[editContent]",
 		to,
 		className: ({ isActive }) => cn$1("flex flex-col items-center justify-center gap-1 p-2 text-[10px] font-medium transition-colors", isActive ? "text-primary" : "text-slate-500"),
 		children: ({ isActive }) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-			"data-uid": "src/components/Layout.tsx:112:11",
+			"data-uid": "src/components/Layout.tsx:125:11",
 			"data-prohibitions": "[editContent]",
 			className: cn$1("[&>svg]:h-6 [&>svg]:w-6", isActive ? "[&>svg]:stroke-[2.5px]" : ""),
 			children: icon
 		}), label] })
 	});
 }
-//#endregion
-//#region src/data/restaurants.ts
-var RESTAURANTS = [
-	{
-		id: "1",
-		name: "Burger Station",
-		category: "Hamburgueria",
-		discountBadge: "30% OFF",
-		rating: 4.8,
-		distance: "1.2 km",
-		coverImage: "https://img.usecurling.com/p/600/400?q=gourmet%20burger",
-		galleryImages: [
-			"https://img.usecurling.com/p/800/600?q=burger&seed=1",
-			"https://img.usecurling.com/p/800/600?q=fries&seed=2",
-			"https://img.usecurling.com/p/800/600?q=restaurant%20interior&seed=3",
-			"https://img.usecurling.com/p/800/600?q=milkshake&seed=4",
-			"https://img.usecurling.com/p/800/600?q=cheeseburger&seed=5"
-		],
-		description: "A melhor hamburgueria artesanal da cidade, com blends exclusivos e um ambiente descontraído perfeito para ir com os amigos.",
-		discountDescription: "Válido para todos os hambúrgueres do cardápio de Segunda a Quinta-feira. Bebidas não inclusas.",
-		address: "Av. Paulista, 1000 - Bela Vista",
-		coordinates: {
-			lat: -23.561,
-			lng: -46.656
-		},
-		featured: true
-	},
-	{
-		id: "2",
-		name: "Piazza della Pizza",
-		category: "Pizzaria",
-		discountBadge: "Compre 1 Leve 2",
-		rating: 4.9,
-		distance: "2.5 km",
-		coverImage: "https://img.usecurling.com/p/600/400?q=wood%20fired%20pizza",
-		galleryImages: [
-			"https://img.usecurling.com/p/800/600?q=pizza&seed=6",
-			"https://img.usecurling.com/p/800/600?q=pizza%20oven&seed=7",
-			"https://img.usecurling.com/p/800/600?q=wine%20glass&seed=8",
-			"https://img.usecurling.com/p/800/600?q=italian%20restaurant&seed=9",
-			"https://img.usecurling.com/p/800/600?q=pepperoni%20pizza&seed=10"
-		],
-		description: "Autêntica pizza napolitana feita em forno a lenha. Ingredientes importados e massa de fermentação natural.",
-		discountDescription: "Na compra de qualquer pizza grande, ganhe uma pizza média de sabor tradicional. Válido todos os dias.",
-		address: "Rua Augusta, 1500 - Consolação",
-		coordinates: {
-			lat: -23.557,
-			lng: -46.659
-		},
-		featured: true
-	},
-	{
-		id: "3",
-		name: "Café Botânico",
-		category: "Cafeteria",
-		discountBadge: "Café Grátis",
-		rating: 4.6,
-		distance: "0.8 km",
-		coverImage: "https://img.usecurling.com/p/600/400?q=latte%20art",
-		galleryImages: [
-			"https://img.usecurling.com/p/800/600?q=coffee%20shop&seed=11",
-			"https://img.usecurling.com/p/800/600?q=pastry&seed=12",
-			"https://img.usecurling.com/p/800/600?q=barista&seed=13",
-			"https://img.usecurling.com/p/800/600?q=espresso&seed=14",
-			"https://img.usecurling.com/p/800/600?q=croissant&seed=15"
-		],
-		description: "Um refúgio verde no meio da cidade. Cafés especiais extraídos por baristas premiados e doces artesanais.",
-		discountDescription: "Na compra de qualquer fatia de bolo ou torta, ganhe um espresso duplo ou macchiato.",
-		address: "Rua Oscar Freire, 500 - Jardins",
-		coordinates: {
-			lat: -23.563,
-			lng: -46.668
-		},
-		featured: true
-	},
-	{
-		id: "4",
-		name: "Sushi Zen",
-		category: "Japonês",
-		discountBadge: "20% OFF",
-		rating: 4.7,
-		distance: "3.1 km",
-		coverImage: "https://img.usecurling.com/p/600/400?q=sushi%20platter",
-		galleryImages: [
-			"https://img.usecurling.com/p/800/600?q=sushi&seed=16",
-			"https://img.usecurling.com/p/800/600?q=sashimi&seed=17",
-			"https://img.usecurling.com/p/800/600?q=japanese%20restaurant&seed=18",
-			"https://img.usecurling.com/p/800/600?q=sake&seed=19",
-			"https://img.usecurling.com/p/800/600?q=maki%20rolls&seed=20"
-		],
-		description: "Culinária japonesa contemporânea em um ambiente sofisticado. Peixes frescos selecionados diariamente.",
-		discountDescription: "20% de desconto em combinados a partir de 40 peças. Exclusivo para consumo no local.",
-		address: "Av. Brigadeiro Faria Lima, 2000 - Itaim Bibi",
-		coordinates: {
-			lat: -23.585,
-			lng: -46.685
-		}
-	},
-	{
-		id: "5",
-		name: "El Toro",
-		category: "Steakhouse",
-		discountBadge: "Sobremesa Cortesia",
-		rating: 4.5,
-		distance: "4.5 km",
-		coverImage: "https://img.usecurling.com/p/600/400?q=steak",
-		galleryImages: [
-			"https://img.usecurling.com/p/800/600?q=steakhouse&seed=21",
-			"https://img.usecurling.com/p/800/600?q=grill&seed=22",
-			"https://img.usecurling.com/p/800/600?q=ribs&seed=23",
-			"https://img.usecurling.com/p/800/600?q=dessert&seed=24",
-			"https://img.usecurling.com/p/800/600?q=wine&seed=25"
-		],
-		description: "Cortes premium de carnes grelhadas na parrilla argentina. Acompanhamentos deliciosos e farta carta de vinhos.",
-		discountDescription: "Peça qualquer corte especial e ganhe nosso famoso Petit Gâteau de Doce de Leite.",
-		address: "Rua Amauri, 300 - Jardim Europa",
-		coordinates: {
-			lat: -23.581,
-			lng: -46.683
-		}
-	},
-	{
-		id: "6",
-		name: "Taco Libre",
-		category: "Mexicano",
-		discountBadge: "50% OFF Margaritas",
-		rating: 4.4,
-		distance: "1.8 km",
-		coverImage: "https://img.usecurling.com/p/600/400?q=tacos",
-		galleryImages: [
-			"https://img.usecurling.com/p/800/600?q=margarita&seed=26",
-			"https://img.usecurling.com/p/800/600?q=nachos&seed=27",
-			"https://img.usecurling.com/p/800/600?q=mexican%20restaurant&seed=28",
-			"https://img.usecurling.com/p/800/600?q=guacamole&seed=29",
-			"https://img.usecurling.com/p/800/600?q=burrito&seed=30"
-		],
-		description: "Alegria, cores e muito sabor! Comida tex-mex autêntica com as melhores margaritas da região.",
-		discountDescription: "Margaritas pela metade do preço no happy hour (18h às 20h) ao pedir qualquer porção.",
-		address: "Rua dos Pinheiros, 800 - Pinheiros",
-		coordinates: {
-			lat: -23.566,
-			lng: -46.69
-		}
-	}
-];
 //#endregion
 //#region src/components/ui/badge.tsx
 var badgeVariants = cva("inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2", {
@@ -24619,28 +24733,31 @@ function Badge({ className, variant, ...props }) {
 //#region src/components/RestaurantCard.tsx
 function RestaurantCard({ restaurant }) {
 	const { isFavorite, toggleFavorite } = useFavorites();
+	const { calculateDistance } = useGeo();
 	const favorite = isFavorite(restaurant.id);
+	const dist = calculateDistance(restaurant.coordinates.lat, restaurant.coordinates.lng);
+	const displayDistance = dist ? `${dist.toFixed(1)} km` : "Calculando...";
 	const handleFavoriteClick = (e) => {
 		e.preventDefault();
 		e.stopPropagation();
 		toggleFavorite(restaurant.id);
 	};
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
-		"data-uid": "src/components/RestaurantCard.tsx:23:5",
+		"data-uid": "src/components/RestaurantCard.tsx:28:5",
 		"data-prohibitions": "[editContent]",
 		to: `/restaurant/${restaurant.id}`,
-		className: "group block",
+		className: "group block h-full",
 		children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-			"data-uid": "src/components/RestaurantCard.tsx:24:7",
+			"data-uid": "src/components/RestaurantCard.tsx:29:7",
 			"data-prohibitions": "[editContent]",
-			className: "relative overflow-hidden rounded-2xl bg-white shadow-sm transition-all duration-300 hover:shadow-xl",
+			className: "relative h-full flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm transition-all duration-300 hover:shadow-xl border border-slate-100",
 			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				"data-uid": "src/components/RestaurantCard.tsx:25:9",
+				"data-uid": "src/components/RestaurantCard.tsx:30:9",
 				"data-prohibitions": "[editContent]",
-				className: "relative aspect-[4/3] w-full overflow-hidden",
+				className: "relative aspect-[4/3] w-full overflow-hidden shrink-0",
 				children: [
 					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("img", {
-						"data-uid": "src/components/RestaurantCard.tsx:26:11",
+						"data-uid": "src/components/RestaurantCard.tsx:31:11",
 						"data-prohibitions": "[editContent]",
 						src: restaurant.coverImage,
 						alt: restaurant.name,
@@ -24648,80 +24765,80 @@ function RestaurantCard({ restaurant }) {
 						loading: "lazy"
 					}),
 					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-						"data-uid": "src/components/RestaurantCard.tsx:32:11",
+						"data-uid": "src/components/RestaurantCard.tsx:37:11",
 						"data-prohibitions": "[editContent]",
 						className: "absolute left-3 top-3",
 						children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Badge, {
-							"data-uid": "src/components/RestaurantCard.tsx:33:13",
+							"data-uid": "src/components/RestaurantCard.tsx:38:13",
 							"data-prohibitions": "[editContent]",
-							className: "bg-secondary text-secondary-foreground hover:bg-secondary/90 shadow-md",
+							className: "bg-secondary text-slate-900 hover:bg-secondary/90 shadow-md border-none font-bold",
 							children: restaurant.discountBadge
 						})
 					}),
 					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-						"data-uid": "src/components/RestaurantCard.tsx:37:11",
+						"data-uid": "src/components/RestaurantCard.tsx:42:11",
 						"data-prohibitions": "[editContent]",
 						onClick: handleFavoriteClick,
-						className: "absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 text-slate-700 backdrop-blur-sm transition-all hover:bg-white active:scale-95",
+						className: "absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 text-slate-700 backdrop-blur-sm transition-all hover:bg-white active:scale-95 shadow-sm",
 						children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Heart, {
-							"data-uid": "src/components/RestaurantCard.tsx:41:13",
+							"data-uid": "src/components/RestaurantCard.tsx:46:13",
 							"data-prohibitions": "[editContent]",
 							className: cn$1("h-5 w-5 transition-colors", { "fill-primary text-primary animate-heart-pop": favorite })
 						})
 					})
 				]
 			}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				"data-uid": "src/components/RestaurantCard.tsx:48:9",
+				"data-uid": "src/components/RestaurantCard.tsx:53:9",
 				"data-prohibitions": "[editContent]",
-				className: "p-4",
+				className: "p-4 flex flex-col flex-1",
 				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					"data-uid": "src/components/RestaurantCard.tsx:49:11",
+					"data-uid": "src/components/RestaurantCard.tsx:54:11",
 					"data-prohibitions": "[editContent]",
-					className: "flex items-start justify-between gap-2",
+					className: "flex items-start justify-between gap-2 mb-1",
 					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						"data-uid": "src/components/RestaurantCard.tsx:50:13",
+						"data-uid": "src/components/RestaurantCard.tsx:55:13",
 						"data-prohibitions": "[editContent]",
 						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
-							"data-uid": "src/components/RestaurantCard.tsx:51:15",
+							"data-uid": "src/components/RestaurantCard.tsx:56:15",
 							"data-prohibitions": "[editContent]",
-							className: "font-display text-lg font-semibold leading-tight text-slate-900 line-clamp-1",
+							className: "font-display text-lg font-bold leading-tight text-slate-900 line-clamp-1",
 							children: restaurant.name
 						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-							"data-uid": "src/components/RestaurantCard.tsx:54:15",
+							"data-uid": "src/components/RestaurantCard.tsx:59:15",
 							"data-prohibitions": "[editContent]",
-							className: "text-sm text-slate-500",
+							className: "text-xs font-medium text-primary mt-0.5 uppercase tracking-wider",
 							children: restaurant.category
 						})]
 					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						"data-uid": "src/components/RestaurantCard.tsx:56:13",
+						"data-uid": "src/components/RestaurantCard.tsx:63:13",
 						"data-prohibitions": "[editContent]",
-						className: "flex items-center gap-1 rounded-md bg-orange-50 px-1.5 py-0.5 text-sm font-medium text-orange-700",
+						className: "flex items-center gap-1 rounded-md bg-secondary/20 px-1.5 py-0.5 text-sm font-bold text-slate-800",
 						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Star, {
-							"data-uid": "src/components/RestaurantCard.tsx:57:15",
+							"data-uid": "src/components/RestaurantCard.tsx:64:15",
 							"data-prohibitions": "[editContent]",
-							className: "h-3.5 w-3.5 fill-current"
+							className: "h-3.5 w-3.5 fill-secondary text-secondary"
 						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-							"data-uid": "src/components/RestaurantCard.tsx:58:15",
+							"data-uid": "src/components/RestaurantCard.tsx:65:15",
 							"data-prohibitions": "[editContent]",
 							children: restaurant.rating
 						})]
 					})]
 				}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					"data-uid": "src/components/RestaurantCard.tsx:61:11",
+					"data-uid": "src/components/RestaurantCard.tsx:68:11",
 					"data-prohibitions": "[editContent]",
-					className: "mt-3 flex items-center text-sm text-slate-500",
+					className: "mt-auto pt-3 flex items-center text-sm text-slate-500",
 					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(MapPin, {
-						"data-uid": "src/components/RestaurantCard.tsx:62:13",
+						"data-uid": "src/components/RestaurantCard.tsx:69:13",
 						"data-prohibitions": "[editContent]",
-						className: "mr-1 h-4 w-4 shrink-0"
+						className: "mr-1 h-4 w-4 shrink-0 text-slate-400"
 					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-						"data-uid": "src/components/RestaurantCard.tsx:63:13",
+						"data-uid": "src/components/RestaurantCard.tsx:70:13",
 						"data-prohibitions": "[editContent]",
 						className: "truncate",
 						children: [
-							restaurant.distance,
+							displayDistance,
 							" • ",
-							restaurant.address.split(" - ")[1]
+							restaurant.city
 						]
 					})]
 				})]
@@ -26629,95 +26746,110 @@ function Autoplay(userOptions = {}) {
 Autoplay.globalOptions = void 0;
 //#endregion
 //#region src/pages/Index.tsx
-var CATEGORIES = [
-	"Todos",
-	"Hamburgueria",
-	"Pizzaria",
-	"Japonês",
-	"Cafeteria",
-	"Mexicano",
-	"Steakhouse"
-];
 function Index() {
+	const { restaurants } = useRestaurants();
+	const { calculateDistance } = useGeo();
 	const plugin = (0, import_react.useRef)(Autoplay({
 		delay: 4e3,
 		stopOnInteraction: true
 	}));
-	const featured = RESTAURANTS.filter((r) => r.featured);
+	const [selectedCity, setSelectedCity] = (0, import_react.useState)("Todas");
+	const [selectedCategory, setSelectedCategory] = (0, import_react.useState)("Todas");
+	const CITIES = [
+		"Todas",
+		"Montevideo",
+		"Punta del Este",
+		"Colonia del Sacramento"
+	];
+	const CATEGORIES = ["Todas", ...Array.from(new Set(restaurants.map((r) => r.category)))];
+	const filteredRestaurants = (0, import_react.useMemo)(() => {
+		let result = restaurants;
+		if (selectedCity !== "Todas") result = result.filter((r) => r.city === selectedCity);
+		if (selectedCategory !== "Todas") result = result.filter((r) => r.category === selectedCategory);
+		return result.sort((a, b) => {
+			return (calculateDistance(a.coordinates.lat, a.coordinates.lng) || 9999) - (calculateDistance(b.coordinates.lat, b.coordinates.lng) || 9999);
+		});
+	}, [
+		restaurants,
+		selectedCity,
+		selectedCategory,
+		calculateDistance
+	]);
+	const featured = restaurants.filter((r) => r.featured);
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-		"data-uid": "src/pages/Index.tsx:24:5",
+		"data-uid": "src/pages/Index.tsx:36:5",
 		"data-prohibitions": "[editContent]",
 		className: "flex flex-col gap-6 pb-8 pt-4 md:px-8 md:pt-8",
 		children: [
-			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", {
-				"data-uid": "src/pages/Index.tsx:26:7",
+			featured.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", {
+				"data-uid": "src/pages/Index.tsx:38:9",
 				"data-prohibitions": "[editContent]",
 				className: "px-4 md:px-0",
 				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
-					"data-uid": "src/pages/Index.tsx:27:9",
+					"data-uid": "src/pages/Index.tsx:39:11",
 					"data-prohibitions": "[]",
 					className: "mb-3 font-display text-xl font-bold text-slate-900 md:text-2xl",
 					children: "Destaques da Semana"
 				}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Carousel, {
-					"data-uid": "src/pages/Index.tsx:30:9",
+					"data-uid": "src/pages/Index.tsx:42:11",
 					"data-prohibitions": "[editContent]",
 					plugins: [plugin.current],
 					className: "w-full",
 					opts: { loop: true },
 					children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CarouselContent, {
-						"data-uid": "src/pages/Index.tsx:31:11",
+						"data-uid": "src/pages/Index.tsx:43:13",
 						"data-prohibitions": "[editContent]",
 						className: "-ml-2 md:-ml-4",
 						children: featured.map((restaurant) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CarouselItem, {
-							"data-uid": "src/pages/Index.tsx:33:15",
+							"data-uid": "src/pages/Index.tsx:45:17",
 							"data-prohibitions": "[editContent]",
 							className: "pl-2 md:basis-3/4 md:pl-4 lg:basis-2/3 xl:basis-1/2",
 							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
-								"data-uid": "src/pages/Index.tsx:37:17",
+								"data-uid": "src/pages/Index.tsx:49:19",
 								"data-prohibitions": "[editContent]",
 								to: `/restaurant/${restaurant.id}`,
 								children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									"data-uid": "src/pages/Index.tsx:38:19",
+									"data-uid": "src/pages/Index.tsx:50:21",
 									"data-prohibitions": "[editContent]",
 									className: "group relative h-48 w-full overflow-hidden rounded-2xl md:h-64",
 									children: [
 										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("img", {
-											"data-uid": "src/pages/Index.tsx:39:21",
+											"data-uid": "src/pages/Index.tsx:51:23",
 											"data-prohibitions": "[editContent]",
 											src: restaurant.coverImage,
 											alt: restaurant.name,
 											className: "absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
 										}),
 										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-											"data-uid": "src/pages/Index.tsx:44:21",
+											"data-uid": "src/pages/Index.tsx:56:23",
 											"data-prohibitions": "[editContent]",
 											className: "absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"
 										}),
 										/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-											"data-uid": "src/pages/Index.tsx:45:21",
+											"data-uid": "src/pages/Index.tsx:57:23",
 											"data-prohibitions": "[editContent]",
 											className: "absolute bottom-0 left-0 p-4 md:p-6",
 											children: [
 												/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Badge, {
-													"data-uid": "src/pages/Index.tsx:46:23",
+													"data-uid": "src/pages/Index.tsx:58:25",
 													"data-prohibitions": "[editContent]",
-													className: "mb-2 bg-secondary text-secondary-foreground shadow-sm",
+													className: "mb-2 bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary border-none",
 													children: restaurant.discountBadge
 												}),
 												/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
-													"data-uid": "src/pages/Index.tsx:49:23",
+													"data-uid": "src/pages/Index.tsx:61:25",
 													"data-prohibitions": "[editContent]",
 													className: "font-display text-xl font-bold text-white md:text-3xl",
 													children: restaurant.name
 												}),
 												/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
-													"data-uid": "src/pages/Index.tsx:52:23",
+													"data-uid": "src/pages/Index.tsx:64:25",
 													"data-prohibitions": "[editContent]",
 													className: "text-sm text-slate-200 md:text-base",
 													children: [
-														restaurant.category,
+														restaurant.city,
 														" • ",
-														restaurant.distance
+														restaurant.category
 													]
 												})
 											]
@@ -26729,56 +26861,78 @@ function Index() {
 					})
 				})]
 			}),
-			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("section", {
-				"data-uid": "src/pages/Index.tsx:65:7",
+			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", {
+				"data-uid": "src/pages/Index.tsx:77:7",
 				"data-prohibitions": "[editContent]",
-				className: "px-4 md:px-0",
-				children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-					"data-uid": "src/pages/Index.tsx:66:9",
+				className: "px-4 md:px-0 flex flex-col gap-4",
+				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+					"data-uid": "src/pages/Index.tsx:78:9",
 					"data-prohibitions": "[editContent]",
-					className: "hide-scrollbar -mx-4 flex overflow-x-auto px-4 pb-2 md:mx-0 md:px-0",
+					className: "hide-scrollbar -mx-4 flex overflow-x-auto px-4 md:mx-0 md:px-0",
 					children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-						"data-uid": "src/pages/Index.tsx:67:11",
+						"data-uid": "src/pages/Index.tsx:79:11",
 						"data-prohibitions": "[editContent]",
 						className: "flex gap-2",
-						children: CATEGORIES.map((category, i) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-							"data-uid": "src/pages/Index.tsx:69:15",
+						children: CITIES.map((city) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+							"data-uid": "src/pages/Index.tsx:81:15",
 							"data-prohibitions": "[editContent]",
-							className: `whitespace-nowrap rounded-full px-5 py-2 text-sm font-medium transition-colors ${i === 0 ? "bg-primary text-white shadow-sm" : "bg-white text-slate-600 shadow-sm border border-slate-100 hover:bg-slate-50"}`,
+							onClick: () => setSelectedCity(city),
+							className: `whitespace-nowrap rounded-full px-5 py-2 text-sm font-semibold transition-all ${selectedCity === city ? "bg-secondary text-slate-900 shadow-md" : "bg-white text-slate-600 shadow-sm border border-slate-200 hover:bg-slate-50"}`,
+							children: city
+						}, city))
+					})
+				}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+					"data-uid": "src/pages/Index.tsx:95:9",
+					"data-prohibitions": "[editContent]",
+					className: "hide-scrollbar -mx-4 flex overflow-x-auto px-4 md:mx-0 md:px-0",
+					children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+						"data-uid": "src/pages/Index.tsx:96:11",
+						"data-prohibitions": "[editContent]",
+						className: "flex gap-2",
+						children: CATEGORIES.map((category) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+							"data-uid": "src/pages/Index.tsx:98:15",
+							"data-prohibitions": "[editContent]",
+							onClick: () => setSelectedCategory(category),
+							className: `whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium transition-all ${selectedCategory === category ? "bg-primary text-white shadow-md" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`,
 							children: category
 						}, category))
 					})
-				})
+				})]
 			}),
 			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", {
-				"data-uid": "src/pages/Index.tsx:85:7",
+				"data-uid": "src/pages/Index.tsx:114:7",
 				"data-prohibitions": "[editContent]",
 				className: "px-4 md:px-0",
 				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-					"data-uid": "src/pages/Index.tsx:86:9",
+					"data-uid": "src/pages/Index.tsx:115:9",
 					"data-prohibitions": "[]",
 					className: "mb-4 flex items-center justify-between",
 					children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
-						"data-uid": "src/pages/Index.tsx:87:11",
+						"data-uid": "src/pages/Index.tsx:116:11",
 						"data-prohibitions": "[]",
 						className: "font-display text-xl font-bold text-slate-900 md:text-2xl",
-						children: "Mais Populares"
+						children: "Descubra Mais"
 					})
-				}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-					"data-uid": "src/pages/Index.tsx:91:9",
+				}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					"data-uid": "src/pages/Index.tsx:120:9",
 					"data-prohibitions": "[editContent]",
 					className: "grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4",
-					children: RESTAURANTS.map((restaurant, index) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-						"data-uid": "src/pages/Index.tsx:93:13",
+					children: [filteredRestaurants.map((restaurant, index) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+						"data-uid": "src/pages/Index.tsx:122:13",
 						"data-prohibitions": "[]",
 						className: "animate-fade-in-up",
 						style: { animationDelay: `${index * 50}ms` },
 						children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(RestaurantCard, {
-							"data-uid": "src/pages/Index.tsx:98:15",
+							"data-uid": "src/pages/Index.tsx:127:15",
 							"data-prohibitions": "[editContent]",
 							restaurant
 						})
-					}, restaurant.id))
+					}, restaurant.id)), filteredRestaurants.length === 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+						"data-uid": "src/pages/Index.tsx:131:13",
+						"data-prohibitions": "[]",
+						className: "col-span-full py-8 text-center text-slate-500",
+						children: "Nenhum local encontrado para os filtros selecionados."
+					})]
 				})]
 			})
 		]
@@ -26897,7 +27051,7 @@ var FocusScope = import_react.forwardRef((props, forwardedRef) => {
 		trapped,
 		focusScope.paused
 	]);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.div, {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive$1.div, {
 		tabIndex: -1,
 		...scopeProps,
 		ref: composedRefs,
@@ -27852,7 +28006,7 @@ var DialogTrigger$1 = import_react.forwardRef((props, forwardedRef) => {
 	const { __scopeDialog, ...triggerProps } = props;
 	const context = useDialogContext(TRIGGER_NAME, __scopeDialog);
 	const composedTriggerRef = useComposedRefs(forwardedRef, context.triggerRef);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.button, {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive$1.button, {
 		type: "button",
 		"aria-haspopup": "dialog",
 		"aria-expanded": context.open,
@@ -27905,7 +28059,7 @@ var DialogOverlayImpl = import_react.forwardRef((props, forwardedRef) => {
 		as: Slot,
 		allowPinchZoom: true,
 		shards: [context.contentRef],
-		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.div, {
+		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive$1.div, {
 			"data-state": getState(context.open),
 			...overlayProps,
 			ref: forwardedRef,
@@ -28019,7 +28173,7 @@ var TITLE_NAME = "DialogTitle";
 var DialogTitle$1 = import_react.forwardRef((props, forwardedRef) => {
 	const { __scopeDialog, ...titleProps } = props;
 	const context = useDialogContext(TITLE_NAME, __scopeDialog);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.h2, {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive$1.h2, {
 		id: context.titleId,
 		...titleProps,
 		ref: forwardedRef
@@ -28030,7 +28184,7 @@ var DESCRIPTION_NAME = "DialogDescription";
 var DialogDescription$1 = import_react.forwardRef((props, forwardedRef) => {
 	const { __scopeDialog, ...descriptionProps } = props;
 	const context = useDialogContext(DESCRIPTION_NAME, __scopeDialog);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.p, {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive$1.p, {
 		id: context.descriptionId,
 		...descriptionProps,
 		ref: forwardedRef
@@ -28041,7 +28195,7 @@ var CLOSE_NAME = "DialogClose";
 var DialogClose$1 = import_react.forwardRef((props, forwardedRef) => {
 	const { __scopeDialog, ...closeProps } = props;
 	const context = useDialogContext(CLOSE_NAME, __scopeDialog);
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.button, {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive$1.button, {
 		type: "button",
 		...closeProps,
 		ref: forwardedRef,
@@ -28087,7 +28241,7 @@ var DescriptionWarning = ({ contentRef, descriptionId }) => {
 	]);
 	return null;
 };
-var Root = Dialog$1;
+var Root$1 = Dialog$1;
 var Trigger = DialogTrigger$1;
 var Portal = DialogPortal$1;
 var Overlay = DialogOverlay$1;
@@ -28097,7 +28251,7 @@ var Description = DialogDescription$1;
 var Close = DialogClose$1;
 //#endregion
 //#region src/components/ui/dialog.tsx
-var Dialog = Root;
+var Dialog = Root$1;
 var DialogTrigger = Trigger;
 var DialogPortal = Portal;
 var DialogOverlay = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Overlay, {
@@ -28174,148 +28328,155 @@ function RestaurantDetails() {
 	const { id } = useParams();
 	const navigate = useNavigate();
 	const { isFavorite, toggleFavorite } = useFavorites();
-	const restaurant = RESTAURANTS.find((r) => r.id === id);
+	const { restaurants } = useRestaurants();
+	const { calculateDistance } = useGeo();
+	const { isExpired, recordCheckIn } = useAccess();
+	const restaurant = restaurants.find((r) => r.id === id);
 	if (!restaurant) return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-		"data-uid": "src/pages/RestaurantDetails.tsx:32:7",
+		"data-uid": "src/pages/RestaurantDetails.tsx:36:12",
 		"data-prohibitions": "[]",
-		className: "flex h-full items-center justify-center p-4",
-		children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-			"data-uid": "src/pages/RestaurantDetails.tsx:33:9",
-			"data-prohibitions": "[]",
-			className: "text-center",
-			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
-				"data-uid": "src/pages/RestaurantDetails.tsx:34:11",
-				"data-prohibitions": "[]",
-				className: "text-2xl font-bold",
-				children: "Restaurante não encontrado"
-			}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
-				"data-uid": "src/pages/RestaurantDetails.tsx:35:11",
-				"data-prohibitions": "[]",
-				onClick: () => navigate("/"),
-				className: "mt-4",
-				children: "Voltar ao Início"
-			})]
-		})
+		className: "p-8 text-center text-xl font-bold",
+		children: "Local não encontrado"
 	});
 	const favorite = isFavorite(restaurant.id);
+	const dist = calculateDistance(restaurant.coordinates.lat, restaurant.coordinates.lng);
+	const displayDistance = dist ? `${dist.toFixed(1)} km` : "Calculando...";
+	const handleShare = () => {
+		if (navigator.share) navigator.share({
+			title: restaurant.name,
+			url: window.location.href
+		});
+	};
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-		"data-uid": "src/pages/RestaurantDetails.tsx:46:5",
+		"data-uid": "src/pages/RestaurantDetails.tsx:49:5",
 		"data-prohibitions": "[editContent]",
 		className: "relative flex flex-col lg:flex-row lg:h-full lg:overflow-hidden",
 		children: [
 			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-				"data-uid": "src/pages/RestaurantDetails.tsx:48:7",
+				"data-uid": "src/pages/RestaurantDetails.tsx:50:7",
 				"data-prohibitions": "[]",
 				onClick: () => navigate(-1),
 				className: "absolute left-4 top-4 z-50 flex h-10 w-10 items-center justify-center rounded-full bg-white/80 text-slate-900 shadow-md backdrop-blur-md transition-transform hover:scale-105 lg:hidden",
 				children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ArrowLeft, {
-					"data-uid": "src/pages/RestaurantDetails.tsx:52:9",
+					"data-uid": "src/pages/RestaurantDetails.tsx:54:9",
 					"data-prohibitions": "[editContent]",
 					className: "h-5 w-5"
 				})
 			}),
 			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				"data-uid": "src/pages/RestaurantDetails.tsx:56:7",
+				"data-uid": "src/pages/RestaurantDetails.tsx:57:7",
 				"data-prohibitions": "[editContent]",
 				className: "flex-1 overflow-y-auto hide-scrollbar lg:border-r",
 				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
 					"data-uid": "src/pages/RestaurantDetails.tsx:58:9",
 					"data-prohibitions": "[editContent]",
-					className: "relative bg-slate-100",
+					className: "relative bg-slate-900",
 					children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Carousel, {
 						"data-uid": "src/pages/RestaurantDetails.tsx:59:11",
 						"data-prohibitions": "[editContent]",
 						opts: { loop: true },
 						className: "w-full",
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CarouselContent, {
-							"data-uid": "src/pages/RestaurantDetails.tsx:60:13",
-							"data-prohibitions": "[editContent]",
-							children: restaurant.galleryImages.map((img, index) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CarouselItem, {
-								"data-uid": "src/pages/RestaurantDetails.tsx:62:17",
-								"data-prohibitions": "[]",
-								children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-									"data-uid": "src/pages/RestaurantDetails.tsx:63:19",
+						children: [
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CarouselContent, {
+								"data-uid": "src/pages/RestaurantDetails.tsx:60:13",
+								"data-prohibitions": "[editContent]",
+								children: restaurant.galleryImages.map((img, index) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CarouselItem, {
+									"data-uid": "src/pages/RestaurantDetails.tsx:62:17",
 									"data-prohibitions": "[]",
-									className: "aspect-[4/3] w-full md:aspect-[16/9] lg:aspect-[3/2]",
-									children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("img", {
-										"data-uid": "src/pages/RestaurantDetails.tsx:64:21",
-										"data-prohibitions": "[editContent]",
-										src: img,
-										alt: `Gallery ${index}`,
-										className: "h-full w-full object-cover"
+									children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+										"data-uid": "src/pages/RestaurantDetails.tsx:63:19",
+										"data-prohibitions": "[]",
+										className: "aspect-[4/3] w-full md:aspect-[16/9] lg:aspect-[3/2]",
+										children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("img", {
+											"data-uid": "src/pages/RestaurantDetails.tsx:64:21",
+											"data-prohibitions": "[editContent]",
+											src: img,
+											alt: `Foto ${index + 1}`,
+											className: "h-full w-full object-cover"
+										})
 									})
-								})
-							}, index))
-						}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							"data-uid": "src/pages/RestaurantDetails.tsx:73:13",
-							"data-prohibitions": "[]",
-							className: "hidden lg:block",
-							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CarouselPrevious, {
-								"data-uid": "src/pages/RestaurantDetails.tsx:74:15",
-								"data-prohibitions": "[editContent]",
-								className: "left-4"
-							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CarouselNext, {
-								"data-uid": "src/pages/RestaurantDetails.tsx:75:15",
-								"data-prohibitions": "[editContent]",
-								className: "right-4"
-							})]
-						})]
+								}, index))
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								"data-uid": "src/pages/RestaurantDetails.tsx:73:13",
+								"data-prohibitions": "[]",
+								className: "hidden lg:block",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CarouselPrevious, {
+									"data-uid": "src/pages/RestaurantDetails.tsx:74:15",
+									"data-prohibitions": "[editContent]",
+									className: "left-4 bg-white/50 hover:bg-white border-none"
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CarouselNext, {
+									"data-uid": "src/pages/RestaurantDetails.tsx:75:15",
+									"data-prohibitions": "[editContent]",
+									className: "right-4 bg-white/50 hover:bg-white border-none"
+								})]
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+								"data-uid": "src/pages/RestaurantDetails.tsx:77:13",
+								"data-prohibitions": "[]",
+								className: "absolute bottom-4 right-4 bg-black/60 text-white text-xs px-2 py-1 rounded-md font-medium z-10 lg:hidden",
+								children: "1 / 5 Fotos"
+							})
+						]
 					})
 				}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					"data-uid": "src/pages/RestaurantDetails.tsx:81:9",
+					"data-uid": "src/pages/RestaurantDetails.tsx:83:9",
 					"data-prohibitions": "[]",
 					className: "hidden lg:block p-8",
 					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
-						"data-uid": "src/pages/RestaurantDetails.tsx:82:11",
+						"data-uid": "src/pages/RestaurantDetails.tsx:84:11",
 						"data-prohibitions": "[]",
 						className: "font-display text-xl font-bold mb-4",
 						children: "Localização"
 					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(MapSection, {
-						"data-uid": "src/pages/RestaurantDetails.tsx:83:11",
+						"data-uid": "src/pages/RestaurantDetails.tsx:85:11",
 						"data-prohibitions": "[editContent]",
+						lat: restaurant.coordinates.lat,
+						lng: restaurant.coordinates.lng,
 						address: restaurant.address,
-						distance: restaurant.distance
+						distance: displayDistance
 					})]
 				})]
 			}),
 			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				"data-uid": "src/pages/RestaurantDetails.tsx:88:7",
+				"data-uid": "src/pages/RestaurantDetails.tsx:94:7",
 				"data-prohibitions": "[editContent]",
-				className: "flex-1 bg-slate-50 lg:w-[480px] lg:flex-none lg:overflow-y-auto hide-scrollbar pb-24 lg:pb-0",
+				className: "flex-1 bg-white lg:w-[480px] lg:flex-none lg:overflow-y-auto hide-scrollbar pb-24 lg:pb-0",
 				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					"data-uid": "src/pages/RestaurantDetails.tsx:89:9",
+					"data-uid": "src/pages/RestaurantDetails.tsx:95:9",
 					"data-prohibitions": "[editContent]",
 					className: "p-5 md:p-8",
 					children: [
 						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							"data-uid": "src/pages/RestaurantDetails.tsx:90:11",
+							"data-uid": "src/pages/RestaurantDetails.tsx:96:11",
 							"data-prohibitions": "[editContent]",
-							className: "mb-2 flex items-center justify-between",
+							className: "mb-3 flex items-center justify-between",
 							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-								"data-uid": "src/pages/RestaurantDetails.tsx:91:13",
+								"data-uid": "src/pages/RestaurantDetails.tsx:97:13",
 								"data-prohibitions": "[editContent]",
-								className: "text-sm font-medium text-primary",
+								className: "text-xs font-bold text-primary tracking-wider uppercase bg-primary/10 px-2 py-1 rounded-md",
 								children: restaurant.category
 							}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								"data-uid": "src/pages/RestaurantDetails.tsx:92:13",
+								"data-uid": "src/pages/RestaurantDetails.tsx:100:13",
 								"data-prohibitions": "[editContent]",
 								className: "flex items-center gap-2",
 								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-									"data-uid": "src/pages/RestaurantDetails.tsx:93:15",
+									"data-uid": "src/pages/RestaurantDetails.tsx:101:15",
 									"data-prohibitions": "[]",
-									className: "flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm transition-transform hover:scale-105",
+									onClick: handleShare,
+									className: "flex h-10 w-10 items-center justify-center rounded-full bg-slate-50 border border-slate-100 transition-transform hover:scale-105",
 									children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Share2, {
-										"data-uid": "src/pages/RestaurantDetails.tsx:94:17",
+										"data-uid": "src/pages/RestaurantDetails.tsx:105:17",
 										"data-prohibitions": "[editContent]",
 										className: "h-4 w-4 text-slate-600"
 									})
 								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-									"data-uid": "src/pages/RestaurantDetails.tsx:96:15",
+									"data-uid": "src/pages/RestaurantDetails.tsx:107:15",
 									"data-prohibitions": "[editContent]",
 									onClick: () => toggleFavorite(restaurant.id),
-									className: "flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm transition-transform hover:scale-105",
+									className: "flex h-10 w-10 items-center justify-center rounded-full bg-slate-50 border border-slate-100 transition-transform hover:scale-105",
 									children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Heart, {
-										"data-uid": "src/pages/RestaurantDetails.tsx:100:17",
+										"data-uid": "src/pages/RestaurantDetails.tsx:111:17",
 										"data-prohibitions": "[editContent]",
 										className: cn$1("h-5 w-5", favorite ? "fill-primary text-primary animate-heart-pop" : "text-slate-600")
 									})
@@ -28323,209 +28484,249 @@ function RestaurantDetails() {
 							})]
 						}),
 						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", {
-							"data-uid": "src/pages/RestaurantDetails.tsx:110:11",
+							"data-uid": "src/pages/RestaurantDetails.tsx:121:11",
 							"data-prohibitions": "[editContent]",
 							className: "mb-2 font-display text-3xl font-bold leading-tight text-slate-900",
 							children: restaurant.name
 						}),
-						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							"data-uid": "src/pages/RestaurantDetails.tsx:114:11",
+						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+							"data-uid": "src/pages/RestaurantDetails.tsx:124:11",
 							"data-prohibitions": "[editContent]",
-							className: "mb-6 flex flex-wrap items-center gap-4 text-sm text-slate-600",
+							className: "text-lg text-slate-500 font-medium mb-4",
+							children: restaurant.city
+						}),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							"data-uid": "src/pages/RestaurantDetails.tsx:126:11",
+							"data-prohibitions": "[editContent]",
+							className: "mb-8 flex flex-wrap items-center gap-4 text-sm text-slate-600 border-b pb-6",
 							children: [
 								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									"data-uid": "src/pages/RestaurantDetails.tsx:115:13",
+									"data-uid": "src/pages/RestaurantDetails.tsx:127:13",
 									"data-prohibitions": "[editContent]",
-									className: "flex items-center gap-1 font-medium text-slate-900",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Star, {
-										"data-uid": "src/pages/RestaurantDetails.tsx:116:15",
-										"data-prohibitions": "[editContent]",
-										className: "h-4 w-4 fill-orange-400 text-orange-400"
-									}), restaurant.rating]
+									className: "flex items-center gap-1.5 font-bold text-slate-900 bg-secondary/20 px-2 py-1 rounded-md",
+									children: [
+										/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Star, {
+											"data-uid": "src/pages/RestaurantDetails.tsx:128:15",
+											"data-prohibitions": "[editContent]",
+											className: "h-4 w-4 fill-secondary text-secondary"
+										}),
+										" ",
+										restaurant.rating
+									]
 								}),
 								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									"data-uid": "src/pages/RestaurantDetails.tsx:119:13",
+									"data-uid": "src/pages/RestaurantDetails.tsx:130:13",
 									"data-prohibitions": "[editContent]",
-									className: "flex items-center gap-1",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(MapPin, {
-										"data-uid": "src/pages/RestaurantDetails.tsx:120:15",
-										"data-prohibitions": "[editContent]",
-										className: "h-4 w-4"
-									}), restaurant.distance]
+									className: "flex items-center gap-1.5 font-medium",
+									children: [
+										/* @__PURE__ */ (0, import_jsx_runtime.jsx)(MapPin, {
+											"data-uid": "src/pages/RestaurantDetails.tsx:131:15",
+											"data-prohibitions": "[editContent]",
+											className: "h-4 w-4 text-slate-400"
+										}),
+										" ",
+										displayDistance
+									]
 								}),
 								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									"data-uid": "src/pages/RestaurantDetails.tsx:123:13",
+									"data-uid": "src/pages/RestaurantDetails.tsx:133:13",
 									"data-prohibitions": "[]",
-									className: "flex items-center gap-1",
+									className: "flex items-center gap-1.5 font-medium text-green-600",
 									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Clock, {
-										"data-uid": "src/pages/RestaurantDetails.tsx:124:15",
+										"data-uid": "src/pages/RestaurantDetails.tsx:134:15",
 										"data-prohibitions": "[editContent]",
 										className: "h-4 w-4"
-									}), "Aberto agora"]
+									}), " Aberto agora"]
 								})
 							]
 						}),
 						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							"data-uid": "src/pages/RestaurantDetails.tsx:130:11",
+							"data-uid": "src/pages/RestaurantDetails.tsx:138:11",
 							"data-prohibitions": "[editContent]",
-							className: "mb-8 rounded-2xl border-2 border-secondary/20 bg-secondary/5 p-5",
+							className: "mb-8 rounded-2xl border border-secondary/30 bg-secondary/10 p-5 shadow-sm",
 							children: [
 								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									"data-uid": "src/pages/RestaurantDetails.tsx:131:13",
+									"data-uid": "src/pages/RestaurantDetails.tsx:139:13",
 									"data-prohibitions": "[]",
-									className: "mb-2 flex items-center gap-2 text-secondary",
+									className: "mb-2 flex items-center gap-2 text-slate-900",
 									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Ticket, {
-										"data-uid": "src/pages/RestaurantDetails.tsx:132:15",
+										"data-uid": "src/pages/RestaurantDetails.tsx:140:15",
 										"data-prohibitions": "[editContent]",
-										className: "h-6 w-6"
+										className: "h-6 w-6 text-secondary"
 									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
-										"data-uid": "src/pages/RestaurantDetails.tsx:133:15",
+										"data-uid": "src/pages/RestaurantDetails.tsx:141:15",
 										"data-prohibitions": "[]",
 										className: "font-display text-lg font-bold",
 										children: "Oferta Exclusiva"
 									})]
 								}),
 								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-									"data-uid": "src/pages/RestaurantDetails.tsx:135:13",
+									"data-uid": "src/pages/RestaurantDetails.tsx:143:13",
 									"data-prohibitions": "[editContent]",
-									className: "mb-3 text-2xl font-bold text-slate-900",
+									className: "mb-3 text-2xl font-black text-slate-900",
 									children: restaurant.discountBadge
 								}),
 								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-									"data-uid": "src/pages/RestaurantDetails.tsx:136:13",
+									"data-uid": "src/pages/RestaurantDetails.tsx:144:13",
 									"data-prohibitions": "[editContent]",
-									className: "text-sm leading-relaxed text-slate-700",
+									className: "text-sm leading-relaxed text-slate-700 font-medium",
 									children: restaurant.discountDescription
 								})
 							]
 						}),
 						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							"data-uid": "src/pages/RestaurantDetails.tsx:141:11",
+							"data-uid": "src/pages/RestaurantDetails.tsx:149:11",
 							"data-prohibitions": "[editContent]",
 							className: "mb-8",
 							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
-								"data-uid": "src/pages/RestaurantDetails.tsx:142:13",
+								"data-uid": "src/pages/RestaurantDetails.tsx:150:13",
 								"data-prohibitions": "[]",
 								className: "mb-3 font-display text-xl font-bold text-slate-900",
 								children: "Sobre"
 							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-								"data-uid": "src/pages/RestaurantDetails.tsx:143:13",
+								"data-uid": "src/pages/RestaurantDetails.tsx:151:13",
 								"data-prohibitions": "[editContent]",
 								className: "leading-relaxed text-slate-600",
 								children: restaurant.description
 							})]
 						}),
 						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							"data-uid": "src/pages/RestaurantDetails.tsx:147:11",
+							"data-uid": "src/pages/RestaurantDetails.tsx:154:11",
 							"data-prohibitions": "[]",
 							className: "mb-8 lg:hidden",
 							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
-								"data-uid": "src/pages/RestaurantDetails.tsx:148:13",
+								"data-uid": "src/pages/RestaurantDetails.tsx:155:13",
 								"data-prohibitions": "[]",
 								className: "mb-3 font-display text-xl font-bold text-slate-900",
 								children: "Localização"
 							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(MapSection, {
-								"data-uid": "src/pages/RestaurantDetails.tsx:149:13",
+								"data-uid": "src/pages/RestaurantDetails.tsx:156:13",
 								"data-prohibitions": "[editContent]",
+								lat: restaurant.coordinates.lat,
+								lng: restaurant.coordinates.lng,
 								address: restaurant.address,
-								distance: restaurant.distance
+								distance: displayDistance
 							})]
 						}),
 						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							"data-uid": "src/pages/RestaurantDetails.tsx:152:11",
+							"data-uid": "src/pages/RestaurantDetails.tsx:164:11",
 							"data-prohibitions": "[]",
-							className: "flex items-start gap-3 rounded-xl bg-slate-100 p-4 text-sm text-slate-600",
+							className: "flex items-start gap-3 rounded-xl bg-blue-50/50 border border-blue-100 p-4 text-sm text-slate-600",
 							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Info, {
-								"data-uid": "src/pages/RestaurantDetails.tsx:153:13",
+								"data-uid": "src/pages/RestaurantDetails.tsx:165:13",
 								"data-prohibitions": "[editContent]",
-								className: "mt-0.5 h-5 w-5 shrink-0 text-slate-400"
+								className: "mt-0.5 h-5 w-5 shrink-0 text-primary"
 							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-								"data-uid": "src/pages/RestaurantDetails.tsx:154:13",
+								"data-uid": "src/pages/RestaurantDetails.tsx:166:13",
 								"data-prohibitions": "[]",
-								children: "Mostre o QR Code gerado para o garçom no momento de pedir a conta para aplicar o desconto."
+								children: "Mostre o QR Code gerado no momento de pedir a conta para aplicar seu benefício. Válido por 10 dias após o primeiro uso no app."
 							})]
 						})
 					]
 				}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-					"data-uid": "src/pages/RestaurantDetails.tsx:162:9",
+					"data-uid": "src/pages/RestaurantDetails.tsx:173:9",
 					"data-prohibitions": "[editContent]",
-					className: "fixed bottom-0 left-0 right-0 z-40 border-t bg-white p-4 pb-safe lg:sticky lg:border-none lg:bg-transparent lg:px-8 lg:pb-8",
+					className: "fixed bottom-0 left-0 right-0 z-40 border-t bg-white p-4 pb-safe lg:sticky lg:border-none lg:bg-transparent lg:px-8 lg:pb-8 shadow-[0_-10px_15px_-3px_rgb(0,0,0,0.05)] lg:shadow-none",
 					children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Dialog, {
-						"data-uid": "src/pages/RestaurantDetails.tsx:163:11",
+						"data-uid": "src/pages/RestaurantDetails.tsx:174:11",
 						"data-prohibitions": "[editContent]",
 						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogTrigger, {
-							"data-uid": "src/pages/RestaurantDetails.tsx:164:13",
+							"data-uid": "src/pages/RestaurantDetails.tsx:175:13",
 							"data-prohibitions": "[]",
 							asChild: true,
 							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
-								"data-uid": "src/pages/RestaurantDetails.tsx:165:15",
+								"data-uid": "src/pages/RestaurantDetails.tsx:176:15",
 								"data-prohibitions": "[]",
 								size: "lg",
-								className: "h-14 w-full rounded-2xl text-lg font-bold shadow-lg shadow-primary/25 transition-transform hover:scale-[1.02] active:scale-[0.98]",
+								onClick: recordCheckIn,
+								className: "h-14 w-full rounded-2xl text-lg font-bold shadow-xl shadow-primary/20 transition-transform hover:scale-[1.02] active:scale-[0.98]",
 								children: "Gerar QR Code de Desconto"
 							})
-						}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DialogContent, {
-							"data-uid": "src/pages/RestaurantDetails.tsx:172:13",
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogContent, {
+							"data-uid": "src/pages/RestaurantDetails.tsx:184:13",
 							"data-prohibitions": "[editContent]",
-							className: "sm:max-w-md",
-							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DialogHeader, {
-								"data-uid": "src/pages/RestaurantDetails.tsx:173:15",
-								"data-prohibitions": "[editContent]",
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogTitle, {
-									"data-uid": "src/pages/RestaurantDetails.tsx:174:17",
+							className: "sm:max-w-md rounded-2xl",
+							children: isExpired ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								"data-uid": "src/pages/RestaurantDetails.tsx:186:17",
+								"data-prohibitions": "[]",
+								className: "flex flex-col items-center justify-center space-y-4 py-8 animate-fade-in text-center",
+								children: [
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+										"data-uid": "src/pages/RestaurantDetails.tsx:187:19",
+										"data-prohibitions": "[]",
+										className: "h-16 w-16 rounded-full bg-red-100 flex items-center justify-center mb-2",
+										children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Info, {
+											"data-uid": "src/pages/RestaurantDetails.tsx:188:21",
+											"data-prohibitions": "[editContent]",
+											className: "h-8 w-8 text-red-600"
+										})
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
+										"data-uid": "src/pages/RestaurantDetails.tsx:190:19",
+										"data-prohibitions": "[]",
+										className: "text-2xl font-bold text-slate-900",
+										children: "Acesso Expirado"
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+										"data-uid": "src/pages/RestaurantDetails.tsx:191:19",
+										"data-prohibitions": "[]",
+										className: "text-slate-600 max-w-xs",
+										children: "Seu período de 10 dias de descontos chegou ao fim. Esperamos que tenha aproveitado sua viagem ao Uruguai!"
+									})
+								]
+							}) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogHeader, {
+								"data-uid": "src/pages/RestaurantDetails.tsx:198:19",
+								"data-prohibitions": "[]",
+								children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogTitle, {
+									"data-uid": "src/pages/RestaurantDetails.tsx:199:21",
 									"data-prohibitions": "[]",
 									className: "text-center font-display text-2xl",
 									children: "Seu Desconto"
-								}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DialogDescription, {
-									"data-uid": "src/pages/RestaurantDetails.tsx:177:17",
-									"data-prohibitions": "[editContent]",
-									className: "text-center",
-									children: ["Apresente este código no ", restaurant.name]
-								})]
+								})
 							}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								"data-uid": "src/pages/RestaurantDetails.tsx:181:15",
+								"data-uid": "src/pages/RestaurantDetails.tsx:203:19",
 								"data-prohibitions": "[editContent]",
-								className: "flex flex-col items-center justify-center space-y-6 py-6 animate-fade-in",
+								className: "flex flex-col items-center justify-center space-y-6 py-4 animate-fade-in",
 								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-									"data-uid": "src/pages/RestaurantDetails.tsx:182:17",
-									"data-prohibitions": "[editContent]",
-									className: "rounded-xl border-4 border-slate-100 bg-white p-4 shadow-inner",
+									"data-uid": "src/pages/RestaurantDetails.tsx:204:21",
+									"data-prohibitions": "[]",
+									className: "rounded-2xl border-2 border-slate-100 bg-white p-4 shadow-sm",
 									children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(QrCode, {
-										"data-uid": "src/pages/RestaurantDetails.tsx:184:19",
+										"data-uid": "src/pages/RestaurantDetails.tsx:205:23",
 										"data-prohibitions": "[editContent]",
 										className: "h-48 w-48 text-slate-900",
-										strokeWidth: 1.5
+										strokeWidth: 1
 									})
 								}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									"data-uid": "src/pages/RestaurantDetails.tsx:186:17",
+									"data-uid": "src/pages/RestaurantDetails.tsx:207:21",
 									"data-prohibitions": "[editContent]",
 									className: "text-center",
 									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
-										"data-uid": "src/pages/RestaurantDetails.tsx:187:19",
+										"data-uid": "src/pages/RestaurantDetails.tsx:208:23",
 										"data-prohibitions": "[editContent]",
-										className: "font-mono text-2xl font-bold text-slate-900 tracking-widest",
-										children: ["SVR-", Math.floor(Math.random() * 9e3) + 1e3]
+										className: "font-mono text-3xl font-black text-slate-900 tracking-widest bg-slate-100 px-4 py-2 rounded-lg",
+										children: ["URU-", Math.floor(Math.random() * 9e3) + 1e3]
 									}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
-										"data-uid": "src/pages/RestaurantDetails.tsx:190:19",
+										"data-uid": "src/pages/RestaurantDetails.tsx:211:23",
 										"data-prohibitions": "[]",
-										className: "mt-2 text-sm text-secondary font-medium flex items-center justify-center gap-1",
+										className: "mt-4 text-sm font-bold text-secondary flex items-center justify-center gap-2 uppercase tracking-wide",
 										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-											"data-uid": "src/pages/RestaurantDetails.tsx:191:21",
+											"data-uid": "src/pages/RestaurantDetails.tsx:212:25",
 											"data-prohibitions": "[]",
-											className: "relative flex h-2 w-2",
+											className: "relative flex h-2.5 w-2.5",
 											children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-												"data-uid": "src/pages/RestaurantDetails.tsx:192:23",
+												"data-uid": "src/pages/RestaurantDetails.tsx:213:27",
 												"data-prohibitions": "[]",
 												className: "animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"
 											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-												"data-uid": "src/pages/RestaurantDetails.tsx:193:23",
+												"data-uid": "src/pages/RestaurantDetails.tsx:214:27",
 												"data-prohibitions": "[]",
-												className: "relative inline-flex rounded-full h-2 w-2 bg-secondary"
+												className: "relative inline-flex rounded-full h-2.5 w-2.5 bg-secondary"
 											})]
-										}), "Válido por 15:00"]
+										}), "Válido neste estabelecimento"]
 									})]
 								})]
-							})]
+							})] })
 						})]
 					})
 				})]
@@ -28533,70 +28734,117 @@ function RestaurantDetails() {
 		]
 	});
 }
-function MapSection({ address, distance }) {
+function MapSection({ lat, lng, address, distance }) {
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-		"data-uid": "src/pages/RestaurantDetails.tsx:209:5",
+		"data-uid": "src/pages/RestaurantDetails.tsx:232:5",
 		"data-prohibitions": "[editContent]",
-		className: "overflow-hidden rounded-2xl border bg-white shadow-sm",
+		className: "overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm",
 		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-			"data-uid": "src/pages/RestaurantDetails.tsx:210:7",
+			"data-uid": "src/pages/RestaurantDetails.tsx:233:7",
 			"data-prohibitions": "[]",
-			className: "relative h-40 w-full bg-slate-200",
+			className: "relative h-40 w-full bg-slate-100",
 			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("img", {
-				"data-uid": "src/pages/RestaurantDetails.tsx:211:9",
+				"data-uid": "src/pages/RestaurantDetails.tsx:234:9",
 				"data-prohibitions": "[editContent]",
-				src: `https://img.usecurling.com/p/800/400?q=map&color=gray`,
+				src: `https://img.usecurling.com/p/800/400?q=map&color=blue`,
 				alt: "Map placeholder",
-				className: "h-full w-full object-cover opacity-60"
+				className: "h-full w-full object-cover opacity-50"
 			}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-				"data-uid": "src/pages/RestaurantDetails.tsx:216:9",
+				"data-uid": "src/pages/RestaurantDetails.tsx:239:9",
 				"data-prohibitions": "[]",
 				className: "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 animate-float",
-				children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-					"data-uid": "src/pages/RestaurantDetails.tsx:217:11",
-					"data-prohibitions": "[]",
-					className: "flex h-12 w-12 items-center justify-center rounded-full bg-primary/20",
-					children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-						"data-uid": "src/pages/RestaurantDetails.tsx:218:13",
-						"data-prohibitions": "[]",
-						className: "flex h-8 w-8 items-center justify-center rounded-full bg-primary text-white shadow-lg",
-						children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(MapPin, {
-							"data-uid": "src/pages/RestaurantDetails.tsx:219:15",
-							"data-prohibitions": "[editContent]",
-							className: "h-4 w-4"
-						})
-					})
+				children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(MapPin, {
+					"data-uid": "src/pages/RestaurantDetails.tsx:240:11",
+					"data-prohibitions": "[editContent]",
+					className: "h-10 w-10 text-primary drop-shadow-md fill-primary/20"
 				})
 			})]
 		}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-			"data-uid": "src/pages/RestaurantDetails.tsx:224:7",
+			"data-uid": "src/pages/RestaurantDetails.tsx:243:7",
 			"data-prohibitions": "[editContent]",
 			className: "flex items-center justify-between p-4",
 			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				"data-uid": "src/pages/RestaurantDetails.tsx:225:9",
+				"data-uid": "src/pages/RestaurantDetails.tsx:244:9",
 				"data-prohibitions": "[editContent]",
+				className: "flex-1 min-w-0 pr-4",
 				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-					"data-uid": "src/pages/RestaurantDetails.tsx:226:11",
+					"data-uid": "src/pages/RestaurantDetails.tsx:245:11",
 					"data-prohibitions": "[editContent]",
-					className: "font-medium text-slate-900",
+					className: "font-bold text-slate-900 truncate",
 					children: address
 				}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
-					"data-uid": "src/pages/RestaurantDetails.tsx:227:11",
+					"data-uid": "src/pages/RestaurantDetails.tsx:246:11",
 					"data-prohibitions": "[editContent]",
-					className: "text-sm text-slate-500",
+					className: "text-sm text-slate-500 font-medium mt-0.5",
 					children: [
 						"A ",
 						distance,
 						" de você"
 					]
 				})]
-			}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
-				"data-uid": "src/pages/RestaurantDetails.tsx:229:9",
+			}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Dialog, {
+				"data-uid": "src/pages/RestaurantDetails.tsx:248:9",
 				"data-prohibitions": "[]",
-				variant: "outline",
-				size: "sm",
-				className: "rounded-full",
-				children: "Como chegar"
+				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogTrigger, {
+					"data-uid": "src/pages/RestaurantDetails.tsx:249:11",
+					"data-prohibitions": "[]",
+					asChild: true,
+					children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
+						"data-uid": "src/pages/RestaurantDetails.tsx:250:13",
+						"data-prohibitions": "[]",
+						variant: "outline",
+						size: "sm",
+						className: "rounded-xl border-slate-200 font-semibold shadow-sm shrink-0",
+						children: "Como chegar"
+					})
+				}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DialogContent, {
+					"data-uid": "src/pages/RestaurantDetails.tsx:258:11",
+					"data-prohibitions": "[]",
+					className: "sm:max-w-xs",
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogHeader, {
+						"data-uid": "src/pages/RestaurantDetails.tsx:259:13",
+						"data-prohibitions": "[]",
+						children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogTitle, {
+							"data-uid": "src/pages/RestaurantDetails.tsx:260:15",
+							"data-prohibitions": "[]",
+							className: "text-center font-display",
+							children: "Abrir navegação com"
+						})
+					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						"data-uid": "src/pages/RestaurantDetails.tsx:262:13",
+						"data-prohibitions": "[]",
+						className: "flex flex-col gap-3 mt-4",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
+							"data-uid": "src/pages/RestaurantDetails.tsx:263:15",
+							"data-prohibitions": "[]",
+							variant: "outline",
+							asChild: true,
+							className: "h-12 text-lg font-medium",
+							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("a", {
+								"data-uid": "src/pages/RestaurantDetails.tsx:264:17",
+								"data-prohibitions": "[]",
+								href: `https://waze.com/ul?ll=${lat},${lng}&navigate=yes`,
+								target: "_blank",
+								rel: "noreferrer",
+								children: "Waze"
+							})
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
+							"data-uid": "src/pages/RestaurantDetails.tsx:272:15",
+							"data-prohibitions": "[]",
+							variant: "outline",
+							asChild: true,
+							className: "h-12 text-lg font-medium",
+							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("a", {
+								"data-uid": "src/pages/RestaurantDetails.tsx:273:17",
+								"data-prohibitions": "[]",
+								href: `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`,
+								target: "_blank",
+								rel: "noreferrer",
+								children: "Google Maps"
+							})
+						})]
+					})]
+				})]
 			})]
 		})]
 	});
@@ -28605,78 +28853,79 @@ function MapSection({ address, distance }) {
 //#region src/pages/Favorites.tsx
 function Favorites() {
 	const { favorites } = useFavorites();
+	const { restaurants } = useRestaurants();
 	const navigate = useNavigate();
-	const favoriteRestaurants = RESTAURANTS.filter((r) => favorites.includes(r.id));
+	const favoriteRestaurants = restaurants.filter((r) => favorites.includes(r.id));
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-		"data-uid": "src/pages/Favorites.tsx:15:5",
+		"data-uid": "src/pages/Favorites.tsx:16:5",
 		"data-prohibitions": "[editContent]",
 		className: "flex h-full flex-col px-4 pb-8 pt-4 md:px-8 md:pt-8",
 		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-			"data-uid": "src/pages/Favorites.tsx:16:7",
+			"data-uid": "src/pages/Favorites.tsx:17:7",
 			"data-prohibitions": "[editContent]",
 			className: "mb-6 flex items-center justify-between md:mb-8",
 			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", {
-				"data-uid": "src/pages/Favorites.tsx:17:9",
+				"data-uid": "src/pages/Favorites.tsx:18:9",
 				"data-prohibitions": "[]",
 				className: "font-display text-2xl font-bold text-slate-900 md:text-3xl",
 				children: "Meus Favoritos"
 			}), favoriteRestaurants.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-				"data-uid": "src/pages/Favorites.tsx:21:11",
+				"data-uid": "src/pages/Favorites.tsx:22:11",
 				"data-prohibitions": "[editContent]",
-				className: "rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary",
+				className: "rounded-full bg-secondary/20 px-3 py-1 text-sm font-bold text-slate-800",
 				children: [favoriteRestaurants.length, " salvos"]
 			})]
 		}), favoriteRestaurants.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-			"data-uid": "src/pages/Favorites.tsx:28:9",
+			"data-uid": "src/pages/Favorites.tsx:29:9",
 			"data-prohibitions": "[]",
 			className: "flex flex-1 flex-col items-center justify-center animate-fade-in-up pb-20 text-center",
 			children: [
 				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-					"data-uid": "src/pages/Favorites.tsx:29:11",
+					"data-uid": "src/pages/Favorites.tsx:30:11",
 					"data-prohibitions": "[]",
 					className: "mb-6 flex h-32 w-32 items-center justify-center rounded-full bg-slate-100",
 					children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(HeartCrack, {
-						"data-uid": "src/pages/Favorites.tsx:30:13",
+						"data-uid": "src/pages/Favorites.tsx:31:13",
 						"data-prohibitions": "[editContent]",
 						className: "h-12 w-12 text-slate-300"
 					})
 				}),
 				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
-					"data-uid": "src/pages/Favorites.tsx:32:11",
+					"data-uid": "src/pages/Favorites.tsx:33:11",
 					"data-prohibitions": "[]",
 					className: "mb-2 font-display text-2xl font-bold text-slate-900",
 					children: "Nenhum favorito ainda"
 				}),
 				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-					"data-uid": "src/pages/Favorites.tsx:35:11",
+					"data-uid": "src/pages/Favorites.tsx:36:11",
 					"data-prohibitions": "[]",
-					className: "mb-8 max-w-sm text-slate-500",
-					children: "Você ainda não salvou nenhum restaurante. Explore as opções e guarde seus favoritos para acessar os descontos mais rápido!"
+					className: "mb-8 max-w-sm text-slate-500 font-medium",
+					children: "Você ainda não salvou nenhum restaurante. Explore as opções pelo Uruguai e guarde seus favoritos!"
 				}),
 				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Button, {
-					"data-uid": "src/pages/Favorites.tsx:39:11",
+					"data-uid": "src/pages/Favorites.tsx:40:11",
 					"data-prohibitions": "[]",
 					size: "lg",
-					className: "rounded-full px-8 shadow-md",
+					className: "rounded-full px-8 shadow-md font-bold",
 					onClick: () => navigate("/"),
 					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, {
-						"data-uid": "src/pages/Favorites.tsx:40:13",
+						"data-uid": "src/pages/Favorites.tsx:45:13",
 						"data-prohibitions": "[editContent]",
 						className: "mr-2 h-5 w-5"
-					}), "Explorar Restaurantes"]
+					}), "Explorar Locais"]
 				})
 			]
 		}) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-			"data-uid": "src/pages/Favorites.tsx:45:9",
+			"data-uid": "src/pages/Favorites.tsx:50:9",
 			"data-prohibitions": "[editContent]",
 			className: "grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4",
 			children: favoriteRestaurants.map((restaurant, index) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-				"data-uid": "src/pages/Favorites.tsx:47:13",
+				"data-uid": "src/pages/Favorites.tsx:52:13",
 				"data-prohibitions": "[]",
 				className: "animate-fade-in-up",
 				style: { animationDelay: `${index * 50}ms` },
 				children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(RestaurantCard, {
-					"data-uid": "src/pages/Favorites.tsx:52:15",
+					"data-uid": "src/pages/Favorites.tsx:57:15",
 					"data-prohibitions": "[editContent]",
 					restaurant
 				})
@@ -28687,17 +28936,18 @@ function Favorites() {
 //#endregion
 //#region src/pages/MapView.tsx
 function MapView() {
+	const { restaurants } = useRestaurants();
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-		"data-uid": "src/pages/MapView.tsx:8:5",
+		"data-uid": "src/pages/MapView.tsx:9:5",
 		"data-prohibitions": "[editContent]",
 		className: "relative h-full w-full overflow-hidden bg-slate-100 animate-fade-in",
 		children: [
 			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("img", {
-				"data-uid": "src/pages/MapView.tsx:9:7",
+				"data-uid": "src/pages/MapView.tsx:10:7",
 				"data-prohibitions": "[editContent]",
-				src: "https://img.usecurling.com/p/1200/800?q=street%20map&color=gray",
+				src: "https://img.usecurling.com/p/1200/800?q=street%20map&color=blue",
 				alt: "Map background",
-				className: "absolute inset-0 h-full w-full object-cover opacity-80"
+				className: "absolute inset-0 h-full w-full object-cover opacity-60"
 			}),
 			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
 				"data-uid": "src/pages/MapView.tsx:16:7",
@@ -28706,7 +28956,7 @@ function MapView() {
 				children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 					"data-uid": "src/pages/MapView.tsx:17:9",
 					"data-prohibitions": "[]",
-					className: "flex items-center rounded-full bg-white px-4 py-3 shadow-lg",
+					className: "flex items-center rounded-full bg-white px-4 py-3 shadow-lg border border-slate-100",
 					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, {
 						"data-uid": "src/pages/MapView.tsx:18:11",
 						"data-prohibitions": "[editContent]",
@@ -28715,16 +28965,16 @@ function MapView() {
 						"data-uid": "src/pages/MapView.tsx:19:11",
 						"data-prohibitions": "[editContent]",
 						type: "text",
-						placeholder: "Buscar nesta área...",
-						className: "ml-3 flex-1 bg-transparent text-sm outline-none"
+						placeholder: "Buscar no Uruguai...",
+						className: "ml-3 flex-1 bg-transparent text-sm outline-none font-medium"
 					})]
 				})
 			}),
-			RESTAURANTS.slice(0, 4).map((restaurant, index) => {
-				const top = 20 + index * 15 + "%";
-				const left = 20 + index * 20 + "%";
+			restaurants.slice(0, 5).map((restaurant, index) => {
+				const top = 20 + index * 13 + "%";
+				const left = 20 + index * 15 + "%";
 				return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-					"data-uid": "src/pages/MapView.tsx:34:11",
+					"data-uid": "src/pages/MapView.tsx:33:11",
 					"data-prohibitions": "[editContent]",
 					className: "absolute z-20",
 					style: {
@@ -28732,47 +28982,47 @@ function MapView() {
 						left
 					},
 					children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Link, {
-						"data-uid": "src/pages/MapView.tsx:35:13",
+						"data-uid": "src/pages/MapView.tsx:34:13",
 						"data-prohibitions": "[editContent]",
 						to: `/restaurant/${restaurant.id}`,
 						className: "group relative flex flex-col items-center",
 						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							"data-uid": "src/pages/MapView.tsx:39:15",
+							"data-uid": "src/pages/MapView.tsx:38:15",
 							"data-prohibitions": "[editContent]",
-							className: "absolute -top-12 opacity-0 transition-opacity duration-200 group-hover:opacity-100",
+							className: "absolute -top-14 opacity-0 transition-opacity duration-200 group-hover:opacity-100 pointer-events-none",
 							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								"data-uid": "src/pages/MapView.tsx:40:17",
+								"data-uid": "src/pages/MapView.tsx:39:17",
 								"data-prohibitions": "[editContent]",
-								className: "whitespace-nowrap rounded-lg bg-white px-3 py-2 text-sm font-bold shadow-xl",
+								className: "whitespace-nowrap rounded-xl bg-white px-3 py-2 text-sm font-bold shadow-xl border border-slate-100",
 								children: [restaurant.name, /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-									"data-uid": "src/pages/MapView.tsx:42:19",
+									"data-uid": "src/pages/MapView.tsx:41:19",
 									"data-prohibitions": "[editContent]",
-									className: "text-xs text-primary",
-									children: restaurant.discountBadge
+									className: "text-[10px] text-primary uppercase mt-0.5 tracking-wider",
+									children: restaurant.city
 								})]
 							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-								"data-uid": "src/pages/MapView.tsx:44:17",
+								"data-uid": "src/pages/MapView.tsx:45:17",
 								"data-prohibitions": "[]",
-								className: "absolute left-1/2 top-full h-2 w-2 -translate-x-1/2 rotate-45 bg-white"
+								className: "absolute left-1/2 top-[calc(100%-4px)] h-3 w-3 -translate-x-1/2 rotate-45 bg-white border-r border-b border-slate-100"
 							})]
 						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-							"data-uid": "src/pages/MapView.tsx:46:15",
+							"data-uid": "src/pages/MapView.tsx:47:15",
 							"data-prohibitions": "[]",
-							className: "flex h-10 w-10 items-center justify-center rounded-full bg-primary text-white shadow-lg transition-transform hover:scale-110",
+							className: "flex h-10 w-10 items-center justify-center rounded-full bg-primary text-white shadow-lg transition-transform hover:scale-110 border-2 border-white",
 							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(MapPin, {
-								"data-uid": "src/pages/MapView.tsx:47:17",
+								"data-uid": "src/pages/MapView.tsx:48:17",
 								"data-prohibitions": "[editContent]",
-								className: "h-5 w-5"
+								className: "h-5 w-5 fill-primary/20"
 							})
 						})]
 					})
 				}, restaurant.id);
 			}),
-			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 				"data-uid": "src/pages/MapView.tsx:55:7",
 				"data-prohibitions": "[]",
-				className: "absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2",
-				children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+				className: "absolute left-[30%] top-[60%] z-20 -translate-x-1/2 -translate-y-1/2",
+				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 					"data-uid": "src/pages/MapView.tsx:56:9",
 					"data-prohibitions": "[]",
 					className: "relative flex h-6 w-6 items-center justify-center",
@@ -28783,7 +29033,558 @@ function MapView() {
 					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 						"data-uid": "src/pages/MapView.tsx:58:11",
 						"data-prohibitions": "[]",
-						className: "relative inline-flex h-4 w-4 rounded-full bg-blue-500 border-2 border-white shadow-sm"
+						className: "relative inline-flex h-4 w-4 rounded-full bg-blue-600 border-2 border-white shadow-sm"
+					})]
+				}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+					"data-uid": "src/pages/MapView.tsx:60:9",
+					"data-prohibitions": "[]",
+					className: "absolute top-full left-1/2 -translate-x-1/2 mt-1 whitespace-nowrap text-[10px] font-bold text-blue-800 bg-white/80 px-1.5 py-0.5 rounded backdrop-blur-sm",
+					children: "Você está aqui"
+				})]
+			})
+		]
+	});
+}
+//#endregion
+//#region src/components/ui/input.tsx
+var Input = import_react.forwardRef(({ className, type, ...props }, ref) => {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+		"data-uid": "src/components/ui/input.tsx:9:7",
+		"data-prohibitions": "[editContent]",
+		type,
+		className: cn$1("flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm", className),
+		ref,
+		...props
+	});
+});
+Input.displayName = "Input";
+//#endregion
+//#region ../../cache/modules/app-descontos-restaurantes-36a48/node_modules/.pnpm/@radix-ui+react-primitive@2.1.4_@types+react-dom@19.2.3_@types+react@19.2.14__@types+re_0243fb2db8a1fb85ca77b8d9e5c2d650/node_modules/@radix-ui/react-primitive/dist/index.mjs
+var Primitive = [
+	"a",
+	"button",
+	"div",
+	"form",
+	"h2",
+	"h3",
+	"img",
+	"input",
+	"label",
+	"li",
+	"nav",
+	"ol",
+	"p",
+	"select",
+	"span",
+	"svg",
+	"ul"
+].reduce((primitive, node) => {
+	const Slot = /* @__PURE__ */ createSlot(`Primitive.${node}`);
+	const Node = import_react.forwardRef((props, forwardedRef) => {
+		const { asChild, ...primitiveProps } = props;
+		const Comp = asChild ? Slot : node;
+		if (typeof window !== "undefined") window[Symbol.for("radix-ui")] = true;
+		return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Comp, {
+			...primitiveProps,
+			ref: forwardedRef
+		});
+	});
+	Node.displayName = `Primitive.${node}`;
+	return {
+		...primitive,
+		[node]: Node
+	};
+}, {});
+//#endregion
+//#region ../../cache/modules/app-descontos-restaurantes-36a48/node_modules/.pnpm/@radix-ui+react-label@2.1.8_@types+react-dom@19.2.3_@types+react@19.2.14__@types+react@_55fa612a976b7bdfbf4dcdd93d861aab/node_modules/@radix-ui/react-label/dist/index.mjs
+var NAME = "Label";
+var Label$1 = import_react.forwardRef((props, forwardedRef) => {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.label, {
+		...props,
+		ref: forwardedRef,
+		onMouseDown: (event) => {
+			if (event.target.closest("button, input, select, textarea")) return;
+			props.onMouseDown?.(event);
+			if (!event.defaultPrevented && event.detail > 1) event.preventDefault();
+		}
+	});
+});
+Label$1.displayName = NAME;
+var Root = Label$1;
+//#endregion
+//#region src/components/ui/label.tsx
+var labelVariants = cva("text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70");
+var Label = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Root, {
+	"data-uid": "src/components/ui/label.tsx:16:3",
+	"data-prohibitions": "[editContent]",
+	ref,
+	className: cn$1(labelVariants(), className),
+	...props
+}));
+Label.displayName = Root.displayName;
+//#endregion
+//#region src/components/ui/textarea.tsx
+var Textarea = import_react.forwardRef(({ className, ...props }, ref) => {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("textarea", {
+		"data-uid": "src/components/ui/textarea.tsx:9:7",
+		"data-prohibitions": "[editContent]",
+		className: cn$1("flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm", className),
+		ref,
+		...props
+	});
+});
+Textarea.displayName = "Textarea";
+//#endregion
+//#region src/components/AdminRestaurantForm.tsx
+function AdminRestaurantForm({ initialData, onSave, onCancel }) {
+	const [formData, setFormData] = (0, import_react.useState)(initialData || {
+		id: Math.random().toString(36).substr(2, 9),
+		galleryImages: [
+			"",
+			"",
+			"",
+			"",
+			""
+		],
+		coordinates: {
+			lat: 0,
+			lng: 0
+		}
+	});
+	const handleChange = (field, value) => {
+		setFormData((prev) => ({
+			...prev,
+			[field]: value
+		}));
+	};
+	const handleGalleryChange = (index, value) => {
+		const newGallery = [...formData.galleryImages || [
+			"",
+			"",
+			"",
+			"",
+			""
+		]];
+		newGallery[index] = value;
+		handleChange("galleryImages", newGallery);
+	};
+	const handleCoords = (field, value) => {
+		setFormData((prev) => ({
+			...prev,
+			coordinates: {
+				...prev.coordinates || {
+					lat: 0,
+					lng: 0
+				},
+				[field]: parseFloat(value) || 0
+			}
+		}));
+	};
+	const handleSubmit = (e) => {
+		e.preventDefault();
+		onSave(formData);
+	};
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("form", {
+		"data-uid": "src/components/AdminRestaurantForm.tsx:46:5",
+		"data-prohibitions": "[editContent]",
+		onSubmit: handleSubmit,
+		className: "space-y-4 py-4",
+		children: [
+			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+				"data-uid": "src/components/AdminRestaurantForm.tsx:47:7",
+				"data-prohibitions": "[]",
+				className: "grid grid-cols-2 gap-4",
+				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					"data-uid": "src/components/AdminRestaurantForm.tsx:48:9",
+					"data-prohibitions": "[]",
+					className: "space-y-2",
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label, {
+						"data-uid": "src/components/AdminRestaurantForm.tsx:49:11",
+						"data-prohibitions": "[]",
+						children: "Nome"
+					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Input, {
+						"data-uid": "src/components/AdminRestaurantForm.tsx:50:11",
+						"data-prohibitions": "[editContent]",
+						value: formData.name || "",
+						onChange: (e) => handleChange("name", e.target.value),
+						required: true
+					})]
+				}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					"data-uid": "src/components/AdminRestaurantForm.tsx:56:9",
+					"data-prohibitions": "[]",
+					className: "space-y-2",
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label, {
+						"data-uid": "src/components/AdminRestaurantForm.tsx:57:11",
+						"data-prohibitions": "[]",
+						children: "Categoria"
+					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Input, {
+						"data-uid": "src/components/AdminRestaurantForm.tsx:58:11",
+						"data-prohibitions": "[editContent]",
+						value: formData.category || "",
+						onChange: (e) => handleChange("category", e.target.value),
+						required: true
+					})]
+				})]
+			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+				"data-uid": "src/components/AdminRestaurantForm.tsx:65:7",
+				"data-prohibitions": "[]",
+				className: "grid grid-cols-2 gap-4",
+				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					"data-uid": "src/components/AdminRestaurantForm.tsx:66:9",
+					"data-prohibitions": "[]",
+					className: "space-y-2",
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label, {
+						"data-uid": "src/components/AdminRestaurantForm.tsx:67:11",
+						"data-prohibitions": "[]",
+						children: "Cidade"
+					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("select", {
+						"data-uid": "src/components/AdminRestaurantForm.tsx:68:11",
+						"data-prohibitions": "[]",
+						className: "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+						value: formData.city || "",
+						onChange: (e) => handleChange("city", e.target.value),
+						required: true,
+						children: [
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", {
+								"data-uid": "src/components/AdminRestaurantForm.tsx:74:13",
+								"data-prohibitions": "[]",
+								value: "",
+								children: "Selecione"
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", {
+								"data-uid": "src/components/AdminRestaurantForm.tsx:75:13",
+								"data-prohibitions": "[]",
+								value: "Montevideo",
+								children: "Montevideo"
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", {
+								"data-uid": "src/components/AdminRestaurantForm.tsx:76:13",
+								"data-prohibitions": "[]",
+								value: "Punta del Este",
+								children: "Punta del Este"
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", {
+								"data-uid": "src/components/AdminRestaurantForm.tsx:77:13",
+								"data-prohibitions": "[]",
+								value: "Colonia del Sacramento",
+								children: "Colonia del Sacramento"
+							})
+						]
+					})]
+				}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					"data-uid": "src/components/AdminRestaurantForm.tsx:80:9",
+					"data-prohibitions": "[]",
+					className: "space-y-2",
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label, {
+						"data-uid": "src/components/AdminRestaurantForm.tsx:81:11",
+						"data-prohibitions": "[]",
+						children: "Badge de Desconto (ex: 20% OFF)"
+					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Input, {
+						"data-uid": "src/components/AdminRestaurantForm.tsx:82:11",
+						"data-prohibitions": "[editContent]",
+						value: formData.discountBadge || "",
+						onChange: (e) => handleChange("discountBadge", e.target.value),
+						required: true
+					})]
+				})]
+			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+				"data-uid": "src/components/AdminRestaurantForm.tsx:89:7",
+				"data-prohibitions": "[]",
+				className: "space-y-2",
+				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label, {
+					"data-uid": "src/components/AdminRestaurantForm.tsx:90:9",
+					"data-prohibitions": "[]",
+					children: "Descrição do Estabelecimento"
+				}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Textarea, {
+					"data-uid": "src/components/AdminRestaurantForm.tsx:91:9",
+					"data-prohibitions": "[editContent]",
+					value: formData.description || "",
+					onChange: (e) => handleChange("description", e.target.value),
+					required: true
+				})]
+			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+				"data-uid": "src/components/AdminRestaurantForm.tsx:97:7",
+				"data-prohibitions": "[]",
+				className: "space-y-2",
+				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label, {
+					"data-uid": "src/components/AdminRestaurantForm.tsx:98:9",
+					"data-prohibitions": "[]",
+					children: "Detalhes da Regra do Desconto"
+				}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Textarea, {
+					"data-uid": "src/components/AdminRestaurantForm.tsx:99:9",
+					"data-prohibitions": "[editContent]",
+					value: formData.discountDescription || "",
+					onChange: (e) => handleChange("discountDescription", e.target.value),
+					required: true
+				})]
+			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+				"data-uid": "src/components/AdminRestaurantForm.tsx:105:7",
+				"data-prohibitions": "[]",
+				className: "grid grid-cols-2 gap-4",
+				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					"data-uid": "src/components/AdminRestaurantForm.tsx:106:9",
+					"data-prohibitions": "[]",
+					className: "space-y-2",
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label, {
+						"data-uid": "src/components/AdminRestaurantForm.tsx:107:11",
+						"data-prohibitions": "[]",
+						children: "Endereço Completo"
+					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Input, {
+						"data-uid": "src/components/AdminRestaurantForm.tsx:108:11",
+						"data-prohibitions": "[editContent]",
+						value: formData.address || "",
+						onChange: (e) => handleChange("address", e.target.value),
+						required: true
+					})]
+				}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					"data-uid": "src/components/AdminRestaurantForm.tsx:114:9",
+					"data-prohibitions": "[]",
+					className: "space-y-2",
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label, {
+						"data-uid": "src/components/AdminRestaurantForm.tsx:115:11",
+						"data-prohibitions": "[]",
+						children: "URL Imagem de Capa"
+					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Input, {
+						"data-uid": "src/components/AdminRestaurantForm.tsx:116:11",
+						"data-prohibitions": "[editContent]",
+						value: formData.coverImage || "",
+						onChange: (e) => handleChange("coverImage", e.target.value),
+						required: true
+					})]
+				})]
+			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+				"data-uid": "src/components/AdminRestaurantForm.tsx:123:7",
+				"data-prohibitions": "[]",
+				className: "grid grid-cols-2 gap-4",
+				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					"data-uid": "src/components/AdminRestaurantForm.tsx:124:9",
+					"data-prohibitions": "[]",
+					className: "space-y-2",
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label, {
+						"data-uid": "src/components/AdminRestaurantForm.tsx:125:11",
+						"data-prohibitions": "[]",
+						children: "Latitude"
+					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Input, {
+						"data-uid": "src/components/AdminRestaurantForm.tsx:126:11",
+						"data-prohibitions": "[editContent]",
+						type: "number",
+						step: "any",
+						value: formData.coordinates?.lat || "",
+						onChange: (e) => handleCoords("lat", e.target.value),
+						required: true
+					})]
+				}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					"data-uid": "src/components/AdminRestaurantForm.tsx:134:9",
+					"data-prohibitions": "[]",
+					className: "space-y-2",
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label, {
+						"data-uid": "src/components/AdminRestaurantForm.tsx:135:11",
+						"data-prohibitions": "[]",
+						children: "Longitude"
+					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Input, {
+						"data-uid": "src/components/AdminRestaurantForm.tsx:136:11",
+						"data-prohibitions": "[editContent]",
+						type: "number",
+						step: "any",
+						value: formData.coordinates?.lng || "",
+						onChange: (e) => handleCoords("lng", e.target.value),
+						required: true
+					})]
+				})]
+			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+				"data-uid": "src/components/AdminRestaurantForm.tsx:145:7",
+				"data-prohibitions": "[editContent]",
+				className: "space-y-2",
+				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label, {
+					"data-uid": "src/components/AdminRestaurantForm.tsx:146:9",
+					"data-prohibitions": "[]",
+					children: "URLs das 5 Imagens da Galeria"
+				}), [
+					0,
+					1,
+					2,
+					3,
+					4
+				].map((i) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Input, {
+					"data-uid": "src/components/AdminRestaurantForm.tsx:148:11",
+					"data-prohibitions": "[editContent]",
+					value: formData.galleryImages?.[i] || "",
+					onChange: (e) => handleGalleryChange(i, e.target.value),
+					placeholder: `Imagem ${i + 1}`,
+					required: true
+				}, i))]
+			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+				"data-uid": "src/components/AdminRestaurantForm.tsx:157:7",
+				"data-prohibitions": "[]",
+				className: "flex justify-end gap-2 pt-4",
+				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
+					"data-uid": "src/components/AdminRestaurantForm.tsx:158:9",
+					"data-prohibitions": "[]",
+					type: "button",
+					variant: "outline",
+					onClick: onCancel,
+					children: "Cancelar"
+				}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
+					"data-uid": "src/components/AdminRestaurantForm.tsx:161:9",
+					"data-prohibitions": "[]",
+					type: "submit",
+					children: "Salvar Restaurante"
+				})]
+			})
+		]
+	});
+}
+//#endregion
+//#region src/pages/Admin.tsx
+function Admin() {
+	const { restaurants, addRestaurant, updateRestaurant, deleteRestaurant } = useRestaurants();
+	const [editing, setEditing] = (0, import_react.useState)(null);
+	const [isAdding, setIsAdding] = (0, import_react.useState)(false);
+	const handleSave = (data) => {
+		if (editing) updateRestaurant(data.id, data);
+		else addRestaurant(data);
+		setEditing(null);
+		setIsAdding(false);
+	};
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+		"data-uid": "src/pages/Admin.tsx:25:5",
+		"data-prohibitions": "[editContent]",
+		className: "p-4 md:p-8 max-w-5xl mx-auto w-full animate-fade-in",
+		children: [
+			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+				"data-uid": "src/pages/Admin.tsx:26:7",
+				"data-prohibitions": "[]",
+				className: "flex justify-between items-center mb-6",
+				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", {
+					"data-uid": "src/pages/Admin.tsx:27:9",
+					"data-prohibitions": "[]",
+					className: "text-2xl md:text-3xl font-bold font-display text-slate-900",
+					children: "Admin de Locais"
+				}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Button, {
+					"data-uid": "src/pages/Admin.tsx:30:9",
+					"data-prohibitions": "[]",
+					onClick: () => setIsAdding(true),
+					className: "rounded-full",
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Plus, {
+						"data-uid": "src/pages/Admin.tsx:31:11",
+						"data-prohibitions": "[editContent]",
+						className: "mr-2 h-4 w-4"
+					}), " Novo Local"]
+				})]
+			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+				"data-uid": "src/pages/Admin.tsx:35:7",
+				"data-prohibitions": "[editContent]",
+				className: "grid gap-4",
+				children: [restaurants.map((r) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					"data-uid": "src/pages/Admin.tsx:37:11",
+					"data-prohibitions": "[editContent]",
+					className: "bg-white p-4 md:p-6 rounded-2xl border shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4",
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						"data-uid": "src/pages/Admin.tsx:41:13",
+						"data-prohibitions": "[editContent]",
+						className: "flex items-center gap-4",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("img", {
+							"data-uid": "src/pages/Admin.tsx:42:15",
+							"data-prohibitions": "[editContent]",
+							src: r.coverImage,
+							alt: r.name,
+							className: "h-16 w-16 rounded-xl object-cover"
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							"data-uid": "src/pages/Admin.tsx:43:15",
+							"data-prohibitions": "[editContent]",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
+								"data-uid": "src/pages/Admin.tsx:44:17",
+								"data-prohibitions": "[editContent]",
+								className: "font-bold text-lg text-slate-900",
+								children: r.name
+							}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
+								"data-uid": "src/pages/Admin.tsx:45:17",
+								"data-prohibitions": "[editContent]",
+								className: "text-sm text-slate-500",
+								children: [
+									r.city,
+									" • ",
+									r.category
+								]
+							})]
+						})]
+					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						"data-uid": "src/pages/Admin.tsx:50:13",
+						"data-prohibitions": "[]",
+						className: "flex gap-2 self-end md:self-auto",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
+							"data-uid": "src/pages/Admin.tsx:51:15",
+							"data-prohibitions": "[]",
+							variant: "outline",
+							size: "icon",
+							onClick: () => setEditing(r),
+							className: "rounded-xl",
+							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SquarePen, {
+								"data-uid": "src/pages/Admin.tsx:57:17",
+								"data-prohibitions": "[editContent]",
+								className: "h-4 w-4 text-slate-600"
+							})
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
+							"data-uid": "src/pages/Admin.tsx:59:15",
+							"data-prohibitions": "[]",
+							variant: "destructive",
+							size: "icon",
+							onClick: () => deleteRestaurant(r.id),
+							className: "rounded-xl",
+							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Trash, {
+								"data-uid": "src/pages/Admin.tsx:65:17",
+								"data-prohibitions": "[editContent]",
+								className: "h-4 w-4"
+							})
+						})]
+					})]
+				}, r.id)), restaurants.length === 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+					"data-uid": "src/pages/Admin.tsx:71:11",
+					"data-prohibitions": "[]",
+					className: "text-center text-slate-500 py-10",
+					children: "Nenhum restaurante cadastrado."
+				})]
+			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Dialog, {
+				"data-uid": "src/pages/Admin.tsx:75:7",
+				"data-prohibitions": "[editContent]",
+				open: isAdding || !!editing,
+				onOpenChange: (open) => {
+					if (!open) {
+						setIsAdding(false);
+						setEditing(null);
+					}
+				},
+				children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DialogContent, {
+					"data-uid": "src/pages/Admin.tsx:84:9",
+					"data-prohibitions": "[editContent]",
+					className: "max-w-3xl max-h-[90vh] overflow-y-auto",
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogHeader, {
+						"data-uid": "src/pages/Admin.tsx:85:11",
+						"data-prohibitions": "[editContent]",
+						children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogTitle, {
+							"data-uid": "src/pages/Admin.tsx:86:13",
+							"data-prohibitions": "[editContent]",
+							className: "text-xl font-display",
+							children: editing ? "Editar Restaurante" : "Novo Restaurante"
+						})
+					}), (isAdding || editing) && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(AdminRestaurantForm, {
+						"data-uid": "src/pages/Admin.tsx:91:13",
+						"data-prohibitions": "[editContent]",
+						initialData: editing || void 0,
+						onSave: handleSave,
+						onCancel: () => {
+							setIsAdding(false);
+							setEditing(null);
+						}
 					})]
 				})
 			})
@@ -28832,86 +29633,107 @@ var NotFound = () => {
 //#endregion
 //#region src/App.tsx
 var App = () => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(BrowserRouter, {
-	"data-uid": "src/App.tsx:15:3",
+	"data-uid": "src/App.tsx:19:3",
 	"data-prohibitions": "[]",
 	future: {
 		v7_startTransition: false,
 		v7_relativeSplatPath: false
 	},
-	children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(FavoritesProvider, {
-		"data-uid": "src/App.tsx:16:5",
+	children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(AccessProvider, {
+		"data-uid": "src/App.tsx:20:5",
 		"data-prohibitions": "[]",
-		children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(TooltipProvider, {
-			"data-uid": "src/App.tsx:17:7",
+		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(GeoProvider, {
+			"data-uid": "src/App.tsx:21:7",
 			"data-prohibitions": "[]",
-			children: [
-				/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Toaster$2, {
-					"data-uid": "src/App.tsx:18:9",
-					"data-prohibitions": "[editContent]"
-				}),
-				/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Toaster, {
-					"data-uid": "src/App.tsx:19:9",
-					"data-prohibitions": "[editContent]"
-				}),
-				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Routes, {
-					"data-uid": "src/App.tsx:20:9",
+			children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(RestaurantsProvider, {
+				"data-uid": "src/App.tsx:22:9",
+				"data-prohibitions": "[]",
+				children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(FavoritesProvider, {
+					"data-uid": "src/App.tsx:23:11",
 					"data-prohibitions": "[]",
-					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Route, {
-						"data-uid": "src/App.tsx:21:11",
+					children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(TooltipProvider, {
+						"data-uid": "src/App.tsx:24:13",
 						"data-prohibitions": "[]",
-						element: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Layout, {
-							"data-uid": "src/App.tsx:21:27",
-							"data-prohibitions": "[editContent]"
-						}),
 						children: [
-							/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Route, {
-								"data-uid": "src/App.tsx:22:13",
-								"data-prohibitions": "[editContent]",
-								path: "/",
-								element: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Index, {
-									"data-uid": "src/App.tsx:22:38",
-									"data-prohibitions": "[editContent]"
-								})
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Toaster$2, {
+								"data-uid": "src/App.tsx:25:15",
+								"data-prohibitions": "[editContent]"
 							}),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Route, {
-								"data-uid": "src/App.tsx:23:13",
-								"data-prohibitions": "[editContent]",
-								path: "/restaurant/:id",
-								element: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(RestaurantDetails, {
-									"data-uid": "src/App.tsx:23:52",
-									"data-prohibitions": "[editContent]"
-								})
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Toaster, {
+								"data-uid": "src/App.tsx:26:15",
+								"data-prohibitions": "[editContent]"
 							}),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Route, {
-								"data-uid": "src/App.tsx:24:13",
-								"data-prohibitions": "[editContent]",
-								path: "/favorites",
-								element: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Favorites, {
-									"data-uid": "src/App.tsx:24:47",
-									"data-prohibitions": "[editContent]"
-								})
-							}),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Route, {
-								"data-uid": "src/App.tsx:25:13",
-								"data-prohibitions": "[editContent]",
-								path: "/map",
-								element: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(MapView, {
-									"data-uid": "src/App.tsx:25:41",
-									"data-prohibitions": "[editContent]"
-								})
+							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Routes, {
+								"data-uid": "src/App.tsx:27:15",
+								"data-prohibitions": "[]",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Route, {
+									"data-uid": "src/App.tsx:28:17",
+									"data-prohibitions": "[]",
+									element: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Layout, {
+										"data-uid": "src/App.tsx:28:33",
+										"data-prohibitions": "[editContent]"
+									}),
+									children: [
+										/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Route, {
+											"data-uid": "src/App.tsx:29:19",
+											"data-prohibitions": "[editContent]",
+											path: "/",
+											element: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Index, {
+												"data-uid": "src/App.tsx:29:44",
+												"data-prohibitions": "[editContent]"
+											})
+										}),
+										/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Route, {
+											"data-uid": "src/App.tsx:30:19",
+											"data-prohibitions": "[editContent]",
+											path: "/restaurant/:id",
+											element: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(RestaurantDetails, {
+												"data-uid": "src/App.tsx:30:58",
+												"data-prohibitions": "[editContent]"
+											})
+										}),
+										/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Route, {
+											"data-uid": "src/App.tsx:31:19",
+											"data-prohibitions": "[editContent]",
+											path: "/favorites",
+											element: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Favorites, {
+												"data-uid": "src/App.tsx:31:53",
+												"data-prohibitions": "[editContent]"
+											})
+										}),
+										/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Route, {
+											"data-uid": "src/App.tsx:32:19",
+											"data-prohibitions": "[editContent]",
+											path: "/map",
+											element: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(MapView, {
+												"data-uid": "src/App.tsx:32:47",
+												"data-prohibitions": "[editContent]"
+											})
+										}),
+										/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Route, {
+											"data-uid": "src/App.tsx:33:19",
+											"data-prohibitions": "[editContent]",
+											path: "/admin",
+											element: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Admin, {
+												"data-uid": "src/App.tsx:33:49",
+												"data-prohibitions": "[editContent]"
+											})
+										})
+									]
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Route, {
+									"data-uid": "src/App.tsx:35:17",
+									"data-prohibitions": "[editContent]",
+									path: "*",
+									element: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(NotFound, {
+										"data-uid": "src/App.tsx:35:42",
+										"data-prohibitions": "[editContent]"
+									})
+								})]
 							})
 						]
-					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Route, {
-						"data-uid": "src/App.tsx:27:11",
-						"data-prohibitions": "[editContent]",
-						path: "*",
-						element: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(NotFound, {
-							"data-uid": "src/App.tsx:27:36",
-							"data-prohibitions": "[editContent]"
-						})
-					})]
+					})
 				})
-			]
+			})
 		})
 	})
 });
@@ -28923,4 +29745,4 @@ var App = () => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(BrowserRouter, {
 }));
 //#endregion
 
-//# sourceMappingURL=index-BARhUx6W.js.map
+//# sourceMappingURL=index-Ddl5XZ66.js.map

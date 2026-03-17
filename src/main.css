@@ -6,12 +6,12 @@
 
 @layer base {
   :root {
-    /* Primary: #F24822 */
-    --primary: 11 89% 54%;
+    /* Primary: Blue (#0038A8) */
+    --primary: 220 100% 33%;
     --primary-foreground: 0 0% 100%;
 
-    /* Secondary: #1DB954 (Success Green) */
-    --secondary: 141 73% 42%;
+    /* Secondary: Gold (#D4AF37) */
+    --secondary: 46 65% 52%;
     --secondary-foreground: 0 0% 100%;
 
     --background: 0 0% 100%;
@@ -34,7 +34,7 @@
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 11 89% 54%;
+    --ring: 220 100% 33%;
 
     --radius: 1rem;
   }
@@ -49,10 +49,10 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 11 89% 54%;
+    --primary: 220 100% 33%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 141 73% 42%;
+    --secondary: 46 65% 52%;
     --secondary-foreground: 0 0% 100%;
 
     --muted: 217.2 32.6% 17.5%;
@@ -66,7 +66,7 @@
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 11 89% 54%;
+    --ring: 220 100% 33%;
   }
 
   body {

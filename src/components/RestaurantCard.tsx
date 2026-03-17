@@ -2,6 +2,7 @@ import { Heart, Star, MapPin } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { Restaurant } from '@/data/restaurants'
 import { useFavorites } from '@/context/FavoritesContext'
+import { useGeo } from '@/context/GeoContext'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 
@@ -11,7 +12,11 @@ interface RestaurantCardProps {
 
 export function RestaurantCard({ restaurant }: RestaurantCardProps) {
   const { isFavorite, toggleFavorite } = useFavorites()
+  const { calculateDistance } = useGeo()
   const favorite = isFavorite(restaurant.id)
+
+  const dist = calculateDistance(restaurant.coordinates.lat, restaurant.coordinates.lng)
+  const displayDistance = dist ? `${dist.toFixed(1)} km` : 'Calculando...'
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -20,9 +25,9 @@ export function RestaurantCard({ restaurant }: RestaurantCardProps) {
   }
 
   return (
-    <Link to={`/restaurant/${restaurant.id}`} className="group block">
-      <div className="relative overflow-hidden rounded-2xl bg-white shadow-sm transition-all duration-300 hover:shadow-xl">
-        <div className="relative aspect-[4/3] w-full overflow-hidden">
+    <Link to={`/restaurant/${restaurant.id}`} className="group block h-full">
+      <div className="relative h-full flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm transition-all duration-300 hover:shadow-xl border border-slate-100">
+        <div className="relative aspect-[4/3] w-full overflow-hidden shrink-0">
           <img
             src={restaurant.coverImage}
             alt={restaurant.name}
@@ -30,13 +35,13 @@ export function RestaurantCard({ restaurant }: RestaurantCardProps) {
             loading="lazy"
           />
           <div className="absolute left-3 top-3">
-            <Badge className="bg-secondary text-secondary-foreground hover:bg-secondary/90 shadow-md">
+            <Badge className="bg-secondary text-slate-900 hover:bg-secondary/90 shadow-md border-none font-bold">
               {restaurant.discountBadge}
             </Badge>
           </div>
           <button
             onClick={handleFavoriteClick}
-            className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 text-slate-700 backdrop-blur-sm transition-all hover:bg-white active:scale-95"
+            className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 text-slate-700 backdrop-blur-sm transition-all hover:bg-white active:scale-95 shadow-sm"
           >
             <Heart
               className={cn('h-5 w-5 transition-colors', {
@@ -45,23 +50,25 @@ export function RestaurantCard({ restaurant }: RestaurantCardProps) {
             />
           </button>
         </div>
-        <div className="p-4">
-          <div className="flex items-start justify-between gap-2">
+        <div className="p-4 flex flex-col flex-1">
+          <div className="flex items-start justify-between gap-2 mb-1">
             <div>
-              <h3 className="font-display text-lg font-semibold leading-tight text-slate-900 line-clamp-1">
+              <h3 className="font-display text-lg font-bold leading-tight text-slate-900 line-clamp-1">
                 {restaurant.name}
               </h3>
-              <p className="text-sm text-slate-500">{restaurant.category}</p>
+              <p className="text-xs font-medium text-primary mt-0.5 uppercase tracking-wider">
+                {restaurant.category}
+              </p>
             </div>
-            <div className="flex items-center gap-1 rounded-md bg-orange-50 px-1.5 py-0.5 text-sm font-medium text-orange-700">
-              <Star className="h-3.5 w-3.5 fill-current" />
+            <div className="flex items-center gap-1 rounded-md bg-secondary/20 px-1.5 py-0.5 text-sm font-bold text-slate-800">
+              <Star className="h-3.5 w-3.5 fill-secondary text-secondary" />
               <span>{restaurant.rating}</span>
             </div>
           </div>
-          <div className="mt-3 flex items-center text-sm text-slate-500">
-            <MapPin className="mr-1 h-4 w-4 shrink-0" />
+          <div className="mt-auto pt-3 flex items-center text-sm text-slate-500">
+            <MapPin className="mr-1 h-4 w-4 shrink-0 text-slate-400" />
             <span className="truncate">
-              {restaurant.distance} • {restaurant.address.split(' - ')[1]}
+              {displayDistance} • {restaurant.city}
             </span>
           </div>
         </div>

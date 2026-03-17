@@ -1,5 +1,5 @@
 import { useFavorites } from '@/context/FavoritesContext'
-import { RESTAURANTS } from '@/data/restaurants'
+import { useRestaurants } from '@/context/RestaurantsContext'
 import { RestaurantCard } from '@/components/RestaurantCard'
 import { HeartCrack, Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -7,9 +7,10 @@ import { useNavigate } from 'react-router-dom'
 
 export default function Favorites() {
   const { favorites } = useFavorites()
+  const { restaurants } = useRestaurants()
   const navigate = useNavigate()
 
-  const favoriteRestaurants = RESTAURANTS.filter((r) => favorites.includes(r.id))
+  const favoriteRestaurants = restaurants.filter((r) => favorites.includes(r.id))
 
   return (
     <div className="flex h-full flex-col px-4 pb-8 pt-4 md:px-8 md:pt-8">
@@ -18,7 +19,7 @@ export default function Favorites() {
           Meus Favoritos
         </h1>
         {favoriteRestaurants.length > 0 && (
-          <span className="rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary">
+          <span className="rounded-full bg-secondary/20 px-3 py-1 text-sm font-bold text-slate-800">
             {favoriteRestaurants.length} salvos
           </span>
         )}
@@ -32,13 +33,17 @@ export default function Favorites() {
           <h2 className="mb-2 font-display text-2xl font-bold text-slate-900">
             Nenhum favorito ainda
           </h2>
-          <p className="mb-8 max-w-sm text-slate-500">
-            Você ainda não salvou nenhum restaurante. Explore as opções e guarde seus favoritos para
-            acessar os descontos mais rápido!
+          <p className="mb-8 max-w-sm text-slate-500 font-medium">
+            Você ainda não salvou nenhum restaurante. Explore as opções pelo Uruguai e guarde seus
+            favoritos!
           </p>
-          <Button size="lg" className="rounded-full px-8 shadow-md" onClick={() => navigate('/')}>
+          <Button
+            size="lg"
+            className="rounded-full px-8 shadow-md font-bold"
+            onClick={() => navigate('/')}
+          >
             <Search className="mr-2 h-5 w-5" />
-            Explorar Restaurantes
+            Explorar Locais
           </Button>
         </div>
       ) : (
