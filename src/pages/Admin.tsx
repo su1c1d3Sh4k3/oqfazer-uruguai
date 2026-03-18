@@ -1,116 +1,163 @@
-import { usePlaces } from '@/context/PlacesContext'
-import { Button } from '@/components/ui/button'
-import { Plus, Edit, Trash } from 'lucide-react'
 import { useState } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { AdminPlaceForm } from '@/components/AdminPlaceForm'
 import { AdminCategoryManager } from '@/components/AdminCategoryManager'
-import { Place } from '@/data/places'
-import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { useAccess } from '@/context/AccessContext'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { ShieldAlert, LogOut, LayoutDashboard, Plus, Tags } from 'lucide-react'
+import logoUrl from '@/assets/favicon-bnu-9afaa.jpg'
 
 export default function Admin() {
-  const { places, categories, addPlace, updatePlace, deletePlace } = usePlaces()
-  const [editing, setEditing] = useState<Place | null>(null)
-  const [isAdding, setIsAdding] = useState(false)
+  const { isGranted, grantAccess, revokeAccess } = useAccess()
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
 
-  const handleSave = (data: Place) => {
-    if (editing) {
-      updatePlace(data.id, data)
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (grantAccess(password)) {
+      setError('')
     } else {
-      addPlace(data)
+      setError('Senha incorreta')
     }
-    setEditing(null)
-    setIsAdding(false)
+  }
+
+  if (!isGranted) {
+    return (
+      <div className="min-h-[80vh] flex items-center justify-center p-4">
+        <div className="w-full max-w-md p-8 bg-card rounded-2xl shadow-xl border border-border/50 space-y-6 animate-in fade-in zoom-in-95 duration-300">
+          <div className="flex flex-col items-center text-center space-y-4">
+            <div className="h-20 w-20 overflow-hidden rounded-full flex items-center justify-center mb-2 shadow-sm border border-border/50 bg-white">
+              <img src={logoUrl} alt="Logo" className="h-full w-full object-cover" />
+            </div>
+            <div className="space-y-1">
+              <h1 className="text-2xl font-bold tracking-tight text-primary">Acesso Restrito</h1>
+              <div className="flex flex-col mt-2">
+                <span className="text-sm font-bold text-foreground tracking-tight">
+                  O que Fazer no Uruguai?
+                </span>
+                <span className="text-xs text-muted-foreground uppercase tracking-wider mt-0.5">
+                  por Brasileiros no Uruguai
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <form onSubmit={handleLogin} className="space-y-4 mt-8">
+            <div className="space-y-2">
+              <Label htmlFor="password">Senha de Administrador</Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="Digite a senha..."
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="h-11"
+              />
+            </div>
+            {error && <p className="text-sm text-destructive font-medium">{error}</p>}
+            <Button type="submit" className="w-full h-11 text-base font-medium">
+              Acessar Painel
+            </Button>
+          </form>
+        </div>
+      </div>
+    )
   }
 
   return (
-    <div className="animate-fade-in mx-auto w-full max-w-5xl p-4 md:p-8">
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="font-display text-2xl font-bold text-slate-900 md:text-3xl">Admin do App</h1>
-      </div>
-
-      <AdminCategoryManager />
-
-      <div className="mb-6 flex items-center justify-between">
-        <h2 className="font-display text-xl font-bold text-slate-900">Locais e Passeios</h2>
-        <Button onClick={() => setIsAdding(true)} className="rounded-full">
-          <Plus className="mr-2 h-4 w-4" /> Novo Local
+    <div className="container max-w-5xl mx-auto py-8 px-4 space-y-8 animate-in fade-in duration-500">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-card p-6 rounded-2xl shadow-sm border border-border/50">
+        <div className="flex items-center gap-4">
+          <div className="h-14 w-14 overflow-hidden rounded-full flex items-center justify-center shadow-sm border border-border/50 bg-white shrink-0">
+            <img src={logoUrl} alt="Logo" className="h-full w-full object-cover" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-foreground tracking-tight leading-none mb-1.5">
+              Painel de Controle
+            </h1>
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="text-sm font-bold text-primary tracking-tight">
+                O que Fazer no Uruguai?
+              </span>
+              <span className="text-xs text-muted-foreground uppercase tracking-wider hidden sm:inline-block mt-0.5">
+                {' '}
+                | por Brasileiros no Uruguai
+              </span>
+            </div>
+          </div>
+        </div>
+        <Button variant="outline" onClick={revokeAccess} className="gap-2 shrink-0 h-10">
+          <LogOut className="h-4 w-4" />
+          <span className="hidden sm:inline">Sair do Painel</span>
         </Button>
       </div>
 
-      <div className="grid gap-4">
-        {places.map((p) => (
-          <div
-            key={p.id}
-            className="flex flex-col items-start justify-between gap-4 rounded-2xl border bg-white p-4 shadow-sm md:flex-row md:items-center md:p-6"
+      <Tabs defaultValue="dashboard" className="w-full space-y-6">
+        <TabsList className="w-full justify-start h-auto p-1 bg-muted/50 overflow-x-auto flex-nowrap hide-scrollbar">
+          <TabsTrigger
+            value="dashboard"
+            className="gap-2 py-2.5 px-4 rounded-xl data-[state=active]:bg-background data-[state=active]:shadow-sm"
           >
-            <div className="flex items-center gap-4">
-              <img src={p.coverImage} alt={p.name} className="h-16 w-16 rounded-xl object-cover" />
-              <div>
-                <div className="flex items-center gap-2">
-                  <h3 className="text-lg font-bold text-slate-900">{p.name}</h3>
-                  <Badge variant="outline" className="text-[10px] uppercase tracking-widest">
-                    {p.type === 'tour' ? 'Passeio' : 'Restaurante'}
-                  </Badge>
-                </div>
-                <p className="text-sm text-slate-500">
-                  {p.city} • {p.category}
-                </p>
-              </div>
+            <LayoutDashboard className="h-4 w-4" />
+            <span className="hidden sm:inline">Visão Geral</span>
+          </TabsTrigger>
+          <TabsTrigger
+            value="add"
+            className="gap-2 py-2.5 px-4 rounded-xl data-[state=active]:bg-background data-[state=active]:shadow-sm"
+          >
+            <Plus className="h-4 w-4" />
+            <span>Novo Local</span>
+          </TabsTrigger>
+          <TabsTrigger
+            value="categories"
+            className="gap-2 py-2.5 px-4 rounded-xl data-[state=active]:bg-background data-[state=active]:shadow-sm"
+          >
+            <Tags className="h-4 w-4" />
+            <span>Categorias</span>
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="dashboard" className="mt-0 outline-none">
+          <div className="bg-card rounded-2xl border border-border/50 p-8 flex flex-col items-center justify-center text-center space-y-4 min-h-[400px]">
+            <div className="h-20 w-20 bg-primary/5 rounded-full flex items-center justify-center mb-2">
+              <ShieldAlert className="h-10 w-10 text-primary/40" />
             </div>
-            <div className="flex gap-2 self-end md:self-auto">
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => setEditing(p)}
-                className="rounded-xl"
-              >
-                <Edit className="h-4 w-4 text-slate-600" />
-              </Button>
-              <Button
-                variant="destructive"
-                size="icon"
-                onClick={() => deletePlace(p.id)}
-                className="rounded-xl"
-              >
-                <Trash className="h-4 w-4" />
-              </Button>
+            <h2 className="text-xl font-semibold">Bem-vindo ao Painel Administrativo</h2>
+            <p className="text-muted-foreground max-w-md">
+              Use as abas acima para adicionar novos locais recomendados ou gerenciar as categorias
+              existentes no aplicativo "O que Fazer no Uruguai?".
+            </p>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="add" className="mt-0 outline-none">
+          <div className="bg-card rounded-2xl border border-border/50 shadow-sm overflow-hidden">
+            <div className="p-6 border-b border-border/50 bg-muted/20">
+              <h2 className="text-lg font-semibold flex items-center gap-2">
+                <Plus className="h-5 w-5 text-primary" /> Cadastrar Novo Estabelecimento
+              </h2>
+            </div>
+            <div className="p-6">
+              <AdminPlaceForm />
             </div>
           </div>
-        ))}
-        {places.length === 0 && (
-          <p className="py-10 text-center text-slate-500">Nenhum local cadastrado.</p>
-        )}
-      </div>
+        </TabsContent>
 
-      <Dialog
-        open={isAdding || !!editing}
-        onOpenChange={(open) => {
-          if (!open) {
-            setIsAdding(false)
-            setEditing(null)
-          }
-        }}
-      >
-        <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="font-display text-xl">
-              {editing ? 'Editar Local' : 'Novo Local'}
-            </DialogTitle>
-          </DialogHeader>
-          {(isAdding || editing) && (
-            <AdminPlaceForm
-              initialData={editing || undefined}
-              categories={categories}
-              onSave={handleSave}
-              onCancel={() => {
-                setIsAdding(false)
-                setEditing(null)
-              }}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
+        <TabsContent value="categories" className="mt-0 outline-none">
+          <div className="bg-card rounded-2xl border border-border/50 shadow-sm overflow-hidden">
+            <div className="p-6 border-b border-border/50 bg-muted/20">
+              <h2 className="text-lg font-semibold flex items-center gap-2">
+                <Tags className="h-5 w-5 text-primary" /> Gerenciar Categorias
+              </h2>
+            </div>
+            <div className="p-6">
+              <AdminCategoryManager />
+            </div>
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }
