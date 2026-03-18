@@ -31,16 +31,16 @@ export default {
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         primary: {
-          DEFAULT: 'hsl(var(--primary))',
-          foreground: 'hsl(var(--primary-foreground))',
+          DEFAULT: '#003399',
+          foreground: '#ffffff',
         },
         secondary: {
-          DEFAULT: 'hsl(var(--secondary))',
-          foreground: 'hsl(var(--secondary-foreground))',
+          DEFAULT: '#2E8B57',
+          foreground: '#ffffff',
         },
         brand: {
-          yellow: 'hsl(var(--brand-yellow))',
-          'yellow-foreground': 'hsl(var(--brand-yellow-foreground))',
+          yellow: '#FFD700',
+          'yellow-foreground': '#000000',
         },
         destructive: {
           DEFAULT: 'hsl(var(--destructive))',

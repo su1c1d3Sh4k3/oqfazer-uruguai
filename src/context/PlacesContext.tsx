@@ -40,6 +40,19 @@ export function PlacesProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('@uruguai:categories', JSON.stringify(categories))
   }, [categories])
 
+  useEffect(() => {
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === '@uruguai:places' && e.newValue) {
+        setPlaces(JSON.parse(e.newValue))
+      }
+      if (e.key === '@uruguai:categories' && e.newValue) {
+        setCategories(JSON.parse(e.newValue))
+      }
+    }
+    window.addEventListener('storage', handleStorage)
+    return () => window.removeEventListener('storage', handleStorage)
+  }, [])
+
   const addPlace = (p: Place) => setPlaces((prev) => [...prev, p])
   const updatePlace = (id: string, data: Partial<Place>) =>
     setPlaces((prev) => prev.map((p) => (p.id === id ? { ...p, ...data } : p)))

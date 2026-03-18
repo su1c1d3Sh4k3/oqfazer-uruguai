@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
+import { useAuth } from './AuthContext'
 
 interface FavoritesContextType {
   favorites: string[]
@@ -9,18 +10,25 @@ interface FavoritesContextType {
 const FavoritesContext = createContext<FavoritesContextType | undefined>(undefined)
 
 export function FavoritesProvider({ children }: { children: React.ReactNode }) {
-  const [favorites, setFavorites] = useState<string[]>(() => {
-    try {
-      const stored = localStorage.getItem('@savordiscount:favorites')
-      return stored ? JSON.parse(stored) : []
-    } catch {
-      return []
-    }
-  })
+  const { currentUser } = useAuth()
+  const storageKey = currentUser
+    ? `@uruguai:favorites_${currentUser.id}`
+    : '@uruguai:favorites_guest'
+
+  const [favorites, setFavorites] = useState<string[]>([])
 
   useEffect(() => {
-    localStorage.setItem('@savordiscount:favorites', JSON.stringify(favorites))
-  }, [favorites])
+    try {
+      const stored = localStorage.getItem(storageKey)
+      setFavorites(stored ? JSON.parse(stored) : [])
+    } catch {
+      setFavorites([])
+    }
+  }, [storageKey])
+
+  useEffect(() => {
+    localStorage.setItem(storageKey, JSON.stringify(favorites))
+  }, [favorites, storageKey])
 
   const toggleFavorite = (id: string) => {
     setFavorites((prev) =>

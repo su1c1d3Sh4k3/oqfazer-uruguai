@@ -1,14 +1,32 @@
+import { useAuth } from '@/context/AuthContext'
 import { useFavorites } from '@/context/FavoritesContext'
 import { usePlaces } from '@/context/PlacesContext'
 import { PlaceCard } from '@/components/PlaceCard'
 import { HeartCrack, Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 
 export default function Favorites() {
+  const { currentUser } = useAuth()
   const { favorites } = useFavorites()
   const { places } = usePlaces()
   const navigate = useNavigate()
+
+  if (!currentUser) {
+    return (
+      <div className="animate-fade-in-up flex flex-col items-center justify-center h-full px-4 py-20 text-center">
+        <HeartCrack className="h-16 w-16 text-slate-300 mb-6" />
+        <h2 className="text-2xl font-bold text-slate-900 mb-4 font-display">Acesse sua conta</h2>
+        <p className="text-slate-500 font-medium mb-8 max-w-sm">
+          Faça login para salvar seus locais favoritos e acessá-los de qualquer dispositivo com a
+          nossa nuvem.
+        </p>
+        <Button asChild size="lg" className="rounded-xl px-8 font-bold shadow-md">
+          <Link to="/auth">Fazer Login</Link>
+        </Button>
+      </div>
+    )
+  }
 
   const favoritePlaces = places.filter((p) => favorites.includes(p.id))
 

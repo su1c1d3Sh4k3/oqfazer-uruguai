@@ -1,63 +1,112 @@
-import { MapPin, Search } from 'lucide-react'
+import { MapPin } from 'lucide-react'
+import { useState } from 'react'
 import { usePlaces } from '@/context/PlacesContext'
+import { useGeo } from '@/context/GeoContext'
 import { Link } from 'react-router-dom'
+import { isPlaceOpen, cn } from '@/lib/utils'
 
 export default function MapView() {
   const { places } = usePlaces()
+  const { location } = useGeo()
+  const [selectedPlace, setSelectedPlace] = useState<string | null>(null)
+
+  const lats = places.map((p) => p.coordinates.lat)
+  const lngs = places.map((p) => p.coordinates.lng)
+
+  const minLat = places.length ? Math.min(...lats) - 0.1 : -35.1
+  const maxLat = places.length ? Math.max(...lats) + 0.1 : -34.0
+  const minLng = places.length ? Math.min(...lngs) - 0.1 : -58.5
+  const maxLng = places.length ? Math.max(...lngs) + 0.1 : -54.0
+
+  const getTop = (lat: number) => {
+    const p = ((maxLat - lat) / (maxLat - minLat)) * 100
+    return `${Math.max(5, Math.min(95, p))}%`
+  }
+
+  const getLeft = (lng: number) => {
+    const p = ((lng - minLng) / (maxLng - minLng)) * 100
+    return `${Math.max(5, Math.min(95, p))}%`
+  }
 
   return (
-    <div className="animate-fade-in relative h-full w-full overflow-hidden bg-slate-100">
+    <div
+      className="animate-fade-in relative h-full w-full overflow-hidden bg-[#e5e3df]"
+      onClick={() => setSelectedPlace(null)}
+    >
       <img
-        src="https://img.usecurling.com/p/1200/800?q=street%20map&color=blue"
+        src="https://img.usecurling.com/p/1200/800?q=map&color=gray"
         alt="Map background"
-        className="absolute inset-0 h-full w-full object-cover opacity-60 grayscale-[0.3]"
+        className="absolute inset-0 h-full w-full object-cover opacity-30 mix-blend-multiply"
       />
 
-      <div className="absolute left-4 right-4 top-4 z-10 md:left-8 md:w-96">
-        <div className="flex items-center rounded-full border border-slate-100 bg-white px-4 py-3 shadow-lg">
-          <Search className="h-5 w-5 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Buscar no Uruguai..."
-            className="ml-3 flex-1 bg-transparent text-sm font-medium outline-none"
-          />
-        </div>
-      </div>
+      {places.map((place) => {
+        const isOpen = isPlaceOpen(place.operatingHours)
+        const isFeatured = place.featured
 
-      {places.slice(0, 5).map((place, index) => {
-        // Randomize mock positions for the mockup map view
-        const top = 20 + index * 13 + '%'
-        const left = 20 + index * 15 + '%'
+        const markerColor = isFeatured
+          ? 'bg-[#FFD700] border-[#E6C200] text-black'
+          : isOpen
+            ? 'bg-[#2E8B57] border-[#1F633D] text-white'
+            : 'bg-[#003399] border-[#002266] text-white'
+        const iconColor = isFeatured ? 'fill-black/20' : 'fill-white/20'
 
         return (
-          <div key={place.id} className="absolute z-20" style={{ top, left }}>
-            <Link to={`/place/${place.id}`} className="group relative flex flex-col items-center">
-              <div className="pointer-events-none absolute -top-14 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-                <div className="whitespace-nowrap rounded-xl border border-slate-100 bg-white px-3 py-2 text-sm font-bold shadow-xl">
-                  {place.name}
-                  <div className="mt-0.5 text-[10px] uppercase tracking-wider text-primary">
-                    {place.city}
-                  </div>
+          <div
+            key={place.id}
+            className="absolute z-20 -translate-x-1/2 -translate-y-1/2"
+            style={{ top: getTop(place.coordinates.lat), left: getLeft(place.coordinates.lng) }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setSelectedPlace(place.id)}
+              className={cn(
+                'flex h-10 w-10 items-center justify-center rounded-full border-2 shadow-lg transition-transform',
+                selectedPlace === place.id
+                  ? 'scale-125 z-30 ring-4 ring-primary/30'
+                  : 'hover:scale-110',
+                markerColor,
+              )}
+            >
+              <MapPin className={cn('h-5 w-5', iconColor)} />
+            </button>
+
+            {selectedPlace === place.id && (
+              <div className="absolute bottom-full left-1/2 mb-3 w-48 -translate-x-1/2 animate-in fade-in slide-in-from-bottom-2 z-40 overflow-hidden rounded-xl border border-slate-100 bg-white shadow-2xl">
+                <div className="p-3 text-center">
+                  <h3 className="mb-1 font-bold leading-tight text-slate-900">{place.name}</h3>
+                  <span className="mb-3 inline-block rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary">
+                    {place.category}
+                  </span>
+                  <Link
+                    to={`/place/${place.id}`}
+                    className="flex w-full items-center justify-center rounded-lg bg-secondary py-2 text-sm font-semibold text-secondary-foreground transition-colors hover:bg-secondary/90"
+                  >
+                    Ver Detalhes
+                  </Link>
                 </div>
-                <div className="absolute left-1/2 top-[calc(100%-4px)] h-3 w-3 -translate-x-1/2 rotate-45 border-b border-r border-slate-100 bg-white"></div>
+                <div className="absolute left-1/2 top-full -mt-px -translate-x-1/2 border-[6px] border-transparent border-t-white"></div>
               </div>
-              <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-white bg-primary text-white shadow-lg transition-transform hover:scale-110">
-                <MapPin className="h-5 w-5 fill-primary/20" />
-              </div>
-            </Link>
+            )}
           </div>
         )
       })}
 
-      <div className="absolute left-[30%] top-[60%] z-20 -translate-x-1/2 -translate-y-1/2">
-        <div className="relative flex h-6 w-6 items-center justify-center">
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-secondary opacity-75"></span>
-          <span className="relative inline-flex h-4 w-4 rounded-full border-2 border-white bg-secondary shadow-sm"></span>
+      {location && (
+        <div
+          className="absolute z-30 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+          style={{ top: getTop(location.lat), left: getLeft(location.lng) }}
+        >
+          <div className="relative flex flex-col items-center">
+            <div className="flex h-12 w-12 items-center justify-center">
+              <span className="absolute inline-flex h-8 w-8 animate-ping rounded-full bg-blue-400 opacity-75"></span>
+              <span className="relative inline-flex h-5 w-5 rounded-full border-2 border-white bg-blue-500 shadow-md"></span>
+            </div>
+            <div className="absolute top-full mt-1 whitespace-nowrap rounded-full bg-slate-900 px-3 py-1 text-[11px] font-bold text-white shadow-md">
+              Sua localização
+            </div>
+          </div>
         </div>
-        <div className="absolute left-1/2 top-full mt-1 -translate-x-1/2 whitespace-nowrap rounded bg-white/90 px-1.5 py-0.5 text-[10px] font-bold text-secondary backdrop-blur-sm shadow-sm">
-          Você está aqui
-        </div>
-      </div>
+      )}
     </div>
   )
 }

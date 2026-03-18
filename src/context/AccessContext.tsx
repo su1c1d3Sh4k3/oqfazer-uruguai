@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
+import { useAuth } from './AuthContext'
 
 interface AccessContextType {
   firstCheckIn: number | null
@@ -6,38 +7,49 @@ interface AccessContextType {
   placeCheckIns: Record<string, number>
   recordCheckIn: (placeId: string) => void
   getPlaceCheckIn: (placeId: string) => number | null
+  isGranted: boolean
+  grantAccess: (pwd: string) => boolean
+  revokeAccess: () => void
 }
 
 const AccessContext = createContext<AccessContextType | undefined>(undefined)
 
 export function AccessProvider({ children }: { children: React.ReactNode }) {
-  const [firstCheckIn, setFirstCheckIn] = useState<number | null>(() => {
-    try {
-      const stored = localStorage.getItem('@uruguai:checkin')
-      return stored ? parseInt(stored, 10) : null
-    } catch {
-      return null
-    }
+  const { currentUser } = useAuth()
+
+  const checkInKey = currentUser ? `@uruguai:checkins_${currentUser.id}` : '@uruguai:checkins_guest'
+  const firstCheckInKey = currentUser
+    ? `@uruguai:firstcheckin_${currentUser.id}`
+    : '@uruguai:firstcheckin_guest'
+
+  const [placeCheckIns, setPlaceCheckIns] = useState<Record<string, number>>({})
+  const [firstCheckIn, setFirstCheckIn] = useState<number | null>(null)
+  const [isGranted, setIsGranted] = useState<boolean>(() => {
+    return localStorage.getItem('@uruguai:admin') === 'true'
   })
 
-  const [placeCheckIns, setPlaceCheckIns] = useState<Record<string, number>>(() => {
+  useEffect(() => {
     try {
-      const stored = localStorage.getItem('@uruguai:placeCheckIns')
-      return stored ? JSON.parse(stored) : {}
+      const stored = localStorage.getItem(checkInKey)
+      setPlaceCheckIns(stored ? JSON.parse(stored) : {})
+
+      const storedFirst = localStorage.getItem(firstCheckInKey)
+      setFirstCheckIn(storedFirst ? parseInt(storedFirst, 10) : null)
     } catch {
-      return {}
+      setPlaceCheckIns({})
+      setFirstCheckIn(null)
     }
-  })
+  }, [checkInKey, firstCheckInKey])
+
+  useEffect(() => {
+    localStorage.setItem(checkInKey, JSON.stringify(placeCheckIns))
+  }, [placeCheckIns, checkInKey])
 
   useEffect(() => {
     if (firstCheckIn) {
-      localStorage.setItem('@uruguai:checkin', firstCheckIn.toString())
+      localStorage.setItem(firstCheckInKey, firstCheckIn.toString())
     }
-  }, [firstCheckIn])
-
-  useEffect(() => {
-    localStorage.setItem('@uruguai:placeCheckIns', JSON.stringify(placeCheckIns))
-  }, [placeCheckIns])
+  }, [firstCheckIn, firstCheckInKey])
 
   const recordCheckIn = (placeId: string) => {
     const now = Date.now()
@@ -49,12 +61,36 @@ export function AccessProvider({ children }: { children: React.ReactNode }) {
 
   const getPlaceCheckIn = (placeId: string) => placeCheckIns[placeId] || null
 
-  // Expires 10 days after first check-in
   const isExpired = firstCheckIn ? Date.now() > firstCheckIn + 10 * 24 * 60 * 60 * 1000 : false
+
+  const grantAccess = (pwd: string) => {
+    if (pwd === 'admin123') {
+      setIsGranted(true)
+      localStorage.setItem('@uruguai:admin', 'true')
+      return true
+    }
+    return false
+  }
+
+  const revokeAccess = () => {
+    setIsGranted(false)
+    localStorage.removeItem('@uruguai:admin')
+  }
 
   return React.createElement(
     AccessContext.Provider,
-    { value: { firstCheckIn, isExpired, placeCheckIns, recordCheckIn, getPlaceCheckIn } },
+    {
+      value: {
+        firstCheckIn,
+        isExpired,
+        placeCheckIns,
+        recordCheckIn,
+        getPlaceCheckIn,
+        isGranted,
+        grantAccess,
+        revokeAccess,
+      },
+    },
     children,
   )
 }

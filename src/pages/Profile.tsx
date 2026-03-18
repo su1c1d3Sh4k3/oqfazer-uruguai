@@ -1,3 +1,4 @@
+import { useAuth } from '@/context/AuthContext'
 import { useAccess } from '@/context/AccessContext'
 import { usePlaces } from '@/context/PlacesContext'
 import { PlaceCard } from '@/components/PlaceCard'
@@ -7,12 +8,28 @@ import { Button } from '@/components/ui/button'
 import { Link } from 'react-router-dom'
 
 export default function Profile() {
+  const { currentUser, logout } = useAuth()
   const { placeCheckIns } = useAccess()
   const { places } = usePlaces()
 
+  if (!currentUser) {
+    return (
+      <div className="animate-fade-in-up flex flex-col items-center justify-center h-full px-4 py-20 text-center">
+        <Award className="h-16 w-16 text-slate-300 mb-6" />
+        <h2 className="text-2xl font-bold text-slate-900 mb-4 font-display">Acesse sua conta</h2>
+        <p className="text-slate-500 font-medium mb-8 max-w-sm">
+          Faça login para salvar seus check-ins e acompanhar seu progresso de explorador pelo
+          Uruguai através de todos os seus dispositivos.
+        </p>
+        <Button asChild size="lg" className="rounded-xl px-8 font-bold shadow-md">
+          <Link to="/auth">Fazer Login ou Cadastro</Link>
+        </Button>
+      </div>
+    )
+  }
+
   const visitedIds = Object.keys(placeCheckIns)
   const visitedPlaces = places.filter((p) => visitedIds.includes(p.id))
-
   const checkInCount = visitedIds.length
 
   const levels = [
@@ -40,8 +57,11 @@ export default function Profile() {
           <h1 className="font-display text-2xl font-bold text-slate-900 md:text-3xl">
             Meu Progresso
           </h1>
-          <p className="text-slate-500 font-medium">Acompanhe suas conquistas pelo Uruguai</p>
+          <p className="text-slate-500 font-medium">{currentUser.email}</p>
         </div>
+        <Button variant="outline" size="sm" onClick={logout}>
+          Sair da Conta
+        </Button>
       </div>
 
       <div className="mb-10 rounded-3xl bg-white border border-slate-100 p-6 shadow-sm flex flex-col md:flex-row gap-6 md:gap-8 items-center text-center md:text-left">

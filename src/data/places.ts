@@ -14,7 +14,6 @@ export interface Place {
   category: string
   city: string
   discountBadge: string
-  rating: number
   coverImage: string
   galleryImages: string[]
   description: string
@@ -58,7 +57,6 @@ export const DEFAULT_PLACES: Place[] = [
     category: 'Restaurantes',
     city: 'Montevideo',
     discountBadge: '20% OFF',
-    rating: 4.8,
     coverImage: 'https://img.usecurling.com/p/600/400?q=steak&color=orange',
     galleryImages: [
       'https://img.usecurling.com/p/800/600?q=steak&seed=1&color=orange',
@@ -82,7 +80,6 @@ export const DEFAULT_PLACES: Place[] = [
     category: 'Passeios',
     city: 'Punta del Este',
     discountBadge: '5% OFF',
-    rating: 4.9,
     coverImage: 'https://img.usecurling.com/p/600/400?q=beach&color=red',
     galleryImages: [
       'https://img.usecurling.com/p/800/600?q=beach&seed=1&color=red',
@@ -111,7 +108,6 @@ export const DEFAULT_PLACES: Place[] = [
     category: 'Cafeterias',
     city: 'Colonia del Sacramento',
     discountBadge: 'Café + Alfajor 50% OFF',
-    rating: 4.9,
     coverImage: 'https://img.usecurling.com/p/600/400?q=cafe&color=orange',
     galleryImages: [
       'https://img.usecurling.com/p/800/600?q=coffee&seed=1&color=orange',
@@ -136,7 +132,6 @@ export const DEFAULT_PLACES: Place[] = [
     category: 'Vinícolas',
     city: 'Punta del Este',
     discountBadge: 'Degustação Extra',
-    rating: 4.9,
     coverImage: 'https://img.usecurling.com/p/600/400?q=vineyard&color=red',
     galleryImages: [
       'https://img.usecurling.com/p/800/600?q=wine%20glass&seed=6&color=red',

@@ -2,7 +2,6 @@ import { useParams, useNavigate } from 'react-router-dom'
 import {
   ArrowLeft,
   MapPin,
-  Star,
   Heart,
   Share2,
   Ticket,
@@ -12,6 +11,7 @@ import {
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
+import { useAuth } from '@/context/AuthContext'
 import { useFavorites } from '@/context/FavoritesContext'
 import { usePlaces } from '@/context/PlacesContext'
 import { useGeo } from '@/context/GeoContext'
@@ -39,6 +39,7 @@ import { PlaceCheckInTicket } from '@/components/PlaceCheckInTicket'
 export default function PlaceDetails() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { currentUser } = useAuth()
   const { isFavorite, toggleFavorite } = useFavorites()
   const { places } = usePlaces()
   const { calculateDistance } = useGeo()
@@ -77,9 +78,17 @@ export default function PlaceDetails() {
   }
 
   const handleCheckInConfirm = () => {
+    if (!currentUser) {
+      toast.error('Login necessário', {
+        description: 'Faça login na sua conta para realizar o check-in.',
+      })
+      navigate('/auth')
+      return
+    }
+
     if (isExpired) {
       toast.error('Acesso Expirado', {
-        description: 'Seu período de 10 dias de benefícios chegou ao fim.',
+        description: 'Seu período de benefícios chegou ao fim.',
       })
       return
     }
@@ -150,7 +159,10 @@ export default function PlaceDetails() {
                 <Share2 className="h-4 w-4 text-slate-600" />
               </button>
               <button
-                onClick={() => toggleFavorite(place.id)}
+                onClick={() => {
+                  if (!currentUser) navigate('/auth')
+                  else toggleFavorite(place.id)
+                }}
                 className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-100 bg-slate-50 transition-transform hover:scale-105"
               >
                 <Heart
@@ -169,9 +181,6 @@ export default function PlaceDetails() {
           <p className="mb-4 font-medium text-slate-500 text-lg">{place.city}</p>
 
           <div className="mb-8 flex flex-wrap items-center gap-4 border-b pb-6 text-sm text-slate-600">
-            <div className="flex items-center gap-1.5 rounded-md bg-slate-100 px-2 py-1 font-bold text-slate-900">
-              <Star className="h-4 w-4 fill-brand-yellow text-brand-yellow" /> {place.rating}
-            </div>
             <div className="flex items-center gap-1.5 font-medium">
               <MapPin className="h-4 w-4 text-slate-400" /> {displayDistance}
             </div>
@@ -308,9 +317,8 @@ export default function PlaceDetails() {
                 <DialogHeader>
                   <DialogTitle className="font-display text-xl">Confirmar Check-in</DialogTitle>
                   <DialogDescription className="text-base pt-2">
-                    Atenção: O check-in adicionará este local ao seu histórico de progresso e, caso
-                    aplicável, ativará seu desconto pelas próximas 24 horas. Certifique-se de estar
-                    no local antes de prosseguir.
+                    Atenção: O check-in adicionará este local ao seu histórico de progresso e
+                    ativará seu desconto pelas próximas 24 horas. Certifique-se de estar no local.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="flex gap-3 pt-4 justify-end">

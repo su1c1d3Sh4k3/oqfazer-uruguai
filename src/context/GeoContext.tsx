@@ -14,7 +14,7 @@ export function GeoProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if ('geolocation' in navigator) {
-      navigator.geolocation.getCurrentPosition(
+      const watchId = navigator.geolocation.watchPosition(
         (position) => {
           setLocation({
             lat: position.coords.latitude,
@@ -24,7 +24,9 @@ export function GeoProvider({ children }: { children: React.ReactNode }) {
         (err) => {
           setError(err.message)
         },
+        { enableHighAccuracy: true, maximumAge: 10000, timeout: 5000 },
       )
+      return () => navigator.geolocation.clearWatch(watchId)
     } else {
       setError('Geolocalização não suportada')
     }

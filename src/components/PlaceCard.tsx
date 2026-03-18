@@ -1,4 +1,4 @@
-import { Heart, Star, MapPin } from 'lucide-react'
+import { Heart, MapPin } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { Place } from '@/data/places'
 import { useFavorites } from '@/context/FavoritesContext'
@@ -70,10 +70,6 @@ export function PlaceCard({ place }: PlaceCardProps) {
               <p className="mt-0.5 text-xs font-bold uppercase tracking-wider text-primary">
                 {place.category}
               </p>
-            </div>
-            <div className="flex items-center gap-1 rounded-md bg-slate-100 px-1.5 py-0.5 text-sm font-bold text-slate-800">
-              <Star className="h-3.5 w-3.5 fill-brand-yellow text-brand-yellow" />
-              <span>{place.rating}</span>
             </div>
           </div>
           <div className="mt-auto flex items-center pt-3 text-sm text-slate-500">

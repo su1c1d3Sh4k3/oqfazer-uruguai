@@ -19294,10 +19294,6 @@ var ShieldCheck = createLucideIcon("shield-check", [["path", {
 	d: "m9 12 2 2 4-4",
 	key: "dzmm74"
 }]]);
-var Star = createLucideIcon("star", [["path", {
-	d: "M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z",
-	key: "r04s7s"
-}]]);
 var Tags = createLucideIcon("tags", [
 	["path", {
 		d: "M13.172 2a2 2 0 0 1 1.414.586l6.71 6.71a2.4 2.4 0 0 1 0 3.408l-4.592 4.592a2.4 2.4 0 0 1-3.408 0l-6.71-6.71A2 2 0 0 1 6 9.172V3a1 1 0 0 1 1-1z",
@@ -24336,20 +24332,69 @@ var TooltipContent = import_react.forwardRef(({ className, sideOffset = 4, ...pr
 }));
 TooltipContent.displayName = Content2$1.displayName;
 //#endregion
-//#region src/context/FavoritesContext.tsx
-var FavoritesContext = (0, import_react.createContext)(void 0);
-function FavoritesProvider({ children }) {
-	const [favorites, setFavorites] = (0, import_react.useState)(() => {
+//#region src/context/AuthContext.tsx
+var AuthContext = (0, import_react.createContext)(void 0);
+function AuthProvider({ children }) {
+	const [currentUser, setCurrentUser] = (0, import_react.useState)(() => {
 		try {
-			const stored = localStorage.getItem("@savordiscount:favorites");
-			return stored ? JSON.parse(stored) : [];
+			const saved = localStorage.getItem("@uruguai:user");
+			return saved ? JSON.parse(saved) : null;
 		} catch {
-			return [];
+			return null;
 		}
 	});
 	(0, import_react.useEffect)(() => {
-		localStorage.setItem("@savordiscount:favorites", JSON.stringify(favorites));
-	}, [favorites]);
+		if (currentUser) localStorage.setItem("@uruguai:user", JSON.stringify(currentUser));
+		else localStorage.removeItem("@uruguai:user");
+	}, [currentUser]);
+	const login = (email, _) => {
+		setCurrentUser({
+			id: email,
+			email
+		});
+		toast.success("Login realizado com sucesso!", { description: "Bem-vindo(a) de volta ao Uruguai." });
+	};
+	const register = (email, _) => {
+		setCurrentUser({
+			id: email,
+			email
+		});
+		toast.success("Conta criada com sucesso!", { description: "Sua jornada de descontos começa agora." });
+	};
+	const logout = () => {
+		setCurrentUser(null);
+		toast.success("Você saiu da conta.", { description: "Seus dados estão salvos com segurança." });
+	};
+	return import_react.createElement(AuthContext.Provider, { value: {
+		currentUser,
+		login,
+		register,
+		logout
+	} }, children);
+}
+function useAuth() {
+	const context = (0, import_react.useContext)(AuthContext);
+	if (context === void 0) throw new Error("useAuth must be used within an AuthProvider");
+	return context;
+}
+//#endregion
+//#region src/context/FavoritesContext.tsx
+var FavoritesContext = (0, import_react.createContext)(void 0);
+function FavoritesProvider({ children }) {
+	const { currentUser } = useAuth();
+	const storageKey = currentUser ? `@uruguai:favorites_${currentUser.id}` : "@uruguai:favorites_guest";
+	const [favorites, setFavorites] = (0, import_react.useState)([]);
+	(0, import_react.useEffect)(() => {
+		try {
+			const stored = localStorage.getItem(storageKey);
+			setFavorites(stored ? JSON.parse(stored) : []);
+		} catch {
+			setFavorites([]);
+		}
+	}, [storageKey]);
+	(0, import_react.useEffect)(() => {
+		localStorage.setItem(storageKey, JSON.stringify(favorites));
+	}, [favorites, storageKey]);
 	const toggleFavorite = (id) => {
 		setFavorites((prev) => prev.includes(id) ? prev.filter((favId) => favId !== id) : [...prev, id]);
 	};
@@ -24369,28 +24414,31 @@ function useFavorites() {
 //#region src/context/AccessContext.tsx
 var AccessContext = (0, import_react.createContext)(void 0);
 function AccessProvider({ children }) {
-	const [firstCheckIn, setFirstCheckIn] = (0, import_react.useState)(() => {
-		try {
-			const stored = localStorage.getItem("@uruguai:checkin");
-			return stored ? parseInt(stored, 10) : null;
-		} catch {
-			return null;
-		}
-	});
-	const [placeCheckIns, setPlaceCheckIns] = (0, import_react.useState)(() => {
-		try {
-			const stored = localStorage.getItem("@uruguai:placeCheckIns");
-			return stored ? JSON.parse(stored) : {};
-		} catch {
-			return {};
-		}
+	const { currentUser } = useAuth();
+	const checkInKey = currentUser ? `@uruguai:checkins_${currentUser.id}` : "@uruguai:checkins_guest";
+	const firstCheckInKey = currentUser ? `@uruguai:firstcheckin_${currentUser.id}` : "@uruguai:firstcheckin_guest";
+	const [placeCheckIns, setPlaceCheckIns] = (0, import_react.useState)({});
+	const [firstCheckIn, setFirstCheckIn] = (0, import_react.useState)(null);
+	const [isGranted, setIsGranted] = (0, import_react.useState)(() => {
+		return localStorage.getItem("@uruguai:admin") === "true";
 	});
 	(0, import_react.useEffect)(() => {
-		if (firstCheckIn) localStorage.setItem("@uruguai:checkin", firstCheckIn.toString());
-	}, [firstCheckIn]);
+		try {
+			const stored = localStorage.getItem(checkInKey);
+			setPlaceCheckIns(stored ? JSON.parse(stored) : {});
+			const storedFirst = localStorage.getItem(firstCheckInKey);
+			setFirstCheckIn(storedFirst ? parseInt(storedFirst, 10) : null);
+		} catch {
+			setPlaceCheckIns({});
+			setFirstCheckIn(null);
+		}
+	}, [checkInKey, firstCheckInKey]);
 	(0, import_react.useEffect)(() => {
-		localStorage.setItem("@uruguai:placeCheckIns", JSON.stringify(placeCheckIns));
-	}, [placeCheckIns]);
+		localStorage.setItem(checkInKey, JSON.stringify(placeCheckIns));
+	}, [placeCheckIns, checkInKey]);
+	(0, import_react.useEffect)(() => {
+		if (firstCheckIn) localStorage.setItem(firstCheckInKey, firstCheckIn.toString());
+	}, [firstCheckIn, firstCheckInKey]);
 	const recordCheckIn = (placeId) => {
 		const now = Date.now();
 		if (!firstCheckIn) setFirstCheckIn(now);
@@ -24401,12 +24449,27 @@ function AccessProvider({ children }) {
 	};
 	const getPlaceCheckIn = (placeId) => placeCheckIns[placeId] || null;
 	const isExpired = firstCheckIn ? Date.now() > firstCheckIn + 14400 * 60 * 1e3 : false;
+	const grantAccess = (pwd) => {
+		if (pwd === "admin123") {
+			setIsGranted(true);
+			localStorage.setItem("@uruguai:admin", "true");
+			return true;
+		}
+		return false;
+	};
+	const revokeAccess = () => {
+		setIsGranted(false);
+		localStorage.removeItem("@uruguai:admin");
+	};
 	return import_react.createElement(AccessContext.Provider, { value: {
 		firstCheckIn,
 		isExpired,
 		placeCheckIns,
 		recordCheckIn,
-		getPlaceCheckIn
+		getPlaceCheckIn,
+		isGranted,
+		grantAccess,
+		revokeAccess
 	} }, children);
 }
 function useAccess() {
@@ -24421,15 +24484,21 @@ function GeoProvider({ children }) {
 	const [location, setLocation] = (0, import_react.useState)(null);
 	const [error, setError] = (0, import_react.useState)(null);
 	(0, import_react.useEffect)(() => {
-		if ("geolocation" in navigator) navigator.geolocation.getCurrentPosition((position) => {
-			setLocation({
-				lat: position.coords.latitude,
-				lng: position.coords.longitude
+		if ("geolocation" in navigator) {
+			const watchId = navigator.geolocation.watchPosition((position) => {
+				setLocation({
+					lat: position.coords.latitude,
+					lng: position.coords.longitude
+				});
+			}, (err) => {
+				setError(err.message);
+			}, {
+				enableHighAccuracy: true,
+				maximumAge: 1e4,
+				timeout: 5e3
 			});
-		}, (err) => {
-			setError(err.message);
-		});
-		else setError("Geolocalização não suportada");
+			return () => navigator.geolocation.clearWatch(watchId);
+		} else setError("Geolocalização não suportada");
 	}, []);
 	const calculateDistance = (lat2, lng2) => {
 		if (!location) return null;
@@ -24517,7 +24586,6 @@ var DEFAULT_PLACES = [
 		category: "Restaurantes",
 		city: "Montevideo",
 		discountBadge: "20% OFF",
-		rating: 4.8,
 		coverImage: "https://img.usecurling.com/p/600/400?q=steak&color=orange",
 		galleryImages: [
 			"https://img.usecurling.com/p/800/600?q=steak&seed=1&color=orange",
@@ -24543,7 +24611,6 @@ var DEFAULT_PLACES = [
 		category: "Passeios",
 		city: "Punta del Este",
 		discountBadge: "5% OFF",
-		rating: 4.9,
 		coverImage: "https://img.usecurling.com/p/600/400?q=beach&color=red",
 		galleryImages: [
 			"https://img.usecurling.com/p/800/600?q=beach&seed=1&color=red",
@@ -24583,7 +24650,6 @@ var DEFAULT_PLACES = [
 		category: "Cafeterias",
 		city: "Colonia del Sacramento",
 		discountBadge: "Café + Alfajor 50% OFF",
-		rating: 4.9,
 		coverImage: "https://img.usecurling.com/p/600/400?q=cafe&color=orange",
 		galleryImages: [
 			"https://img.usecurling.com/p/800/600?q=coffee&seed=1&color=orange",
@@ -24609,7 +24675,6 @@ var DEFAULT_PLACES = [
 		category: "Vinícolas",
 		city: "Punta del Este",
 		discountBadge: "Degustação Extra",
-		rating: 4.9,
 		coverImage: "https://img.usecurling.com/p/600/400?q=vineyard&color=red",
 		galleryImages: [
 			"https://img.usecurling.com/p/800/600?q=wine%20glass&seed=6&color=red",
@@ -24667,6 +24732,14 @@ function PlacesProvider({ children }) {
 	(0, import_react.useEffect)(() => {
 		localStorage.setItem("@uruguai:categories", JSON.stringify(categories));
 	}, [categories]);
+	(0, import_react.useEffect)(() => {
+		const handleStorage = (e) => {
+			if (e.key === "@uruguai:places" && e.newValue) setPlaces(JSON.parse(e.newValue));
+			if (e.key === "@uruguai:categories" && e.newValue) setCategories(JSON.parse(e.newValue));
+		};
+		window.addEventListener("storage", handleStorage);
+		return () => window.removeEventListener("storage", handleStorage);
+	}, []);
 	const addPlace = (p) => setPlaces((prev) => [...prev, p]);
 	const updatePlace = (id, data) => setPlaces((prev) => prev.map((p) => p.id === id ? {
 		...p,
@@ -26529,6 +26602,42 @@ function Layout() {
 	});
 }
 //#endregion
+//#region src/components/ProximityAlerts.tsx
+function ProximityAlerts() {
+	const { location, calculateDistance } = useGeo();
+	const { places } = usePlaces();
+	const { placeCheckIns } = useAccess();
+	const alerted = (0, import_react.useRef)(/* @__PURE__ */ new Set());
+	(0, import_react.useEffect)(() => {
+		if (!location) return;
+		places.forEach((place) => {
+			if (placeCheckIns[place.id]) return;
+			if (alerted.current.has(place.id)) return;
+			if (!place.discountBadge && !place.discountDescription) return;
+			const dist = calculateDistance(place.coordinates.lat, place.coordinates.lng);
+			if (dist !== null && dist <= .5) {
+				alerted.current.add(place.id);
+				toast.message(`Alerta de Proximidade`, {
+					description: `Você está perto de ${place.name}! Aproveite seu cupom de desconto.`,
+					style: {
+						backgroundColor: "#FFD700",
+						color: "#000",
+						borderColor: "#E6C200",
+						fontWeight: "bold"
+					},
+					duration: 1e4
+				});
+			}
+		});
+	}, [
+		location,
+		places,
+		placeCheckIns,
+		calculateDistance
+	]);
+	return null;
+}
+//#endregion
 //#region src/components/ui/badge.tsx
 var badgeVariants = cva("inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2", {
 	variants: { variant: {
@@ -26615,11 +26724,11 @@ function PlaceCard({ place }) {
 				"data-uid": "src/components/PlaceCard.tsx:64:9",
 				"data-prohibitions": "[editContent]",
 				className: "flex flex-1 flex-col p-4",
-				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
 					"data-uid": "src/components/PlaceCard.tsx:65:11",
 					"data-prohibitions": "[editContent]",
 					className: "mb-1 flex items-start justify-between gap-2",
-					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 						"data-uid": "src/components/PlaceCard.tsx:66:13",
 						"data-prohibitions": "[editContent]",
 						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
@@ -26633,30 +26742,17 @@ function PlaceCard({ place }) {
 							className: "mt-0.5 text-xs font-bold uppercase tracking-wider text-primary",
 							children: place.category
 						})]
-					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						"data-uid": "src/components/PlaceCard.tsx:74:13",
-						"data-prohibitions": "[editContent]",
-						className: "flex items-center gap-1 rounded-md bg-slate-100 px-1.5 py-0.5 text-sm font-bold text-slate-800",
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Star, {
-							"data-uid": "src/components/PlaceCard.tsx:75:15",
-							"data-prohibitions": "[editContent]",
-							className: "h-3.5 w-3.5 fill-brand-yellow text-brand-yellow"
-						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-							"data-uid": "src/components/PlaceCard.tsx:76:15",
-							"data-prohibitions": "[editContent]",
-							children: place.rating
-						})]
-					})]
+					})
 				}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					"data-uid": "src/components/PlaceCard.tsx:79:11",
+					"data-uid": "src/components/PlaceCard.tsx:75:11",
 					"data-prohibitions": "[editContent]",
 					className: "mt-auto flex items-center pt-3 text-sm text-slate-500",
 					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(MapPin, {
-						"data-uid": "src/components/PlaceCard.tsx:80:13",
+						"data-uid": "src/components/PlaceCard.tsx:76:13",
 						"data-prohibitions": "[editContent]",
 						className: "mr-1 h-4 w-4 shrink-0 text-slate-400"
 					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-						"data-uid": "src/components/PlaceCard.tsx:81:13",
+						"data-uid": "src/components/PlaceCard.tsx:77:13",
 						"data-prohibitions": "[editContent]",
 						className: "truncate",
 						children: [
@@ -31365,6 +31461,7 @@ function PlaceCheckInTicket({ checkInTime }) {
 function PlaceDetails() {
 	const { id } = useParams();
 	const navigate = useNavigate();
+	const { currentUser } = useAuth();
 	const { isFavorite, toggleFavorite } = useFavorites();
 	const { places } = usePlaces();
 	const { calculateDistance } = useGeo();
@@ -31387,7 +31484,7 @@ function PlaceDetails() {
 		};
 	}, [place]);
 	if (!place) return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-		"data-uid": "src/pages/PlaceDetails.tsx:66:22",
+		"data-uid": "src/pages/PlaceDetails.tsx:67:22",
 		"data-prohibitions": "[]",
 		className: "p-8 text-center text-xl font-bold",
 		children: "Local não encontrado"
@@ -31405,8 +31502,13 @@ function PlaceDetails() {
 		});
 	};
 	const handleCheckInConfirm = () => {
+		if (!currentUser) {
+			toast.error("Login necessário", { description: "Faça login na sua conta para realizar o check-in." });
+			navigate("/auth");
+			return;
+		}
 		if (isExpired) {
-			toast.error("Acesso Expirado", { description: "Seu período de 10 dias de benefícios chegou ao fim." });
+			toast.error("Acesso Expirado", { description: "Seu período de benefícios chegou ao fim." });
 			return;
 		}
 		recordCheckIn(place.id);
@@ -31414,47 +31516,47 @@ function PlaceDetails() {
 		toast.success("Check-in realizado com sucesso!", { description: "Este local foi adicionado ao seu histórico de visitas." });
 	};
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-		"data-uid": "src/pages/PlaceDetails.tsx:94:5",
+		"data-uid": "src/pages/PlaceDetails.tsx:103:5",
 		"data-prohibitions": "[editContent]",
 		className: "relative flex flex-col lg:h-full lg:flex-row lg:overflow-hidden",
 		children: [
 			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-				"data-uid": "src/pages/PlaceDetails.tsx:95:7",
+				"data-uid": "src/pages/PlaceDetails.tsx:104:7",
 				"data-prohibitions": "[]",
 				onClick: () => navigate(-1),
 				className: "absolute left-4 top-4 z-50 flex h-10 w-10 items-center justify-center rounded-full bg-white/80 text-slate-900 shadow-md backdrop-blur-md transition-transform hover:scale-105 lg:hidden",
 				children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ArrowLeft, {
-					"data-uid": "src/pages/PlaceDetails.tsx:99:9",
+					"data-uid": "src/pages/PlaceDetails.tsx:108:9",
 					"data-prohibitions": "[editContent]",
 					className: "h-5 w-5"
 				})
 			}),
 			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				"data-uid": "src/pages/PlaceDetails.tsx:102:7",
+				"data-uid": "src/pages/PlaceDetails.tsx:111:7",
 				"data-prohibitions": "[editContent]",
 				className: "hide-scrollbar flex-1 overflow-y-auto lg:border-r",
 				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-					"data-uid": "src/pages/PlaceDetails.tsx:103:9",
+					"data-uid": "src/pages/PlaceDetails.tsx:112:9",
 					"data-prohibitions": "[editContent]",
 					className: "relative bg-slate-900",
 					children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Carousel, {
-						"data-uid": "src/pages/PlaceDetails.tsx:104:11",
+						"data-uid": "src/pages/PlaceDetails.tsx:113:11",
 						"data-prohibitions": "[editContent]",
 						opts: { loop: true },
 						className: "w-full",
 						children: [
 							/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CarouselContent, {
-								"data-uid": "src/pages/PlaceDetails.tsx:105:13",
+								"data-uid": "src/pages/PlaceDetails.tsx:114:13",
 								"data-prohibitions": "[editContent]",
 								children: place.galleryImages.map((img, index) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CarouselItem, {
-									"data-uid": "src/pages/PlaceDetails.tsx:107:17",
+									"data-uid": "src/pages/PlaceDetails.tsx:116:17",
 									"data-prohibitions": "[]",
 									children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-										"data-uid": "src/pages/PlaceDetails.tsx:108:19",
+										"data-uid": "src/pages/PlaceDetails.tsx:117:19",
 										"data-prohibitions": "[]",
 										className: "aspect-[4/3] w-full md:aspect-[16/9] lg:aspect-[3/2]",
 										children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("img", {
-											"data-uid": "src/pages/PlaceDetails.tsx:109:21",
+											"data-uid": "src/pages/PlaceDetails.tsx:118:21",
 											"data-prohibitions": "[editContent]",
 											src: img,
 											alt: `Foto ${index + 1}`,
@@ -31464,21 +31566,21 @@ function PlaceDetails() {
 								}, index))
 							}),
 							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								"data-uid": "src/pages/PlaceDetails.tsx:118:13",
+								"data-uid": "src/pages/PlaceDetails.tsx:127:13",
 								"data-prohibitions": "[]",
 								className: "hidden lg:block",
 								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CarouselPrevious, {
-									"data-uid": "src/pages/PlaceDetails.tsx:119:15",
+									"data-uid": "src/pages/PlaceDetails.tsx:128:15",
 									"data-prohibitions": "[editContent]",
 									className: "border-none bg-white/50 left-4 hover:bg-white"
 								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CarouselNext, {
-									"data-uid": "src/pages/PlaceDetails.tsx:120:15",
+									"data-uid": "src/pages/PlaceDetails.tsx:129:15",
 									"data-prohibitions": "[editContent]",
 									className: "border-none bg-white/50 right-4 hover:bg-white"
 								})]
 							}),
 							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-								"data-uid": "src/pages/PlaceDetails.tsx:122:13",
+								"data-uid": "src/pages/PlaceDetails.tsx:131:13",
 								"data-prohibitions": "[]",
 								className: "absolute bottom-4 right-4 z-10 rounded-md bg-black/60 px-2 py-1 text-xs font-medium text-white lg:hidden",
 								children: "Fotos"
@@ -31486,16 +31588,16 @@ function PlaceDetails() {
 						]
 					})
 				}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					"data-uid": "src/pages/PlaceDetails.tsx:128:9",
+					"data-uid": "src/pages/PlaceDetails.tsx:137:9",
 					"data-prohibitions": "[]",
 					className: "hidden p-8 lg:block",
 					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
-						"data-uid": "src/pages/PlaceDetails.tsx:129:11",
+						"data-uid": "src/pages/PlaceDetails.tsx:138:11",
 						"data-prohibitions": "[]",
 						className: "mb-4 font-display text-xl font-bold",
 						children: "Localização"
 					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(PlaceMapSection, {
-						"data-uid": "src/pages/PlaceDetails.tsx:130:11",
+						"data-uid": "src/pages/PlaceDetails.tsx:139:11",
 						"data-prohibitions": "[editContent]",
 						lat: place.coordinates.lat,
 						lng: place.coordinates.lng,
@@ -31505,44 +31607,47 @@ function PlaceDetails() {
 				})]
 			}),
 			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				"data-uid": "src/pages/PlaceDetails.tsx:139:7",
+				"data-uid": "src/pages/PlaceDetails.tsx:148:7",
 				"data-prohibitions": "[editContent]",
 				className: "hide-scrollbar flex-1 bg-white pb-24 lg:w-[480px] lg:flex-none lg:overflow-y-auto lg:pb-0",
 				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					"data-uid": "src/pages/PlaceDetails.tsx:140:9",
+					"data-uid": "src/pages/PlaceDetails.tsx:149:9",
 					"data-prohibitions": "[editContent]",
 					className: "p-5 md:p-8",
 					children: [
 						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							"data-uid": "src/pages/PlaceDetails.tsx:141:11",
+							"data-uid": "src/pages/PlaceDetails.tsx:150:11",
 							"data-prohibitions": "[editContent]",
 							className: "mb-3 flex items-center justify-between",
 							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-								"data-uid": "src/pages/PlaceDetails.tsx:142:13",
+								"data-uid": "src/pages/PlaceDetails.tsx:151:13",
 								"data-prohibitions": "[editContent]",
 								className: "rounded-md bg-primary/10 px-2 py-1 text-xs font-bold uppercase tracking-wider text-primary",
 								children: place.category
 							}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								"data-uid": "src/pages/PlaceDetails.tsx:145:13",
+								"data-uid": "src/pages/PlaceDetails.tsx:154:13",
 								"data-prohibitions": "[editContent]",
 								className: "flex items-center gap-2",
 								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-									"data-uid": "src/pages/PlaceDetails.tsx:146:15",
+									"data-uid": "src/pages/PlaceDetails.tsx:155:15",
 									"data-prohibitions": "[]",
 									onClick: handleShare,
 									className: "flex h-10 w-10 items-center justify-center rounded-full border border-slate-100 bg-slate-50 transition-transform hover:scale-105",
 									children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Share2, {
-										"data-uid": "src/pages/PlaceDetails.tsx:150:17",
+										"data-uid": "src/pages/PlaceDetails.tsx:159:17",
 										"data-prohibitions": "[editContent]",
 										className: "h-4 w-4 text-slate-600"
 									})
 								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-									"data-uid": "src/pages/PlaceDetails.tsx:152:15",
+									"data-uid": "src/pages/PlaceDetails.tsx:161:15",
 									"data-prohibitions": "[editContent]",
-									onClick: () => toggleFavorite(place.id),
+									onClick: () => {
+										if (!currentUser) navigate("/auth");
+										else toggleFavorite(place.id);
+									},
 									className: "flex h-10 w-10 items-center justify-center rounded-full border border-slate-100 bg-slate-50 transition-transform hover:scale-105",
 									children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Heart, {
-										"data-uid": "src/pages/PlaceDetails.tsx:156:17",
+										"data-uid": "src/pages/PlaceDetails.tsx:168:17",
 										"data-prohibitions": "[editContent]",
 										className: cn$1("h-5 w-5", favorite ? "animate-heart-pop fill-primary text-primary" : "text-slate-600")
 									})
@@ -31550,126 +31655,109 @@ function PlaceDetails() {
 							})]
 						}),
 						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", {
-							"data-uid": "src/pages/PlaceDetails.tsx:166:11",
+							"data-uid": "src/pages/PlaceDetails.tsx:178:11",
 							"data-prohibitions": "[editContent]",
 							className: "mb-2 font-display text-3xl font-bold leading-tight text-slate-900",
 							children: place.name
 						}),
 						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-							"data-uid": "src/pages/PlaceDetails.tsx:169:11",
+							"data-uid": "src/pages/PlaceDetails.tsx:181:11",
 							"data-prohibitions": "[editContent]",
 							className: "mb-4 font-medium text-slate-500 text-lg",
 							children: place.city
 						}),
 						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							"data-uid": "src/pages/PlaceDetails.tsx:171:11",
+							"data-uid": "src/pages/PlaceDetails.tsx:183:11",
 							"data-prohibitions": "[editContent]",
 							className: "mb-8 flex flex-wrap items-center gap-4 border-b pb-6 text-sm text-slate-600",
-							children: [
-								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									"data-uid": "src/pages/PlaceDetails.tsx:172:13",
-									"data-prohibitions": "[editContent]",
-									className: "flex items-center gap-1.5 rounded-md bg-slate-100 px-2 py-1 font-bold text-slate-900",
-									children: [
-										/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Star, {
-											"data-uid": "src/pages/PlaceDetails.tsx:173:15",
-											"data-prohibitions": "[editContent]",
-											className: "h-4 w-4 fill-brand-yellow text-brand-yellow"
-										}),
-										" ",
-										place.rating
-									]
-								}),
-								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									"data-uid": "src/pages/PlaceDetails.tsx:175:13",
-									"data-prohibitions": "[editContent]",
-									className: "flex items-center gap-1.5 font-medium",
-									children: [
-										/* @__PURE__ */ (0, import_jsx_runtime.jsx)(MapPin, {
-											"data-uid": "src/pages/PlaceDetails.tsx:176:15",
-											"data-prohibitions": "[editContent]",
-											className: "h-4 w-4 text-slate-400"
-										}),
-										" ",
-										displayDistance
-									]
-								}),
-								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									"data-uid": "src/pages/PlaceDetails.tsx:178:13",
-									"data-prohibitions": "[editContent]",
-									className: cn$1("flex items-center gap-1.5 font-medium", isOpen ? "text-secondary" : "text-red-500"),
-									children: [
-										/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Clock, {
-											"data-uid": "src/pages/PlaceDetails.tsx:184:15",
-											"data-prohibitions": "[editContent]",
-											className: "h-4 w-4"
-										}),
-										" ",
-										isOpen ? "Aberto agora" : "Fechado"
-									]
-								})
-							]
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								"data-uid": "src/pages/PlaceDetails.tsx:184:13",
+								"data-prohibitions": "[editContent]",
+								className: "flex items-center gap-1.5 font-medium",
+								children: [
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)(MapPin, {
+										"data-uid": "src/pages/PlaceDetails.tsx:185:15",
+										"data-prohibitions": "[editContent]",
+										className: "h-4 w-4 text-slate-400"
+									}),
+									" ",
+									displayDistance
+								]
+							}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								"data-uid": "src/pages/PlaceDetails.tsx:187:13",
+								"data-prohibitions": "[editContent]",
+								className: cn$1("flex items-center gap-1.5 font-medium", isOpen ? "text-secondary" : "text-red-500"),
+								children: [
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Clock, {
+										"data-uid": "src/pages/PlaceDetails.tsx:193:15",
+										"data-prohibitions": "[editContent]",
+										className: "h-4 w-4"
+									}),
+									" ",
+									isOpen ? "Aberto agora" : "Fechado"
+								]
+							})]
 						}),
 						checkInTime && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(PlaceCheckInTicket, {
-							"data-uid": "src/pages/PlaceDetails.tsx:188:27",
+							"data-uid": "src/pages/PlaceDetails.tsx:197:27",
 							"data-prohibitions": "[editContent]",
 							checkInTime
 						}),
 						isTour ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							"data-uid": "src/pages/PlaceDetails.tsx:191:13",
+							"data-uid": "src/pages/PlaceDetails.tsx:200:13",
 							"data-prohibitions": "[editContent]",
 							className: "mb-8 rounded-2xl border border-primary/20 bg-primary/5 p-5",
 							children: [
 								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									"data-uid": "src/pages/PlaceDetails.tsx:192:15",
+									"data-uid": "src/pages/PlaceDetails.tsx:201:15",
 									"data-prohibitions": "[]",
 									className: "mb-3 flex items-center gap-2",
 									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Ticket, {
-										"data-uid": "src/pages/PlaceDetails.tsx:193:17",
+										"data-uid": "src/pages/PlaceDetails.tsx:202:17",
 										"data-prohibitions": "[editContent]",
 										className: "h-5 w-5 text-primary"
 									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
-										"data-uid": "src/pages/PlaceDetails.tsx:194:17",
+										"data-uid": "src/pages/PlaceDetails.tsx:203:17",
 										"data-prohibitions": "[]",
 										className: "font-bold text-lg text-primary",
 										children: "Cupom de Desconto"
 									})]
 								}),
 								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-									"data-uid": "src/pages/PlaceDetails.tsx:196:15",
+									"data-uid": "src/pages/PlaceDetails.tsx:205:15",
 									"data-prohibitions": "[editContent]",
 									className: "mb-4 text-sm text-slate-700 font-medium",
 									children: place.discountDescription
 								}),
 								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									"data-uid": "src/pages/PlaceDetails.tsx:197:15",
+									"data-uid": "src/pages/PlaceDetails.tsx:206:15",
 									"data-prohibitions": "[editContent]",
 									className: "mb-4 rounded-xl border-2 border-dashed border-primary/30 bg-white p-4 text-center",
 									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-										"data-uid": "src/pages/PlaceDetails.tsx:198:17",
+										"data-uid": "src/pages/PlaceDetails.tsx:207:17",
 										"data-prohibitions": "[]",
 										className: "mb-1 block text-xs font-bold uppercase tracking-widest text-slate-500",
 										children: "Código do Cupom"
 									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-										"data-uid": "src/pages/PlaceDetails.tsx:201:17",
+										"data-uid": "src/pages/PlaceDetails.tsx:210:17",
 										"data-prohibitions": "[editContent]",
 										className: "font-mono text-2xl font-black text-slate-900",
 										children: place.couponCode
 									})]
 								}),
 								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
-									"data-uid": "src/pages/PlaceDetails.tsx:205:15",
+									"data-uid": "src/pages/PlaceDetails.tsx:214:15",
 									"data-prohibitions": "[]",
 									asChild: true,
 									className: "h-12 w-full font-bold text-base shadow-md",
 									children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("a", {
-										"data-uid": "src/pages/PlaceDetails.tsx:206:17",
+										"data-uid": "src/pages/PlaceDetails.tsx:215:17",
 										"data-prohibitions": "[]",
 										href: place.bookingUrl,
 										target: "_blank",
 										rel: "noreferrer",
 										children: ["Reservar Agora ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ExternalLink, {
-											"data-uid": "src/pages/PlaceDetails.tsx:207:34",
+											"data-uid": "src/pages/PlaceDetails.tsx:216:34",
 											"data-prohibitions": "[editContent]",
 											className: "ml-2 h-4 w-4"
 										})]
@@ -31677,33 +31765,33 @@ function PlaceDetails() {
 								})
 							]
 						}) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							"data-uid": "src/pages/PlaceDetails.tsx:212:13",
+							"data-uid": "src/pages/PlaceDetails.tsx:221:13",
 							"data-prohibitions": "[editContent]",
 							className: "mb-8 rounded-2xl border border-brand-yellow/50 bg-brand-yellow/10 p-5 shadow-sm",
 							children: [
 								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									"data-uid": "src/pages/PlaceDetails.tsx:213:15",
+									"data-uid": "src/pages/PlaceDetails.tsx:222:15",
 									"data-prohibitions": "[]",
 									className: "mb-2 flex items-center gap-2 text-slate-900",
 									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Ticket, {
-										"data-uid": "src/pages/PlaceDetails.tsx:214:17",
+										"data-uid": "src/pages/PlaceDetails.tsx:223:17",
 										"data-prohibitions": "[editContent]",
 										className: "h-6 w-6 text-brand-yellow drop-shadow-sm"
 									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
-										"data-uid": "src/pages/PlaceDetails.tsx:215:17",
+										"data-uid": "src/pages/PlaceDetails.tsx:224:17",
 										"data-prohibitions": "[]",
 										className: "font-display text-lg font-bold",
 										children: "Oferta Exclusiva"
 									})]
 								}),
 								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-									"data-uid": "src/pages/PlaceDetails.tsx:217:15",
+									"data-uid": "src/pages/PlaceDetails.tsx:226:15",
 									"data-prohibitions": "[editContent]",
 									className: "mb-3 text-2xl font-black text-slate-900",
 									children: place.discountBadge
 								}),
 								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-									"data-uid": "src/pages/PlaceDetails.tsx:218:15",
+									"data-uid": "src/pages/PlaceDetails.tsx:227:15",
 									"data-prohibitions": "[editContent]",
 									className: "text-sm font-medium leading-relaxed text-slate-700",
 									children: place.discountDescription
@@ -31711,31 +31799,31 @@ function PlaceDetails() {
 							]
 						}),
 						place.operatingHours && place.operatingHours.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							"data-uid": "src/pages/PlaceDetails.tsx:225:13",
+							"data-uid": "src/pages/PlaceDetails.tsx:234:13",
 							"data-prohibitions": "[editContent]",
 							className: "mb-8",
 							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
-								"data-uid": "src/pages/PlaceDetails.tsx:226:15",
+								"data-uid": "src/pages/PlaceDetails.tsx:235:15",
 								"data-prohibitions": "[]",
 								className: "mb-3 font-display text-xl font-bold text-slate-900",
 								children: "Horários de Funcionamento"
 							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-								"data-uid": "src/pages/PlaceDetails.tsx:229:15",
+								"data-uid": "src/pages/PlaceDetails.tsx:238:15",
 								"data-prohibitions": "[editContent]",
 								className: "space-y-2 rounded-xl border border-slate-100 bg-slate-50 p-4",
 								children: DAYS_OF_WEEK.map((day) => {
 									const hours = place.operatingHours?.find((h) => h.day === day.value);
 									const isToday = (/* @__PURE__ */ new Date()).getDay() === day.value;
 									return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-										"data-uid": "src/pages/PlaceDetails.tsx:234:21",
+										"data-uid": "src/pages/PlaceDetails.tsx:243:21",
 										"data-prohibitions": "[editContent]",
 										className: cn$1("flex justify-between text-sm", isToday ? "font-bold text-primary" : "text-slate-600 font-medium"),
 										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-											"data-uid": "src/pages/PlaceDetails.tsx:241:23",
+											"data-uid": "src/pages/PlaceDetails.tsx:250:23",
 											"data-prohibitions": "[editContent]",
 											children: day.label
 										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-											"data-uid": "src/pages/PlaceDetails.tsx:242:23",
+											"data-uid": "src/pages/PlaceDetails.tsx:251:23",
 											"data-prohibitions": "[editContent]",
 											children: hours?.isOpen ? `${hours.openTime} - ${hours.closeTime}` : "Fechado"
 										})]
@@ -31744,44 +31832,44 @@ function PlaceDetails() {
 							})]
 						}),
 						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							"data-uid": "src/pages/PlaceDetails.tsx:252:11",
+							"data-uid": "src/pages/PlaceDetails.tsx:261:11",
 							"data-prohibitions": "[editContent]",
 							className: "mb-8",
 							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
-								"data-uid": "src/pages/PlaceDetails.tsx:253:13",
+								"data-uid": "src/pages/PlaceDetails.tsx:262:13",
 								"data-prohibitions": "[]",
 								className: "mb-3 font-display text-xl font-bold text-slate-900",
 								children: "Sobre"
 							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-								"data-uid": "src/pages/PlaceDetails.tsx:254:13",
+								"data-uid": "src/pages/PlaceDetails.tsx:263:13",
 								"data-prohibitions": "[editContent]",
 								className: "leading-relaxed text-slate-600",
 								children: place.description
 							})]
 						}),
 						isTour && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							"data-uid": "src/pages/PlaceDetails.tsx:258:13",
+							"data-uid": "src/pages/PlaceDetails.tsx:267:13",
 							"data-prohibitions": "[editContent]",
 							className: "mb-8 space-y-6",
 							children: [place.included && place.included.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								"data-uid": "src/pages/PlaceDetails.tsx:260:17",
+								"data-uid": "src/pages/PlaceDetails.tsx:269:17",
 								"data-prohibitions": "[editContent]",
 								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
-									"data-uid": "src/pages/PlaceDetails.tsx:261:19",
+									"data-uid": "src/pages/PlaceDetails.tsx:270:19",
 									"data-prohibitions": "[]",
 									className: "mb-3 font-display text-lg font-bold",
 									children: "O que está incluído"
 								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", {
-									"data-uid": "src/pages/PlaceDetails.tsx:262:19",
+									"data-uid": "src/pages/PlaceDetails.tsx:271:19",
 									"data-prohibitions": "[editContent]",
 									className: "space-y-2",
 									children: place.included.map((item) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("li", {
-										"data-uid": "src/pages/PlaceDetails.tsx:264:23",
+										"data-uid": "src/pages/PlaceDetails.tsx:273:23",
 										"data-prohibitions": "[editContent]",
 										className: "flex items-center gap-2 text-slate-600",
 										children: [
 											/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CircleCheck, {
-												"data-uid": "src/pages/PlaceDetails.tsx:265:25",
+												"data-uid": "src/pages/PlaceDetails.tsx:274:25",
 												"data-prohibitions": "[editContent]",
 												className: "h-5 w-5 text-secondary"
 											}),
@@ -31791,19 +31879,19 @@ function PlaceDetails() {
 									}, item))
 								})]
 							}), place.availableDays && place.availableDays.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								"data-uid": "src/pages/PlaceDetails.tsx:272:17",
+								"data-uid": "src/pages/PlaceDetails.tsx:281:17",
 								"data-prohibitions": "[editContent]",
 								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
-									"data-uid": "src/pages/PlaceDetails.tsx:273:19",
+									"data-uid": "src/pages/PlaceDetails.tsx:282:19",
 									"data-prohibitions": "[]",
 									className: "mb-3 font-display text-lg font-bold",
 									children: "Dias disponíveis"
 								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-									"data-uid": "src/pages/PlaceDetails.tsx:274:19",
+									"data-uid": "src/pages/PlaceDetails.tsx:283:19",
 									"data-prohibitions": "[editContent]",
 									className: "flex flex-wrap gap-2",
 									children: place.availableDays.map((day) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Badge, {
-										"data-uid": "src/pages/PlaceDetails.tsx:276:23",
+										"data-uid": "src/pages/PlaceDetails.tsx:285:23",
 										"data-prohibitions": "[editContent]",
 										variant: "outline",
 										className: "bg-slate-50",
@@ -31813,16 +31901,16 @@ function PlaceDetails() {
 							})]
 						}),
 						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							"data-uid": "src/pages/PlaceDetails.tsx:286:11",
+							"data-uid": "src/pages/PlaceDetails.tsx:295:11",
 							"data-prohibitions": "[]",
 							className: "mb-8 lg:hidden",
 							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
-								"data-uid": "src/pages/PlaceDetails.tsx:287:13",
+								"data-uid": "src/pages/PlaceDetails.tsx:296:13",
 								"data-prohibitions": "[]",
 								className: "mb-3 font-display text-xl font-bold text-slate-900",
 								children: "Localização"
 							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(PlaceMapSection, {
-								"data-uid": "src/pages/PlaceDetails.tsx:288:13",
+								"data-uid": "src/pages/PlaceDetails.tsx:297:13",
 								"data-prohibitions": "[editContent]",
 								lat: place.coordinates.lat,
 								lng: place.coordinates.lng,
@@ -31832,51 +31920,51 @@ function PlaceDetails() {
 						})
 					]
 				}), !checkInTime && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-					"data-uid": "src/pages/PlaceDetails.tsx:298:11",
+					"data-uid": "src/pages/PlaceDetails.tsx:307:11",
 					"data-prohibitions": "[]",
 					className: "fixed bottom-0 left-0 right-0 z-40 border-t bg-white p-4 pb-safe shadow-[0_-10px_15px_-3px_rgb(0,0,0,0.05)] lg:sticky lg:border-none lg:bg-transparent lg:px-8 lg:pb-8 lg:shadow-none",
 					children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Dialog, {
-						"data-uid": "src/pages/PlaceDetails.tsx:299:13",
+						"data-uid": "src/pages/PlaceDetails.tsx:308:13",
 						"data-prohibitions": "[]",
 						open: showCheckInDialog,
 						onOpenChange: setShowCheckInDialog,
 						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
-							"data-uid": "src/pages/PlaceDetails.tsx:300:15",
+							"data-uid": "src/pages/PlaceDetails.tsx:309:15",
 							"data-prohibitions": "[]",
 							size: "lg",
 							onClick: () => setShowCheckInDialog(true),
 							className: "h-14 w-full rounded-2xl text-lg font-bold shadow-xl shadow-primary/20 transition-transform hover:scale-[1.02] active:scale-[0.98]",
 							children: "Realizar Check-in"
 						}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DialogContent, {
-							"data-uid": "src/pages/PlaceDetails.tsx:307:15",
+							"data-uid": "src/pages/PlaceDetails.tsx:316:15",
 							"data-prohibitions": "[]",
 							className: "sm:max-w-md rounded-2xl",
 							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DialogHeader, {
-								"data-uid": "src/pages/PlaceDetails.tsx:308:17",
+								"data-uid": "src/pages/PlaceDetails.tsx:317:17",
 								"data-prohibitions": "[]",
 								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogTitle, {
-									"data-uid": "src/pages/PlaceDetails.tsx:309:19",
+									"data-uid": "src/pages/PlaceDetails.tsx:318:19",
 									"data-prohibitions": "[]",
 									className: "font-display text-xl",
 									children: "Confirmar Check-in"
 								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogDescription, {
-									"data-uid": "src/pages/PlaceDetails.tsx:310:19",
+									"data-uid": "src/pages/PlaceDetails.tsx:319:19",
 									"data-prohibitions": "[]",
 									className: "text-base pt-2",
-									children: "Atenção: O check-in adicionará este local ao seu histórico de progresso e, caso aplicável, ativará seu desconto pelas próximas 24 horas. Certifique-se de estar no local antes de prosseguir."
+									children: "Atenção: O check-in adicionará este local ao seu histórico de progresso e ativará seu desconto pelas próximas 24 horas. Certifique-se de estar no local."
 								})]
 							}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								"data-uid": "src/pages/PlaceDetails.tsx:316:17",
+								"data-uid": "src/pages/PlaceDetails.tsx:324:17",
 								"data-prohibitions": "[]",
 								className: "flex gap-3 pt-4 justify-end",
 								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
-									"data-uid": "src/pages/PlaceDetails.tsx:317:19",
+									"data-uid": "src/pages/PlaceDetails.tsx:325:19",
 									"data-prohibitions": "[]",
 									variant: "outline",
 									onClick: () => setShowCheckInDialog(false),
 									children: "Cancelar"
 								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
-									"data-uid": "src/pages/PlaceDetails.tsx:320:19",
+									"data-uid": "src/pages/PlaceDetails.tsx:328:19",
 									"data-prohibitions": "[]",
 									onClick: handleCheckInConfirm,
 									children: "Confirmar Check-in"
@@ -31892,80 +31980,118 @@ function PlaceDetails() {
 //#endregion
 //#region src/pages/Favorites.tsx
 function Favorites() {
+	const { currentUser } = useAuth();
 	const { favorites } = useFavorites();
 	const { places } = usePlaces();
 	const navigate = useNavigate();
+	if (!currentUser) return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+		"data-uid": "src/pages/Favorites.tsx:17:7",
+		"data-prohibitions": "[]",
+		className: "animate-fade-in-up flex flex-col items-center justify-center h-full px-4 py-20 text-center",
+		children: [
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)(HeartCrack, {
+				"data-uid": "src/pages/Favorites.tsx:18:9",
+				"data-prohibitions": "[editContent]",
+				className: "h-16 w-16 text-slate-300 mb-6"
+			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
+				"data-uid": "src/pages/Favorites.tsx:19:9",
+				"data-prohibitions": "[]",
+				className: "text-2xl font-bold text-slate-900 mb-4 font-display",
+				children: "Acesse sua conta"
+			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+				"data-uid": "src/pages/Favorites.tsx:20:9",
+				"data-prohibitions": "[]",
+				className: "text-slate-500 font-medium mb-8 max-w-sm",
+				children: "Faça login para salvar seus locais favoritos e acessá-los de qualquer dispositivo com a nossa nuvem."
+			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
+				"data-uid": "src/pages/Favorites.tsx:24:9",
+				"data-prohibitions": "[]",
+				asChild: true,
+				size: "lg",
+				className: "rounded-xl px-8 font-bold shadow-md",
+				children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
+					"data-uid": "src/pages/Favorites.tsx:25:11",
+					"data-prohibitions": "[]",
+					to: "/auth",
+					children: "Fazer Login"
+				})
+			})
+		]
+	});
 	const favoritePlaces = places.filter((p) => favorites.includes(p.id));
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-		"data-uid": "src/pages/Favorites.tsx:16:5",
+		"data-uid": "src/pages/Favorites.tsx:34:5",
 		"data-prohibitions": "[editContent]",
 		className: "flex h-full flex-col px-4 pb-8 pt-4 md:px-8 md:pt-8",
 		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-			"data-uid": "src/pages/Favorites.tsx:17:7",
+			"data-uid": "src/pages/Favorites.tsx:35:7",
 			"data-prohibitions": "[editContent]",
 			className: "mb-6 flex items-center justify-between md:mb-8",
 			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", {
-				"data-uid": "src/pages/Favorites.tsx:18:9",
+				"data-uid": "src/pages/Favorites.tsx:36:9",
 				"data-prohibitions": "[]",
 				className: "font-display text-2xl font-bold text-slate-900 md:text-3xl",
 				children: "Meus Favoritos"
 			}), favoritePlaces.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-				"data-uid": "src/pages/Favorites.tsx:22:11",
+				"data-uid": "src/pages/Favorites.tsx:40:11",
 				"data-prohibitions": "[editContent]",
 				className: "rounded-full bg-secondary/20 px-3 py-1 text-sm font-bold text-slate-800",
 				children: [favoritePlaces.length, " salvos"]
 			})]
 		}), favoritePlaces.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-			"data-uid": "src/pages/Favorites.tsx:29:9",
+			"data-uid": "src/pages/Favorites.tsx:47:9",
 			"data-prohibitions": "[]",
 			className: "animate-fade-in-up flex flex-1 flex-col items-center justify-center pb-20 text-center",
 			children: [
 				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-					"data-uid": "src/pages/Favorites.tsx:30:11",
+					"data-uid": "src/pages/Favorites.tsx:48:11",
 					"data-prohibitions": "[]",
 					className: "mb-6 flex h-32 w-32 items-center justify-center rounded-full bg-slate-100",
 					children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(HeartCrack, {
-						"data-uid": "src/pages/Favorites.tsx:31:13",
+						"data-uid": "src/pages/Favorites.tsx:49:13",
 						"data-prohibitions": "[editContent]",
 						className: "h-12 w-12 text-slate-300"
 					})
 				}),
 				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
-					"data-uid": "src/pages/Favorites.tsx:33:11",
+					"data-uid": "src/pages/Favorites.tsx:51:11",
 					"data-prohibitions": "[]",
 					className: "mb-2 font-display text-2xl font-bold text-slate-900",
 					children: "Nenhum favorito ainda"
 				}),
 				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-					"data-uid": "src/pages/Favorites.tsx:36:11",
+					"data-uid": "src/pages/Favorites.tsx:54:11",
 					"data-prohibitions": "[]",
 					className: "mb-8 max-w-sm font-medium text-slate-500",
 					children: "Você ainda não salvou nenhuma atividade. Explore as opções pelo Uruguai e guarde seus favoritos!"
 				}),
 				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Button, {
-					"data-uid": "src/pages/Favorites.tsx:40:11",
+					"data-uid": "src/pages/Favorites.tsx:58:11",
 					"data-prohibitions": "[]",
 					size: "lg",
 					className: "rounded-full px-8 font-bold shadow-md",
 					onClick: () => navigate("/"),
 					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, {
-						"data-uid": "src/pages/Favorites.tsx:45:13",
+						"data-uid": "src/pages/Favorites.tsx:63:13",
 						"data-prohibitions": "[editContent]",
 						className: "mr-2 h-5 w-5"
 					}), "Explorar Locais"]
 				})
 			]
 		}) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-			"data-uid": "src/pages/Favorites.tsx:50:9",
+			"data-uid": "src/pages/Favorites.tsx:68:9",
 			"data-prohibitions": "[editContent]",
 			className: "grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4",
 			children: favoritePlaces.map((place, index) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-				"data-uid": "src/pages/Favorites.tsx:52:13",
+				"data-uid": "src/pages/Favorites.tsx:70:13",
 				"data-prohibitions": "[]",
 				className: "animate-fade-in-up",
 				style: { animationDelay: `${index * 50}ms` },
 				children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(PlaceCard, {
-					"data-uid": "src/pages/Favorites.tsx:57:15",
+					"data-uid": "src/pages/Favorites.tsx:75:15",
 					"data-prohibitions": "[editContent]",
 					place
 				})
@@ -31977,110 +32103,128 @@ function Favorites() {
 //#region src/pages/MapView.tsx
 function MapView() {
 	const { places } = usePlaces();
+	const { location } = useGeo();
+	const [selectedPlace, setSelectedPlace] = (0, import_react.useState)(null);
+	const lats = places.map((p) => p.coordinates.lat);
+	const lngs = places.map((p) => p.coordinates.lng);
+	const minLat = places.length ? Math.min(...lats) - .1 : -35.1;
+	const maxLat = places.length ? Math.max(...lats) + .1 : -34;
+	const minLng = places.length ? Math.min(...lngs) - .1 : -58.5;
+	const maxLng = places.length ? Math.max(...lngs) + .1 : -54;
+	const getTop = (lat) => {
+		const p = (maxLat - lat) / (maxLat - minLat) * 100;
+		return `${Math.max(5, Math.min(95, p))}%`;
+	};
+	const getLeft = (lng) => {
+		const p = (lng - minLng) / (maxLng - minLng) * 100;
+		return `${Math.max(5, Math.min(95, p))}%`;
+	};
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-		"data-uid": "src/pages/MapView.tsx:9:5",
+		"data-uid": "src/pages/MapView.tsx:32:5",
 		"data-prohibitions": "[editContent]",
-		className: "animate-fade-in relative h-full w-full overflow-hidden bg-slate-100",
+		className: "animate-fade-in relative h-full w-full overflow-hidden bg-[#e5e3df]",
+		onClick: () => setSelectedPlace(null),
 		children: [
 			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("img", {
-				"data-uid": "src/pages/MapView.tsx:10:7",
+				"data-uid": "src/pages/MapView.tsx:36:7",
 				"data-prohibitions": "[editContent]",
-				src: "https://img.usecurling.com/p/1200/800?q=street%20map&color=blue",
+				src: "https://img.usecurling.com/p/1200/800?q=map&color=gray",
 				alt: "Map background",
-				className: "absolute inset-0 h-full w-full object-cover opacity-60 grayscale-[0.3]"
+				className: "absolute inset-0 h-full w-full object-cover opacity-30 mix-blend-multiply"
 			}),
-			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-				"data-uid": "src/pages/MapView.tsx:16:7",
-				"data-prohibitions": "[]",
-				className: "absolute left-4 right-4 top-4 z-10 md:left-8 md:w-96",
-				children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					"data-uid": "src/pages/MapView.tsx:17:9",
-					"data-prohibitions": "[]",
-					className: "flex items-center rounded-full border border-slate-100 bg-white px-4 py-3 shadow-lg",
-					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Search, {
-						"data-uid": "src/pages/MapView.tsx:18:11",
-						"data-prohibitions": "[editContent]",
-						className: "h-5 w-5 text-slate-400"
-					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-						"data-uid": "src/pages/MapView.tsx:19:11",
-						"data-prohibitions": "[editContent]",
-						type: "text",
-						placeholder: "Buscar no Uruguai...",
-						className: "ml-3 flex-1 bg-transparent text-sm font-medium outline-none"
-					})]
-				})
-			}),
-			places.slice(0, 5).map((place, index) => {
-				const top = 20 + index * 13 + "%";
-				const left = 20 + index * 15 + "%";
-				return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-					"data-uid": "src/pages/MapView.tsx:33:11",
+			places.map((place) => {
+				const isOpen = isPlaceOpen(place.operatingHours);
+				const isFeatured = place.featured;
+				const markerColor = isFeatured ? "bg-[#FFD700] border-[#E6C200] text-black" : isOpen ? "bg-[#2E8B57] border-[#1F633D] text-white" : "bg-[#003399] border-[#002266] text-white";
+				const iconColor = isFeatured ? "fill-black/20" : "fill-white/20";
+				return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					"data-uid": "src/pages/MapView.tsx:54:11",
 					"data-prohibitions": "[editContent]",
-					className: "absolute z-20",
+					className: "absolute z-20 -translate-x-1/2 -translate-y-1/2",
 					style: {
-						top,
-						left
+						top: getTop(place.coordinates.lat),
+						left: getLeft(place.coordinates.lng)
 					},
-					children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Link, {
-						"data-uid": "src/pages/MapView.tsx:34:13",
+					onClick: (e) => e.stopPropagation(),
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+						"data-uid": "src/pages/MapView.tsx:60:13",
 						"data-prohibitions": "[editContent]",
-						to: `/place/${place.id}`,
-						className: "group relative flex flex-col items-center",
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							"data-uid": "src/pages/MapView.tsx:35:15",
+						onClick: () => setSelectedPlace(place.id),
+						className: cn$1("flex h-10 w-10 items-center justify-center rounded-full border-2 shadow-lg transition-transform", selectedPlace === place.id ? "scale-125 z-30 ring-4 ring-primary/30" : "hover:scale-110", markerColor),
+						children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(MapPin, {
+							"data-uid": "src/pages/MapView.tsx:70:15",
 							"data-prohibitions": "[editContent]",
-							className: "pointer-events-none absolute -top-14 opacity-0 transition-opacity duration-200 group-hover:opacity-100",
-							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								"data-uid": "src/pages/MapView.tsx:36:17",
-								"data-prohibitions": "[editContent]",
-								className: "whitespace-nowrap rounded-xl border border-slate-100 bg-white px-3 py-2 text-sm font-bold shadow-xl",
-								children: [place.name, /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-									"data-uid": "src/pages/MapView.tsx:38:19",
+							className: cn$1("h-5 w-5", iconColor)
+						})
+					}), selectedPlace === place.id && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						"data-uid": "src/pages/MapView.tsx:74:15",
+						"data-prohibitions": "[editContent]",
+						className: "absolute bottom-full left-1/2 mb-3 w-48 -translate-x-1/2 animate-in fade-in slide-in-from-bottom-2 z-40 overflow-hidden rounded-xl border border-slate-100 bg-white shadow-2xl",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							"data-uid": "src/pages/MapView.tsx:75:17",
+							"data-prohibitions": "[editContent]",
+							className: "p-3 text-center",
+							children: [
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
+									"data-uid": "src/pages/MapView.tsx:76:19",
 									"data-prohibitions": "[editContent]",
-									className: "mt-0.5 text-[10px] uppercase tracking-wider text-primary",
-									children: place.city
-								})]
-							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-								"data-uid": "src/pages/MapView.tsx:42:17",
-								"data-prohibitions": "[]",
-								className: "absolute left-1/2 top-[calc(100%-4px)] h-3 w-3 -translate-x-1/2 rotate-45 border-b border-r border-slate-100 bg-white"
-							})]
+									className: "mb-1 font-bold leading-tight text-slate-900",
+									children: place.name
+								}),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+									"data-uid": "src/pages/MapView.tsx:77:19",
+									"data-prohibitions": "[editContent]",
+									className: "mb-3 inline-block rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary",
+									children: place.category
+								}),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
+									"data-uid": "src/pages/MapView.tsx:80:19",
+									"data-prohibitions": "[]",
+									to: `/place/${place.id}`,
+									className: "flex w-full items-center justify-center rounded-lg bg-secondary py-2 text-sm font-semibold text-secondary-foreground transition-colors hover:bg-secondary/90",
+									children: "Ver Detalhes"
+								})
+							]
 						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-							"data-uid": "src/pages/MapView.tsx:44:15",
+							"data-uid": "src/pages/MapView.tsx:87:17",
 							"data-prohibitions": "[]",
-							className: "flex h-10 w-10 items-center justify-center rounded-full border-2 border-white bg-primary text-white shadow-lg transition-transform hover:scale-110",
-							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(MapPin, {
-								"data-uid": "src/pages/MapView.tsx:45:17",
-								"data-prohibitions": "[editContent]",
-								className: "h-5 w-5 fill-primary/20"
-							})
+							className: "absolute left-1/2 top-full -mt-px -translate-x-1/2 border-[6px] border-transparent border-t-white"
 						})]
-					})
+					})]
 				}, place.id);
 			}),
-			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				"data-uid": "src/pages/MapView.tsx:52:7",
+			location && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+				"data-uid": "src/pages/MapView.tsx:95:9",
 				"data-prohibitions": "[]",
-				className: "absolute left-[30%] top-[60%] z-20 -translate-x-1/2 -translate-y-1/2",
-				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					"data-uid": "src/pages/MapView.tsx:53:9",
+				className: "absolute z-30 -translate-x-1/2 -translate-y-1/2 pointer-events-none",
+				style: {
+					top: getTop(location.lat),
+					left: getLeft(location.lng)
+				},
+				children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					"data-uid": "src/pages/MapView.tsx:99:11",
 					"data-prohibitions": "[]",
-					className: "relative flex h-6 w-6 items-center justify-center",
-					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-						"data-uid": "src/pages/MapView.tsx:54:11",
+					className: "relative flex flex-col items-center",
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						"data-uid": "src/pages/MapView.tsx:100:13",
 						"data-prohibitions": "[]",
-						className: "absolute inline-flex h-full w-full animate-ping rounded-full bg-secondary opacity-75"
-					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-						"data-uid": "src/pages/MapView.tsx:55:11",
+						className: "flex h-12 w-12 items-center justify-center",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+							"data-uid": "src/pages/MapView.tsx:101:15",
+							"data-prohibitions": "[]",
+							className: "absolute inline-flex h-8 w-8 animate-ping rounded-full bg-blue-400 opacity-75"
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+							"data-uid": "src/pages/MapView.tsx:102:15",
+							"data-prohibitions": "[]",
+							className: "relative inline-flex h-5 w-5 rounded-full border-2 border-white bg-blue-500 shadow-md"
+						})]
+					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+						"data-uid": "src/pages/MapView.tsx:104:13",
 						"data-prohibitions": "[]",
-						className: "relative inline-flex h-4 w-4 rounded-full border-2 border-white bg-secondary shadow-sm"
+						className: "absolute top-full mt-1 whitespace-nowrap rounded-full bg-slate-900 px-3 py-1 text-[11px] font-bold text-white shadow-md",
+						children: "Sua localização"
 					})]
-				}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-					"data-uid": "src/pages/MapView.tsx:57:9",
-					"data-prohibitions": "[]",
-					className: "absolute left-1/2 top-full mt-1 -translate-x-1/2 whitespace-nowrap rounded bg-white/90 px-1.5 py-0.5 text-[10px] font-bold text-secondary backdrop-blur-sm shadow-sm",
-					children: "Você está aqui"
-				})]
+				})
 			})
 		]
 	});
@@ -34870,8 +35014,46 @@ Progress.displayName = Root.displayName;
 //#endregion
 //#region src/pages/Profile.tsx
 function Profile() {
+	const { currentUser, logout } = useAuth();
 	const { placeCheckIns } = useAccess();
 	const { places } = usePlaces();
+	if (!currentUser) return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+		"data-uid": "src/pages/Profile.tsx:17:7",
+		"data-prohibitions": "[]",
+		className: "animate-fade-in-up flex flex-col items-center justify-center h-full px-4 py-20 text-center",
+		children: [
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Award, {
+				"data-uid": "src/pages/Profile.tsx:18:9",
+				"data-prohibitions": "[editContent]",
+				className: "h-16 w-16 text-slate-300 mb-6"
+			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
+				"data-uid": "src/pages/Profile.tsx:19:9",
+				"data-prohibitions": "[]",
+				className: "text-2xl font-bold text-slate-900 mb-4 font-display",
+				children: "Acesse sua conta"
+			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+				"data-uid": "src/pages/Profile.tsx:20:9",
+				"data-prohibitions": "[]",
+				className: "text-slate-500 font-medium mb-8 max-w-sm",
+				children: "Faça login para salvar seus check-ins e acompanhar seu progresso de explorador pelo Uruguai através de todos os seus dispositivos."
+			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
+				"data-uid": "src/pages/Profile.tsx:24:9",
+				"data-prohibitions": "[]",
+				asChild: true,
+				size: "lg",
+				className: "rounded-xl px-8 font-bold shadow-md",
+				children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
+					"data-uid": "src/pages/Profile.tsx:25:11",
+					"data-prohibitions": "[]",
+					to: "/auth",
+					children: "Fazer Login ou Cadastro"
+				})
+			})
+		]
+	});
 	const visitedIds = Object.keys(placeCheckIns);
 	const visitedPlaces = places.filter((p) => visitedIds.includes(p.id));
 	const checkInCount = visitedIds.length;
@@ -34910,62 +35092,69 @@ function Profile() {
 	const currentLevel = levels.slice().reverse().find((l) => checkInCount >= l.threshold) || levels[0];
 	const progressPercent = currentLevel.next ? Math.min(100, checkInCount / currentLevel.next * 100) : 100;
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-		"data-uid": "src/pages/Profile.tsx:37:5",
+		"data-uid": "src/pages/Profile.tsx:54:5",
 		"data-prohibitions": "[editContent]",
 		className: "flex h-full flex-col px-4 pb-8 pt-4 md:px-8 md:pt-8",
 		children: [
-			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-				"data-uid": "src/pages/Profile.tsx:38:7",
-				"data-prohibitions": "[]",
+			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+				"data-uid": "src/pages/Profile.tsx:55:7",
+				"data-prohibitions": "[editContent]",
 				className: "mb-6 flex items-center justify-between md:mb-8",
-				children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					"data-uid": "src/pages/Profile.tsx:39:9",
-					"data-prohibitions": "[]",
+				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					"data-uid": "src/pages/Profile.tsx:56:9",
+					"data-prohibitions": "[editContent]",
 					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", {
-						"data-uid": "src/pages/Profile.tsx:40:11",
+						"data-uid": "src/pages/Profile.tsx:57:11",
 						"data-prohibitions": "[]",
 						className: "font-display text-2xl font-bold text-slate-900 md:text-3xl",
 						children: "Meu Progresso"
 					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-						"data-uid": "src/pages/Profile.tsx:43:11",
-						"data-prohibitions": "[]",
+						"data-uid": "src/pages/Profile.tsx:60:11",
+						"data-prohibitions": "[editContent]",
 						className: "text-slate-500 font-medium",
-						children: "Acompanhe suas conquistas pelo Uruguai"
+						children: currentUser.email
 					})]
-				})
+				}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
+					"data-uid": "src/pages/Profile.tsx:62:9",
+					"data-prohibitions": "[]",
+					variant: "outline",
+					size: "sm",
+					onClick: logout,
+					children: "Sair da Conta"
+				})]
 			}),
 			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				"data-uid": "src/pages/Profile.tsx:47:7",
+				"data-uid": "src/pages/Profile.tsx:67:7",
 				"data-prohibitions": "[editContent]",
 				className: "mb-10 rounded-3xl bg-white border border-slate-100 p-6 shadow-sm flex flex-col md:flex-row gap-6 md:gap-8 items-center text-center md:text-left",
 				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					"data-uid": "src/pages/Profile.tsx:48:9",
+					"data-uid": "src/pages/Profile.tsx:68:9",
 					"data-prohibitions": "[editContent]",
 					className: "flex-shrink-0 flex items-center justify-center h-28 w-28 md:h-32 md:w-32 rounded-full bg-slate-50 border-4 border-slate-100 relative shadow-inner",
 					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Award, {
-						"data-uid": "src/pages/Profile.tsx:49:11",
+						"data-uid": "src/pages/Profile.tsx:69:11",
 						"data-prohibitions": "[editContent]",
 						className: `h-14 w-14 md:h-16 md:w-16 ${currentLevel.color}`
 					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						"data-uid": "src/pages/Profile.tsx:50:11",
+						"data-uid": "src/pages/Profile.tsx:70:11",
 						"data-prohibitions": "[editContent]",
 						className: "absolute -bottom-3 bg-slate-900 text-white text-xs font-bold px-4 py-1 rounded-full whitespace-nowrap shadow-md",
 						children: ["Nível ", levels.indexOf(currentLevel) + 1]
 					})]
 				}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					"data-uid": "src/pages/Profile.tsx:55:9",
+					"data-uid": "src/pages/Profile.tsx:75:9",
 					"data-prohibitions": "[editContent]",
 					className: "flex-1 w-full space-y-4",
 					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						"data-uid": "src/pages/Profile.tsx:56:11",
+						"data-uid": "src/pages/Profile.tsx:76:11",
 						"data-prohibitions": "[editContent]",
 						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("h2", {
-							"data-uid": "src/pages/Profile.tsx:57:13",
+							"data-uid": "src/pages/Profile.tsx:77:13",
 							"data-prohibitions": "[editContent]",
 							className: "text-xl md:text-2xl font-bold text-slate-900 flex items-center justify-center md:justify-start gap-2",
 							children: [
 								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(ShieldCheck, {
-									"data-uid": "src/pages/Profile.tsx:58:15",
+									"data-uid": "src/pages/Profile.tsx:78:15",
 									"data-prohibitions": "[editContent]",
 									className: "h-6 w-6 text-primary"
 								}),
@@ -34973,14 +35162,14 @@ function Profile() {
 								currentLevel.name
 							]
 						}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
-							"data-uid": "src/pages/Profile.tsx:60:13",
+							"data-uid": "src/pages/Profile.tsx:80:13",
 							"data-prohibitions": "[editContent]",
 							className: "text-sm md:text-base text-slate-500 font-medium mt-1",
 							children: [
 								"Você já fez check-in em",
 								" ",
 								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-									"data-uid": "src/pages/Profile.tsx:62:15",
+									"data-uid": "src/pages/Profile.tsx:82:15",
 									"data-prohibitions": "[editContent]",
 									className: "font-bold text-slate-700",
 									children: checkInCount
@@ -34991,32 +35180,32 @@ function Profile() {
 							]
 						})]
 					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						"data-uid": "src/pages/Profile.tsx:67:11",
+						"data-uid": "src/pages/Profile.tsx:87:11",
 						"data-prohibitions": "[editContent]",
 						className: "space-y-2 max-w-lg mx-auto md:mx-0",
 						children: [
 							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								"data-uid": "src/pages/Profile.tsx:68:13",
+								"data-uid": "src/pages/Profile.tsx:88:13",
 								"data-prohibitions": "[editContent]",
 								className: "flex justify-between text-sm font-bold text-slate-700",
 								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-									"data-uid": "src/pages/Profile.tsx:69:15",
+									"data-uid": "src/pages/Profile.tsx:89:15",
 									"data-prohibitions": "[]",
 									children: "Progresso"
 								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-									"data-uid": "src/pages/Profile.tsx:70:15",
+									"data-uid": "src/pages/Profile.tsx:90:15",
 									"data-prohibitions": "[editContent]",
 									children: currentLevel.next ? `${checkInCount} / ${currentLevel.next}` : "Máximo"
 								})]
 							}),
 							/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Progress, {
-								"data-uid": "src/pages/Profile.tsx:72:13",
+								"data-uid": "src/pages/Profile.tsx:92:13",
 								"data-prohibitions": "[editContent]",
 								value: progressPercent,
 								className: "h-3 bg-slate-100"
 							}),
 							currentLevel.next && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
-								"data-uid": "src/pages/Profile.tsx:74:15",
+								"data-uid": "src/pages/Profile.tsx:94:15",
 								"data-prohibitions": "[editContent]",
 								className: "text-xs text-slate-500 font-medium text-right",
 								children: [
@@ -35030,20 +35219,20 @@ function Profile() {
 				})]
 			}),
 			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				"data-uid": "src/pages/Profile.tsx:82:7",
+				"data-uid": "src/pages/Profile.tsx:102:7",
 				"data-prohibitions": "[editContent]",
 				className: "mb-6 flex items-center justify-between",
 				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("h2", {
-					"data-uid": "src/pages/Profile.tsx:83:9",
+					"data-uid": "src/pages/Profile.tsx:103:9",
 					"data-prohibitions": "[]",
 					className: "font-display text-xl font-bold text-slate-900 md:text-2xl flex items-center gap-2",
 					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(MapPin, {
-						"data-uid": "src/pages/Profile.tsx:84:11",
+						"data-uid": "src/pages/Profile.tsx:104:11",
 						"data-prohibitions": "[editContent]",
 						className: "h-6 w-6 text-secondary"
 					}), "Histórico de Visitas"]
 				}), visitedPlaces.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-					"data-uid": "src/pages/Profile.tsx:88:11",
+					"data-uid": "src/pages/Profile.tsx:108:11",
 					"data-prohibitions": "[editContent]",
 					className: "rounded-full bg-secondary/20 px-3 py-1 text-sm font-bold text-slate-800",
 					children: [
@@ -35054,44 +35243,44 @@ function Profile() {
 				})]
 			}),
 			visitedPlaces.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				"data-uid": "src/pages/Profile.tsx:95:9",
+				"data-uid": "src/pages/Profile.tsx:115:9",
 				"data-prohibitions": "[]",
 				className: "animate-fade-in-up flex flex-1 flex-col items-center justify-center py-12 text-center bg-white rounded-3xl border border-slate-100 shadow-sm",
 				children: [
 					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-						"data-uid": "src/pages/Profile.tsx:96:11",
+						"data-uid": "src/pages/Profile.tsx:116:11",
 						"data-prohibitions": "[]",
 						className: "mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-primary/10",
 						children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Compass, {
-							"data-uid": "src/pages/Profile.tsx:97:13",
+							"data-uid": "src/pages/Profile.tsx:117:13",
 							"data-prohibitions": "[editContent]",
 							className: "h-10 w-10 text-primary"
 						})
 					}),
 					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
-						"data-uid": "src/pages/Profile.tsx:99:11",
+						"data-uid": "src/pages/Profile.tsx:119:11",
 						"data-prohibitions": "[]",
 						className: "mb-2 font-display text-xl font-bold text-slate-900",
 						children: "Sua jornada começa aqui!"
 					}),
 					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-						"data-uid": "src/pages/Profile.tsx:102:11",
+						"data-uid": "src/pages/Profile.tsx:122:11",
 						"data-prohibitions": "[]",
 						className: "mb-6 max-w-sm font-medium text-slate-500",
 						children: "Faça check-in nos locais que visitar e construa seu histórico de exploração pelo Uruguai."
 					}),
 					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
-						"data-uid": "src/pages/Profile.tsx:106:11",
+						"data-uid": "src/pages/Profile.tsx:126:11",
 						"data-prohibitions": "[]",
 						size: "lg",
 						className: "rounded-full px-8 font-bold shadow-md",
 						asChild: true,
 						children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Link, {
-							"data-uid": "src/pages/Profile.tsx:107:13",
+							"data-uid": "src/pages/Profile.tsx:127:13",
 							"data-prohibitions": "[]",
 							to: "/",
 							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Map$1, {
-								"data-uid": "src/pages/Profile.tsx:108:15",
+								"data-uid": "src/pages/Profile.tsx:128:15",
 								"data-prohibitions": "[editContent]",
 								className: "mr-2 h-5 w-5"
 							}), "Explorar Mapa"]
@@ -35099,16 +35288,16 @@ function Profile() {
 					})
 				]
 			}) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-				"data-uid": "src/pages/Profile.tsx:114:9",
+				"data-uid": "src/pages/Profile.tsx:134:9",
 				"data-prohibitions": "[editContent]",
 				className: "grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4",
 				children: visitedPlaces.map((place, index) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-					"data-uid": "src/pages/Profile.tsx:116:13",
+					"data-uid": "src/pages/Profile.tsx:136:13",
 					"data-prohibitions": "[]",
 					className: "animate-fade-in-up",
 					style: { animationDelay: `${index * 50}ms` },
 					children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(PlaceCard, {
-						"data-uid": "src/pages/Profile.tsx:121:15",
+						"data-uid": "src/pages/Profile.tsx:141:15",
 						"data-prohibitions": "[editContent]",
 						place
 					})
@@ -35118,115 +35307,339 @@ function Profile() {
 	});
 }
 //#endregion
+//#region src/pages/Auth.tsx
+function Auth() {
+	const [email, setEmail] = (0, import_react.useState)("");
+	const [password, setPassword] = (0, import_react.useState)("");
+	const { login, register } = useAuth();
+	const navigate = useNavigate();
+	const handleLogin = (e) => {
+		e.preventDefault();
+		login(email, password);
+		navigate("/profile");
+	};
+	const handleRegister = (e) => {
+		e.preventDefault();
+		register(email, password);
+		navigate("/profile");
+	};
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+		"data-uid": "src/pages/Auth.tsx:29:5",
+		"data-prohibitions": "[]",
+		className: "flex flex-1 flex-col items-center justify-center p-4 min-h-[calc(100vh-140px)]",
+		children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+			"data-uid": "src/pages/Auth.tsx:30:7",
+			"data-prohibitions": "[]",
+			className: "w-full max-w-md p-8 bg-white rounded-3xl shadow-sm border border-slate-100",
+			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+				"data-uid": "src/pages/Auth.tsx:31:9",
+				"data-prohibitions": "[]",
+				className: "flex flex-col items-center mb-8 text-center",
+				children: [
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+						"data-uid": "src/pages/Auth.tsx:32:11",
+						"data-prohibitions": "[]",
+						className: "h-16 w-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 text-primary",
+						children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Compass, {
+							"data-uid": "src/pages/Auth.tsx:33:13",
+							"data-prohibitions": "[editContent]",
+							className: "h-8 w-8"
+						})
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", {
+						"data-uid": "src/pages/Auth.tsx:35:11",
+						"data-prohibitions": "[]",
+						className: "text-2xl font-bold text-slate-900 font-display",
+						children: "Bem-vindo(a)"
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+						"data-uid": "src/pages/Auth.tsx:36:11",
+						"data-prohibitions": "[]",
+						className: "text-slate-500 text-sm mt-2",
+						children: "Salve seus locais favoritos e progresso pelo Uruguai na nuvem."
+					})
+				]
+			}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Tabs, {
+				"data-uid": "src/pages/Auth.tsx:41:9",
+				"data-prohibitions": "[]",
+				defaultValue: "login",
+				className: "w-full",
+				children: [
+					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(TabsList, {
+						"data-uid": "src/pages/Auth.tsx:42:11",
+						"data-prohibitions": "[]",
+						className: "w-full grid grid-cols-2 mb-6 h-12 bg-slate-100 rounded-xl p-1",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TabsTrigger, {
+							"data-uid": "src/pages/Auth.tsx:43:13",
+							"data-prohibitions": "[]",
+							value: "login",
+							className: "rounded-lg font-bold",
+							children: "Login"
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TabsTrigger, {
+							"data-uid": "src/pages/Auth.tsx:46:13",
+							"data-prohibitions": "[]",
+							value: "register",
+							className: "rounded-lg font-bold",
+							children: "Cadastro"
+						})]
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TabsContent, {
+						"data-uid": "src/pages/Auth.tsx:51:11",
+						"data-prohibitions": "[]",
+						value: "login",
+						children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("form", {
+							"data-uid": "src/pages/Auth.tsx:52:13",
+							"data-prohibitions": "[]",
+							onSubmit: handleLogin,
+							className: "space-y-4",
+							children: [
+								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+									"data-uid": "src/pages/Auth.tsx:53:15",
+									"data-prohibitions": "[]",
+									className: "space-y-2",
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label$1, {
+										"data-uid": "src/pages/Auth.tsx:54:17",
+										"data-prohibitions": "[]",
+										htmlFor: "login-email",
+										children: "E-mail"
+									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Input, {
+										"data-uid": "src/pages/Auth.tsx:55:17",
+										"data-prohibitions": "[editContent]",
+										id: "login-email",
+										type: "email",
+										required: true,
+										value: email,
+										onChange: (e) => setEmail(e.target.value),
+										className: "h-12 rounded-xl",
+										placeholder: "seu@email.com"
+									})]
+								}),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+									"data-uid": "src/pages/Auth.tsx:65:15",
+									"data-prohibitions": "[]",
+									className: "space-y-2",
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label$1, {
+										"data-uid": "src/pages/Auth.tsx:66:17",
+										"data-prohibitions": "[]",
+										htmlFor: "login-pwd",
+										children: "Senha"
+									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Input, {
+										"data-uid": "src/pages/Auth.tsx:67:17",
+										"data-prohibitions": "[editContent]",
+										id: "login-pwd",
+										type: "password",
+										required: true,
+										value: password,
+										onChange: (e) => setPassword(e.target.value),
+										className: "h-12 rounded-xl",
+										placeholder: "••••••••"
+									})]
+								}),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
+									"data-uid": "src/pages/Auth.tsx:77:15",
+									"data-prohibitions": "[]",
+									type: "submit",
+									className: "w-full h-12 text-base font-bold rounded-xl mt-2",
+									children: "Entrar"
+								})
+							]
+						})
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TabsContent, {
+						"data-uid": "src/pages/Auth.tsx:83:11",
+						"data-prohibitions": "[]",
+						value: "register",
+						children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("form", {
+							"data-uid": "src/pages/Auth.tsx:84:13",
+							"data-prohibitions": "[]",
+							onSubmit: handleRegister,
+							className: "space-y-4",
+							children: [
+								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+									"data-uid": "src/pages/Auth.tsx:85:15",
+									"data-prohibitions": "[]",
+									className: "space-y-2",
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label$1, {
+										"data-uid": "src/pages/Auth.tsx:86:17",
+										"data-prohibitions": "[]",
+										htmlFor: "reg-email",
+										children: "E-mail"
+									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Input, {
+										"data-uid": "src/pages/Auth.tsx:87:17",
+										"data-prohibitions": "[editContent]",
+										id: "reg-email",
+										type: "email",
+										required: true,
+										value: email,
+										onChange: (e) => setEmail(e.target.value),
+										className: "h-12 rounded-xl",
+										placeholder: "seu@email.com"
+									})]
+								}),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+									"data-uid": "src/pages/Auth.tsx:97:15",
+									"data-prohibitions": "[]",
+									className: "space-y-2",
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label$1, {
+										"data-uid": "src/pages/Auth.tsx:98:17",
+										"data-prohibitions": "[]",
+										htmlFor: "reg-pwd",
+										children: "Senha"
+									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Input, {
+										"data-uid": "src/pages/Auth.tsx:99:17",
+										"data-prohibitions": "[editContent]",
+										id: "reg-pwd",
+										type: "password",
+										required: true,
+										value: password,
+										onChange: (e) => setPassword(e.target.value),
+										className: "h-12 rounded-xl",
+										placeholder: "••••••••"
+									})]
+								}),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
+									"data-uid": "src/pages/Auth.tsx:109:15",
+									"data-prohibitions": "[]",
+									type: "submit",
+									variant: "secondary",
+									className: "w-full h-12 text-base font-bold rounded-xl mt-2",
+									children: "Criar Conta"
+								})
+							]
+						})
+					})
+				]
+			})]
+		})
+	});
+}
+//#endregion
 //#region src/App.tsx
 var App = () => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(BrowserRouter, {
-	"data-uid": "src/App.tsx:20:3",
+	"data-uid": "src/App.tsx:23:3",
 	"data-prohibitions": "[]",
 	future: {
 		v7_startTransition: false,
 		v7_relativeSplatPath: false
 	},
-	children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(AccessProvider, {
-		"data-uid": "src/App.tsx:21:5",
+	children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(AuthProvider, {
+		"data-uid": "src/App.tsx:24:5",
 		"data-prohibitions": "[]",
-		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(GeoProvider, {
-			"data-uid": "src/App.tsx:22:7",
+		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(AccessProvider, {
+			"data-uid": "src/App.tsx:25:7",
 			"data-prohibitions": "[]",
-			children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(PlacesProvider, {
-				"data-uid": "src/App.tsx:23:9",
+			children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(GeoProvider, {
+				"data-uid": "src/App.tsx:26:9",
 				"data-prohibitions": "[]",
-				children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(FavoritesProvider, {
-					"data-uid": "src/App.tsx:24:11",
+				children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(PlacesProvider, {
+					"data-uid": "src/App.tsx:27:11",
 					"data-prohibitions": "[]",
-					children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(TooltipProvider, {
-						"data-uid": "src/App.tsx:25:13",
+					children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(FavoritesProvider, {
+						"data-uid": "src/App.tsx:28:13",
 						"data-prohibitions": "[]",
-						children: [
-							/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Toaster$2, {
-								"data-uid": "src/App.tsx:26:15",
-								"data-prohibitions": "[editContent]"
-							}),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Toaster, {
-								"data-uid": "src/App.tsx:27:15",
-								"data-prohibitions": "[editContent]"
-							}),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Routes, {
-								"data-uid": "src/App.tsx:28:15",
-								"data-prohibitions": "[]",
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Route, {
-									"data-uid": "src/App.tsx:29:17",
+						children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(TooltipProvider, {
+							"data-uid": "src/App.tsx:29:15",
+							"data-prohibitions": "[]",
+							children: [
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Toaster$2, {
+									"data-uid": "src/App.tsx:30:17",
+									"data-prohibitions": "[editContent]"
+								}),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Toaster, {
+									"data-uid": "src/App.tsx:31:17",
+									"data-prohibitions": "[editContent]"
+								}),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(ProximityAlerts, {
+									"data-uid": "src/App.tsx:32:17",
+									"data-prohibitions": "[editContent]"
+								}),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Routes, {
+									"data-uid": "src/App.tsx:33:17",
 									"data-prohibitions": "[]",
-									element: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Layout, {
-										"data-uid": "src/App.tsx:29:33",
-										"data-prohibitions": "[editContent]"
-									}),
-									children: [
-										/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Route, {
-											"data-uid": "src/App.tsx:30:19",
-											"data-prohibitions": "[editContent]",
-											path: "/",
-											element: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Index, {
-												"data-uid": "src/App.tsx:30:44",
-												"data-prohibitions": "[editContent]"
-											})
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Route, {
+										"data-uid": "src/App.tsx:34:19",
+										"data-prohibitions": "[]",
+										element: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Layout, {
+											"data-uid": "src/App.tsx:34:35",
+											"data-prohibitions": "[editContent]"
 										}),
-										/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Route, {
-											"data-uid": "src/App.tsx:31:19",
-											"data-prohibitions": "[editContent]",
-											path: "/place/:id",
-											element: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(PlaceDetails, {
-												"data-uid": "src/App.tsx:31:53",
-												"data-prohibitions": "[editContent]"
+										children: [
+											/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Route, {
+												"data-uid": "src/App.tsx:35:21",
+												"data-prohibitions": "[editContent]",
+												path: "/",
+												element: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Index, {
+													"data-uid": "src/App.tsx:35:46",
+													"data-prohibitions": "[editContent]"
+												})
+											}),
+											/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Route, {
+												"data-uid": "src/App.tsx:36:21",
+												"data-prohibitions": "[editContent]",
+												path: "/place/:id",
+												element: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(PlaceDetails, {
+													"data-uid": "src/App.tsx:36:55",
+													"data-prohibitions": "[editContent]"
+												})
+											}),
+											/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Route, {
+												"data-uid": "src/App.tsx:37:21",
+												"data-prohibitions": "[editContent]",
+												path: "/favorites",
+												element: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Favorites, {
+													"data-uid": "src/App.tsx:37:55",
+													"data-prohibitions": "[editContent]"
+												})
+											}),
+											/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Route, {
+												"data-uid": "src/App.tsx:38:21",
+												"data-prohibitions": "[editContent]",
+												path: "/map",
+												element: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(MapView, {
+													"data-uid": "src/App.tsx:38:49",
+													"data-prohibitions": "[editContent]"
+												})
+											}),
+											/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Route, {
+												"data-uid": "src/App.tsx:39:21",
+												"data-prohibitions": "[editContent]",
+												path: "/profile",
+												element: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Profile, {
+													"data-uid": "src/App.tsx:39:53",
+													"data-prohibitions": "[editContent]"
+												})
+											}),
+											/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Route, {
+												"data-uid": "src/App.tsx:40:21",
+												"data-prohibitions": "[editContent]",
+												path: "/auth",
+												element: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Auth, {
+													"data-uid": "src/App.tsx:40:50",
+													"data-prohibitions": "[editContent]"
+												})
+											}),
+											/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Route, {
+												"data-uid": "src/App.tsx:41:21",
+												"data-prohibitions": "[editContent]",
+												path: "/admin",
+												element: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Admin, {
+													"data-uid": "src/App.tsx:41:51",
+													"data-prohibitions": "[editContent]"
+												})
 											})
-										}),
-										/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Route, {
-											"data-uid": "src/App.tsx:32:19",
-											"data-prohibitions": "[editContent]",
-											path: "/favorites",
-											element: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Favorites, {
-												"data-uid": "src/App.tsx:32:53",
-												"data-prohibitions": "[editContent]"
-											})
-										}),
-										/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Route, {
-											"data-uid": "src/App.tsx:33:19",
-											"data-prohibitions": "[editContent]",
-											path: "/map",
-											element: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(MapView, {
-												"data-uid": "src/App.tsx:33:47",
-												"data-prohibitions": "[editContent]"
-											})
-										}),
-										/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Route, {
-											"data-uid": "src/App.tsx:34:19",
-											"data-prohibitions": "[editContent]",
-											path: "/profile",
-											element: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Profile, {
-												"data-uid": "src/App.tsx:34:51",
-												"data-prohibitions": "[editContent]"
-											})
-										}),
-										/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Route, {
-											"data-uid": "src/App.tsx:35:19",
-											"data-prohibitions": "[editContent]",
-											path: "/admin",
-											element: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Admin, {
-												"data-uid": "src/App.tsx:35:49",
-												"data-prohibitions": "[editContent]"
-											})
+										]
+									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Route, {
+										"data-uid": "src/App.tsx:43:19",
+										"data-prohibitions": "[editContent]",
+										path: "*",
+										element: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(NotFound, {
+											"data-uid": "src/App.tsx:43:44",
+											"data-prohibitions": "[editContent]"
 										})
-									]
-								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Route, {
-									"data-uid": "src/App.tsx:37:17",
-									"data-prohibitions": "[editContent]",
-									path: "*",
-									element: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(NotFound, {
-										"data-uid": "src/App.tsx:37:42",
-										"data-prohibitions": "[editContent]"
-									})
-								})]
-							})
-						]
+									})]
+								})
+							]
+						})
 					})
 				})
 			})
@@ -35241,4 +35654,4 @@ var App = () => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(BrowserRouter, {
 }));
 //#endregion
 
-//# sourceMappingURL=index-fuvlnJWF.js.map
+//# sourceMappingURL=index-oqVFUH3b.js.map
