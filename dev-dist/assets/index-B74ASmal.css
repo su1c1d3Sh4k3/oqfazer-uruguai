@@ -999,9 +999,6 @@ video {
 .min-h-0 {
   min-height: 0px;
 }
-.min-h-\[400px\] {
-  min-height: 400px;
-}
 .min-h-\[80px\] {
   min-height: 80px;
 }
@@ -1101,6 +1098,9 @@ video {
 .w-\[100px\] {
   width: 100px;
 }
+.w-\[120px\] {
+  width: 120px;
+}
 .w-\[1px\] {
   width: 1px;
 }
@@ -1151,8 +1151,8 @@ video {
 .min-w-\[var\(--radix-select-trigger-width\)\] {
   min-width: var(--radix-select-trigger-width);
 }
-.max-w-5xl {
-  max-width: 64rem;
+.max-w-6xl {
+  max-width: 72rem;
 }
 .max-w-\[--skeleton-width\] {
   max-width: var(--skeleton-width);
@@ -1350,6 +1350,9 @@ video {
 }
 .gap-4 {
   gap: 1rem;
+}
+.gap-5 {
+  gap: 1.25rem;
 }
 .gap-6 {
   gap: 1.5rem;
@@ -1670,6 +1673,9 @@ video {
 .bg-muted\/20 {
   background-color: hsl(var(--muted) / 0.2);
 }
+.bg-muted\/30 {
+  background-color: hsl(var(--muted) / 0.3);
+}
 .bg-muted\/50 {
   background-color: hsl(var(--muted) / 0.5);
 }
@@ -1689,6 +1695,9 @@ video {
 .bg-secondary {
   --tw-bg-opacity: 1;
   background-color: rgb(46 139 87 / var(--tw-bg-opacity, 1));
+}
+.bg-secondary\/10 {
+  background-color: rgb(46 139 87 / 0.1);
 }
 .bg-secondary\/20 {
   background-color: rgb(46 139 87 / 0.2);
@@ -1930,6 +1939,9 @@ video {
 .pt-4 {
   padding-top: 1rem;
 }
+.pt-6 {
+  padding-top: 1.5rem;
+}
 .text-left {
   text-align: left;
 }
@@ -2099,9 +2111,6 @@ video {
 .text-primary-foreground {
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity, 1));
-}
-.text-primary\/40 {
-  color: rgb(0 51 153 / 0.4);
 }
 .text-purple-500 {
   --tw-text-opacity: 1;
@@ -2539,6 +2548,10 @@ video {
   background-color: rgb(255 215 0 / 0.9);
 }
 
+.hover\:bg-destructive\/10:hover {
+  background-color: hsl(var(--destructive) / 0.1);
+}
+
 .hover\:bg-destructive\/80:hover {
   background-color: hsl(var(--destructive) / 0.8);
 }
@@ -2559,6 +2572,10 @@ video {
   background-color: rgb(0 51 153 / 0.1);
 }
 
+.hover\:bg-primary\/20:hover {
+  background-color: rgb(0 51 153 / 0.2);
+}
+
 .hover\:bg-primary\/80:hover {
   background-color: rgb(0 51 153 / 0.8);
 }
@@ -2570,6 +2587,10 @@ video {
 .hover\:bg-secondary:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(46 139 87 / var(--tw-bg-opacity, 1));
+}
+
+.hover\:bg-secondary\/20:hover {
+  background-color: rgb(46 139 87 / 0.2);
 }
 
 .hover\:bg-secondary\/80:hover {
@@ -2607,6 +2628,10 @@ video {
 .hover\:text-blue-700:hover {
   --tw-text-opacity: 1;
   color: rgb(29 78 216 / var(--tw-text-opacity, 1));
+}
+
+.hover\:text-destructive:hover {
+  color: hsl(var(--destructive));
 }
 
 .hover\:text-foreground:hover {
@@ -3527,6 +3552,10 @@ video {
 
   .sm\:grid-cols-2 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sm\:grid-cols-5 {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 
   .sm\:flex-row {
