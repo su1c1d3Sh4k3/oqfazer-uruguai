@@ -73,7 +73,7 @@ export default function Index() {
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
                       <div className="absolute bottom-0 left-0 p-4 md:p-6">
-                        <Badge className="mb-2 border-none bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary">
+                        <Badge className="mb-2 border-none bg-brand-yellow text-brand-yellow-foreground shadow-sm hover:bg-brand-yellow/90">
                           {place.discountBadge}
                         </Badge>
                         <h3 className="font-display text-xl font-bold text-white md:text-3xl">
@@ -101,7 +101,7 @@ export default function Index() {
                 onClick={() => setSelectedCategory(category)}
                 className={`whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
                   selectedCategory === category
-                    ? 'bg-primary text-white shadow-md'
+                    ? 'bg-primary text-primary-foreground shadow-md'
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
@@ -118,7 +118,7 @@ export default function Index() {
                 onClick={() => setSelectedCity(city)}
                 className={`whitespace-nowrap rounded-full px-5 py-2 text-sm font-semibold transition-all ${
                   selectedCity === city
-                    ? 'bg-secondary text-slate-900 shadow-md'
+                    ? 'bg-secondary text-secondary-foreground shadow-md'
                     : 'border border-slate-200 bg-white text-slate-600 shadow-sm hover:bg-slate-50'
                 }`}
               >
@@ -140,7 +140,7 @@ export default function Index() {
                   onClick={() => setMaxDistance(dist)}
                   className={`whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
                     maxDistance === dist
-                      ? 'bg-slate-800 text-white shadow-md'
+                      ? 'bg-primary text-primary-foreground shadow-md'
                       : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                   }`}
                 >
@@ -151,7 +151,12 @@ export default function Index() {
           </div>
 
           <div className="flex items-center space-x-2 rounded-full border border-slate-200 bg-white px-4 py-2 shadow-sm shrink-0 w-fit">
-            <Switch id="open-now" checked={openNowOnly} onCheckedChange={setOpenNowOnly} />
+            <Switch
+              id="open-now"
+              checked={openNowOnly}
+              onCheckedChange={setOpenNowOnly}
+              className="data-[state=checked]:bg-secondary"
+            />
             <Label htmlFor="open-now" className="cursor-pointer font-bold text-slate-700">
               Aberto Agora
             </Label>

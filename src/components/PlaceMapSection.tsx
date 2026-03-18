@@ -36,9 +36,9 @@ export function PlaceMapSection({ lat, lng, address, distance }: MapSectionProps
         <Dialog>
           <DialogTrigger asChild>
             <Button
-              variant="outline"
+              variant="default"
               size="sm"
-              className="shrink-0 rounded-xl border-slate-200 font-semibold shadow-sm"
+              className="shrink-0 rounded-xl bg-secondary font-semibold text-secondary-foreground shadow-sm hover:bg-secondary/90"
             >
               Como chegar
             </Button>
@@ -48,7 +48,7 @@ export function PlaceMapSection({ lat, lng, address, distance }: MapSectionProps
               <DialogTitle className="text-center font-display">Abrir navegação com</DialogTitle>
             </DialogHeader>
             <div className="mt-4 flex flex-col gap-3">
-              <Button variant="outline" asChild className="h-12 text-lg font-medium">
+              <Button asChild className="h-12 text-lg font-medium">
                 <a
                   href={`https://waze.com/ul?ll=${lat},${lng}&navigate=yes`}
                   target="_blank"
@@ -57,7 +57,7 @@ export function PlaceMapSection({ lat, lng, address, distance }: MapSectionProps
                   Waze
                 </a>
               </Button>
-              <Button variant="outline" asChild className="h-12 text-lg font-medium">
+              <Button asChild className="h-12 text-lg font-medium">
                 <a
                   href={`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`}
                   target="_blank"

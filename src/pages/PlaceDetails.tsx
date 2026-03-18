@@ -150,8 +150,8 @@ export default function PlaceDetails() {
           <p className="mb-4 font-medium text-slate-500 text-lg">{place.city}</p>
 
           <div className="mb-8 flex flex-wrap items-center gap-4 border-b pb-6 text-sm text-slate-600">
-            <div className="flex items-center gap-1.5 rounded-md bg-secondary/20 px-2 py-1 font-bold text-slate-900">
-              <Star className="h-4 w-4 fill-secondary text-secondary" /> {place.rating}
+            <div className="flex items-center gap-1.5 rounded-md bg-slate-100 px-2 py-1 font-bold text-slate-900">
+              <Star className="h-4 w-4 fill-brand-yellow text-brand-yellow" /> {place.rating}
             </div>
             <div className="flex items-center gap-1.5 font-medium">
               <MapPin className="h-4 w-4 text-slate-400" /> {displayDistance}
@@ -159,7 +159,7 @@ export default function PlaceDetails() {
             <div
               className={cn(
                 'flex items-center gap-1.5 font-medium',
-                isOpen ? 'text-green-600' : 'text-red-500',
+                isOpen ? 'text-secondary' : 'text-red-500',
               )}
             >
               <Clock className="h-4 w-4" /> {isOpen ? 'Aberto agora' : 'Fechado'}
@@ -190,9 +190,9 @@ export default function PlaceDetails() {
               </Button>
             </div>
           ) : (
-            <div className="mb-8 rounded-2xl border border-secondary/30 bg-secondary/10 p-5 shadow-sm">
+            <div className="mb-8 rounded-2xl border border-brand-yellow/50 bg-brand-yellow/10 p-5 shadow-sm">
               <div className="mb-2 flex items-center gap-2 text-slate-900">
-                <Ticket className="h-6 w-6 text-secondary" />
+                <Ticket className="h-6 w-6 text-brand-yellow drop-shadow-sm" />
                 <h3 className="font-display text-lg font-bold">Oferta Exclusiva</h3>
               </div>
               <p className="mb-3 text-2xl font-black text-slate-900">{place.discountBadge}</p>
@@ -243,7 +243,7 @@ export default function PlaceDetails() {
                   <ul className="space-y-2">
                     {place.included.map((item) => (
                       <li key={item} className="flex items-center gap-2 text-slate-600">
-                        <CheckCircle2 className="h-5 w-5 text-green-500" /> {item}
+                        <CheckCircle2 className="h-5 w-5 text-secondary" /> {item}
                       </li>
                     ))}
                   </ul>

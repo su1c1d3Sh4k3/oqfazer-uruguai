@@ -16,31 +16,31 @@ export function PlaceCheckInTicket({ checkInTime }: { checkInTime: number }) {
   }
 
   return (
-    <div className="mb-8 rounded-3xl bg-gradient-to-br from-green-500 to-green-600 p-6 text-white shadow-xl">
+    <div className="mb-8 rounded-3xl bg-gradient-to-br from-secondary to-[#106A2E] p-6 text-white shadow-xl">
       <div className="mb-4 flex items-center gap-3">
         <CheckCircle2 className="h-8 w-8 text-white" />
         <h3 className="font-display text-xl font-bold">Check-in Ativo</h3>
       </div>
-      <div className="mb-4 space-y-3 rounded-xl bg-white/10 p-4 backdrop-blur-sm">
+      <div className="mb-4 space-y-3 rounded-xl bg-white/15 p-4 backdrop-blur-sm border border-white/20">
         <div className="flex items-center justify-between text-sm">
-          <span className="text-green-100">Check-in:</span>
+          <span className="text-green-50 font-medium">Check-in:</span>
           <span className="font-bold">{format(new Date(checkInTime), 'dd/MM/yyyy - HH:mm')}</span>
         </div>
         <div className="flex items-center justify-between text-sm">
-          <span className="text-green-100">Expira:</span>
+          <span className="text-green-50 font-medium">Expira:</span>
           <span className="font-bold">
             {format(new Date(expirationTime), 'dd/MM/yyyy - HH:mm')}
           </span>
         </div>
       </div>
       <div className="rounded-xl bg-white p-4 text-center shadow-inner">
-        <p className="mb-1 text-xs font-bold uppercase tracking-wide text-green-700">
+        <p className="mb-1 text-xs font-bold uppercase tracking-wide text-secondary">
           Validação Oficial
         </p>
         <p className="text-lg font-black leading-tight text-slate-900">
           esse cupom vale até
           <br />
-          <span className="text-xl text-green-600">
+          <span className="text-xl text-secondary">
             {format(new Date(expirationTime), 'dd/MM/yyyy')} às{' '}
             {format(new Date(expirationTime), 'HH:mm')}
           </span>

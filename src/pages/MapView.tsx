@@ -10,7 +10,7 @@ export default function MapView() {
       <img
         src="https://img.usecurling.com/p/1200/800?q=street%20map&color=blue"
         alt="Map background"
-        className="absolute inset-0 h-full w-full object-cover opacity-60"
+        className="absolute inset-0 h-full w-full object-cover opacity-60 grayscale-[0.3]"
       />
 
       <div className="absolute left-4 right-4 top-4 z-10 md:left-8 md:w-96">
@@ -51,10 +51,10 @@ export default function MapView() {
 
       <div className="absolute left-[30%] top-[60%] z-20 -translate-x-1/2 -translate-y-1/2">
         <div className="relative flex h-6 w-6 items-center justify-center">
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-400 opacity-75"></span>
-          <span className="relative inline-flex h-4 w-4 rounded-full border-2 border-white bg-blue-600 shadow-sm"></span>
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-secondary opacity-75"></span>
+          <span className="relative inline-flex h-4 w-4 rounded-full border-2 border-white bg-secondary shadow-sm"></span>
         </div>
-        <div className="absolute left-1/2 top-full mt-1 -translate-x-1/2 whitespace-nowrap rounded bg-white/80 px-1.5 py-0.5 text-[10px] font-bold text-blue-800 backdrop-blur-sm">
+        <div className="absolute left-1/2 top-full mt-1 -translate-x-1/2 whitespace-nowrap rounded bg-white/90 px-1.5 py-0.5 text-[10px] font-bold text-secondary backdrop-blur-sm shadow-sm">
           Você está aqui
         </div>
       </div>

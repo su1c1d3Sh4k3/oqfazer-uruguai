@@ -36,14 +36,14 @@ export function PlaceCard({ place }: PlaceCardProps) {
             loading="lazy"
           />
           <div className="absolute left-3 top-3 flex flex-col gap-1.5 items-start">
-            <Badge className="border-none bg-secondary font-bold text-slate-900 shadow-md hover:bg-secondary/90">
+            <Badge className="border-none bg-brand-yellow font-bold text-brand-yellow-foreground shadow-md hover:bg-brand-yellow/90">
               {place.discountBadge}
             </Badge>
             <Badge
               className={cn(
                 'border-none font-bold shadow-md',
                 isOpen
-                  ? 'bg-green-500 text-white hover:bg-green-600'
+                  ? 'bg-secondary text-secondary-foreground hover:bg-secondary/90'
                   : 'bg-slate-600 text-white hover:bg-slate-700',
               )}
             >
@@ -67,12 +67,12 @@ export function PlaceCard({ place }: PlaceCardProps) {
               <h3 className="line-clamp-1 font-display text-lg font-bold leading-tight text-slate-900">
                 {place.name}
               </h3>
-              <p className="mt-0.5 text-xs font-medium uppercase tracking-wider text-primary">
+              <p className="mt-0.5 text-xs font-bold uppercase tracking-wider text-primary">
                 {place.category}
               </p>
             </div>
-            <div className="flex items-center gap-1 rounded-md bg-secondary/20 px-1.5 py-0.5 text-sm font-bold text-slate-800">
-              <Star className="h-3.5 w-3.5 fill-secondary text-secondary" />
+            <div className="flex items-center gap-1 rounded-md bg-slate-100 px-1.5 py-0.5 text-sm font-bold text-slate-800">
+              <Star className="h-3.5 w-3.5 fill-brand-yellow text-brand-yellow" />
               <span>{place.rating}</span>
             </div>
           </div>

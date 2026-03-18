@@ -1,5 +1,5 @@
 import { Outlet, NavLink, useLocation } from 'react-router-dom'
-import { Home, Heart, Map as MapIcon, Search, Compass, Settings } from 'lucide-react'
+import { Home, Heart, Map as MapIcon, Search, Settings } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export default function Layout() {
@@ -9,17 +9,25 @@ export default function Layout() {
   return (
     <div className="flex min-h-screen w-full flex-col bg-slate-50 md:flex-row">
       <aside className="sticky top-0 hidden h-screen w-72 flex-col border-r bg-white px-4 py-6 md:flex">
-        <div className="mb-8 flex items-center gap-3 px-2">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-white shadow-md shadow-primary/20">
-            <Compass className="h-6 w-6" />
-          </div>
-          <div className="flex flex-col">
-            <span className="font-display text-[15px] font-bold text-slate-900 leading-tight">
-              O que Fazer no Uruguai
-            </span>
-            <span className="text-[9px] text-secondary font-bold uppercase tracking-wider">
-              by Brasileiros no Uruguai
-            </span>
+        <div className="mb-8 flex items-center justify-center px-2">
+          <div className="relative flex h-14 w-full items-center justify-center">
+            <img
+              src="/logo.png"
+              alt="Brasileiros no Uruguai"
+              className="h-full w-auto object-contain"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none'
+                e.currentTarget.nextElementSibling?.classList.remove('hidden')
+              }}
+            />
+            <div className="hidden flex-col justify-center text-center">
+              <span className="font-display text-xl font-black leading-none tracking-tight text-secondary">
+                BRASILEIROS
+              </span>
+              <span className="font-display text-sm font-bold leading-none tracking-widest text-primary mt-1">
+                NO URUGUAI
+              </span>
+            </div>
           </div>
         </div>
 
@@ -38,16 +46,24 @@ export default function Layout() {
         {!isDetailsPage && (
           <header className="sticky top-0 z-40 flex items-center justify-between border-b bg-white/80 px-4 py-3 shadow-sm backdrop-blur-md md:hidden">
             <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-white">
-                <Compass className="h-5 w-5" />
-              </div>
-              <div className="flex flex-col">
-                <span className="font-display text-sm font-bold leading-none text-slate-900">
-                  O que Fazer no Uruguai
-                </span>
-                <span className="mt-0.5 text-[8px] font-bold uppercase tracking-wider text-secondary">
-                  by Brasileiros no Uruguai
-                </span>
+              <div className="relative flex h-8 items-center justify-center">
+                <img
+                  src="/logo.png"
+                  alt="Brasileiros no Uruguai"
+                  className="h-full w-auto object-contain"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none'
+                    e.currentTarget.nextElementSibling?.classList.remove('hidden')
+                  }}
+                />
+                <div className="hidden flex-col justify-center">
+                  <span className="font-display text-[15px] font-black leading-none tracking-tight text-secondary">
+                    BRASILEIROS
+                  </span>
+                  <span className="font-display text-[10px] font-bold leading-none tracking-widest text-primary mt-[2px]">
+                    NO URUGUAI
+                  </span>
+                </div>
               </div>
             </div>
             <NavLink

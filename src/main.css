@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lexend:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lexend:wght@500;600;700;900&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,13 +6,17 @@
 
 @layer base {
   :root {
-    /* Primary: Red-Orange (#E03A3A) */
-    --primary: 0 74% 55%;
+    /* Brand Primary: Blue (#0070B8) */
+    --primary: 203 100% 36%;
     --primary-foreground: 0 0% 100%;
 
-    /* Secondary: Deep Orange (#F97316) */
-    --secondary: 25 95% 53%;
+    /* Brand Secondary: Green (#178C3F) */
+    --secondary: 140 72% 32%;
     --secondary-foreground: 0 0% 100%;
+
+    /* Brand Accent: Yellow (#FDD000) */
+    --brand-yellow: 49 100% 50%;
+    --brand-yellow-foreground: 222.2 84% 4.9%;
 
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
@@ -34,7 +38,7 @@
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 0 74% 55%;
+    --ring: 203 100% 36%; /* Sync with primary */
 
     --radius: 1rem;
   }
@@ -49,11 +53,14 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 0 74% 55%;
+    --primary: 203 100% 50%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 25 95% 53%;
+    --secondary: 140 72% 40%;
     --secondary-foreground: 0 0% 100%;
+
+    --brand-yellow: 49 100% 50%;
+    --brand-yellow-foreground: 222.2 84% 4.9%;
 
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
@@ -66,7 +73,7 @@
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 0 74% 55%;
+    --ring: 203 100% 50%;
   }
 
   body {
