@@ -14,6 +14,7 @@ import Favorites from '@/pages/Favorites'
 import MapView from '@/pages/MapView'
 import Admin from '@/pages/Admin'
 import NotFound from '@/pages/NotFound'
+import Profile from '@/pages/Profile'
 
 const App = () => (
   <BrowserRouter future={{ v7_startTransition: false, v7_relativeSplatPath: false }}>
@@ -30,6 +31,7 @@ const App = () => (
                   <Route path="/place/:id" element={<PlaceDetails />} />
                   <Route path="/favorites" element={<Favorites />} />
                   <Route path="/map" element={<MapView />} />
+                  <Route path="/profile" element={<Profile />} />
                   <Route path="/admin" element={<Admin />} />
                 </Route>
                 <Route path="*" element={<NotFound />} />

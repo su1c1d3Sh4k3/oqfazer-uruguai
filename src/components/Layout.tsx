@@ -1,5 +1,5 @@
 import { Link, Outlet, useLocation } from 'react-router-dom'
-import { Compass, Heart, Map as MapIcon, Settings, Menu } from 'lucide-react'
+import { Compass, Heart, Map as MapIcon, Settings, Menu, Award, ExternalLink } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useAccess } from '@/context/AccessContext'
 import {
@@ -18,8 +18,9 @@ export function Layout() {
 
   const navItems = [
     { name: 'Explorar', path: '/', icon: Compass },
-    { name: 'Mapa', path: '/mapa', icon: MapIcon },
-    { name: 'Favoritos', path: '/favoritos', icon: Heart },
+    { name: 'Mapa', path: '/map', icon: MapIcon },
+    { name: 'Favoritos', path: '/favorites', icon: Heart },
+    { name: 'Progresso', path: '/profile', icon: Award },
     ...(isGranted ? [{ name: 'Admin', path: '/admin', icon: Settings }] : []),
   ]
 
@@ -141,13 +142,23 @@ export function Layout() {
 
       <footer className="border-t py-6 bg-card mt-auto">
         <div className="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="h-8 w-8 overflow-hidden rounded-full grayscale opacity-70 bg-white shrink-0">
-              <img src={logoUrl} alt="Logo" className="h-full w-full object-cover" />
+          <div className="flex flex-col items-center md:items-start gap-2">
+            <div className="flex items-center gap-3">
+              <div className="h-8 w-8 overflow-hidden rounded-full grayscale opacity-70 bg-white shrink-0">
+                <img src={logoUrl} alt="Logo" className="h-full w-full object-cover" />
+              </div>
+              <p className="text-sm text-muted-foreground font-medium">
+                © {new Date().getFullYear()} Brasileiros no Uruguai.
+              </p>
             </div>
-            <p className="text-sm text-muted-foreground font-medium">
-              © {new Date().getFullYear()} Brasileiros no Uruguai.
-            </p>
+            <a
+              href="https://www.brasileirosnouruguai.com.br"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm font-semibold text-primary hover:text-secondary hover:underline transition-colors inline-flex items-center gap-1.5"
+            >
+              www.brasileirosnouruguai.com.br <ExternalLink className="h-3 w-3" />
+            </a>
           </div>
           <div className="text-sm text-muted-foreground flex items-center gap-1.5 font-medium">
             Feito com <Heart className="h-4 w-4 text-destructive fill-current animate-pulse" /> para

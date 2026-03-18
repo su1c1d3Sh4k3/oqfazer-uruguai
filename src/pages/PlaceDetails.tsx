@@ -10,7 +10,7 @@ import {
   ExternalLink,
   CheckCircle2,
 } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 import { useFavorites } from '@/context/FavoritesContext'
 import { usePlaces } from '@/context/PlacesContext'
@@ -47,6 +47,22 @@ export default function PlaceDetails() {
 
   const place = places.find((p) => p.id === id)
 
+  useEffect(() => {
+    if (place) {
+      document.title = `${place.name} | O que Fazer no Uruguai?`
+      let metaDescription = document.querySelector('meta[name="description"]')
+      if (!metaDescription) {
+        metaDescription = document.createElement('meta')
+        metaDescription.setAttribute('name', 'description')
+        document.head.appendChild(metaDescription)
+      }
+      metaDescription.setAttribute('content', place.description.substring(0, 160))
+    }
+    return () => {
+      document.title = 'O que Fazer no Uruguai by Brasileiros no Uruguai'
+    }
+  }, [place])
+
   if (!place) return <div className="p-8 text-center text-xl font-bold">Local não encontrado</div>
 
   const isTour = place.type === 'tour'
@@ -69,6 +85,9 @@ export default function PlaceDetails() {
     }
     recordCheckIn(place.id)
     setShowCheckInDialog(false)
+    toast.success('Check-in realizado com sucesso!', {
+      description: 'Este local foi adicionado ao seu histórico de visitas.',
+    })
   }
 
   return (
@@ -166,7 +185,7 @@ export default function PlaceDetails() {
             </div>
           </div>
 
-          {!isTour && checkInTime && <PlaceCheckInTicket checkInTime={checkInTime} />}
+          {checkInTime && <PlaceCheckInTicket checkInTime={checkInTime} />}
 
           {isTour ? (
             <div className="mb-8 rounded-2xl border border-primary/20 bg-primary/5 p-5">
@@ -275,7 +294,7 @@ export default function PlaceDetails() {
           </div>
         </div>
 
-        {!isTour && !checkInTime && (
+        {!checkInTime && (
           <div className="fixed bottom-0 left-0 right-0 z-40 border-t bg-white p-4 pb-safe shadow-[0_-10px_15px_-3px_rgb(0,0,0,0.05)] lg:sticky lg:border-none lg:bg-transparent lg:px-8 lg:pb-8 lg:shadow-none">
             <Dialog open={showCheckInDialog} onOpenChange={setShowCheckInDialog}>
               <Button
@@ -289,8 +308,9 @@ export default function PlaceDetails() {
                 <DialogHeader>
                   <DialogTitle className="font-display text-xl">Confirmar Check-in</DialogTitle>
                   <DialogDescription className="text-base pt-2">
-                    Atenção: O check-in ativará seu desconto neste estabelecimento pelas próximas 24
-                    horas. Certifique-se de estar no local antes de prosseguir.
+                    Atenção: O check-in adicionará este local ao seu histórico de progresso e, caso
+                    aplicável, ativará seu desconto pelas próximas 24 horas. Certifique-se de estar
+                    no local antes de prosseguir.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="flex gap-3 pt-4 justify-end">
