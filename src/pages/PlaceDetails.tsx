@@ -32,7 +32,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from '@/components/ui/carousel'
-import { cn } from '@/lib/utils'
+import { cn, DAYS_OF_WEEK, isPlaceOpen } from '@/lib/utils'
 import { PlaceMapSection } from '@/components/PlaceMapSection'
 import { PlaceCheckInTicket } from '@/components/PlaceCheckInTicket'
 
@@ -54,6 +54,7 @@ export default function PlaceDetails() {
   const dist = calculateDistance(place.coordinates.lat, place.coordinates.lng)
   const displayDistance = dist ? `${dist.toFixed(1)} km` : 'Calculando...'
   const checkInTime = getPlaceCheckIn(place.id)
+  const isOpen = isPlaceOpen(place.operatingHours)
 
   const handleShare = () => {
     if (navigator.share) navigator.share({ title: place.name, url: window.location.href })
@@ -155,8 +156,13 @@ export default function PlaceDetails() {
             <div className="flex items-center gap-1.5 font-medium">
               <MapPin className="h-4 w-4 text-slate-400" /> {displayDistance}
             </div>
-            <div className="flex items-center gap-1.5 font-medium text-green-600">
-              <Clock className="h-4 w-4" /> Aberto agora
+            <div
+              className={cn(
+                'flex items-center gap-1.5 font-medium',
+                isOpen ? 'text-green-600' : 'text-red-500',
+              )}
+            >
+              <Clock className="h-4 w-4" /> {isOpen ? 'Aberto agora' : 'Fechado'}
             </div>
           </div>
 
@@ -193,6 +199,34 @@ export default function PlaceDetails() {
               <p className="text-sm font-medium leading-relaxed text-slate-700">
                 {place.discountDescription}
               </p>
+            </div>
+          )}
+
+          {place.operatingHours && place.operatingHours.length > 0 && (
+            <div className="mb-8">
+              <h3 className="mb-3 font-display text-xl font-bold text-slate-900">
+                Horários de Funcionamento
+              </h3>
+              <div className="space-y-2 rounded-xl border border-slate-100 bg-slate-50 p-4">
+                {DAYS_OF_WEEK.map((day) => {
+                  const hours = place.operatingHours?.find((h) => h.day === day.value)
+                  const isToday = new Date().getDay() === day.value
+                  return (
+                    <div
+                      key={day.value}
+                      className={cn(
+                        'flex justify-between text-sm',
+                        isToday ? 'font-bold text-primary' : 'text-slate-600 font-medium',
+                      )}
+                    >
+                      <span>{day.label}</span>
+                      <span>
+                        {hours?.isOpen ? `${hours.openTime} - ${hours.closeTime}` : 'Fechado'}
+                      </span>
+                    </div>
+                  )
+                })}
+              </div>
             </div>
           )}
 

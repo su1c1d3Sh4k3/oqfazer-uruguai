@@ -18114,7 +18114,7 @@ function handleAndDispatchCustomEvent$1(name, handler, detail, { discrete }) {
 	if (discrete) dispatchDiscreteCustomEvent(target, event);
 	else target.dispatchEvent(event);
 }
-var Root$4 = DismissableLayer;
+var Root$5 = DismissableLayer;
 var Branch = DismissableLayerBranch;
 //#endregion
 //#region ../../cache/modules/app-descontos-restaurantes-36a48/node_modules/.pnpm/@radix-ui+react-use-layout-effect@1.1.1_@types+react@19.2.14_react@19.2.4/node_modules/@radix-ui/react-use-layout-effect/dist/index.mjs
@@ -18256,7 +18256,7 @@ function useControllableState({ prop, defaultProp, onChange = () => {}, caller }
 	}
 	return [value, import_react.useCallback((nextValue) => {
 		if (isControlled) {
-			const value2 = isFunction(nextValue) ? nextValue(prop) : nextValue;
+			const value2 = isFunction$1(nextValue) ? nextValue(prop) : nextValue;
 			if (value2 !== prop) onChangeRef.current?.(value2);
 		} else setUncontrolledProp(nextValue);
 	}, [
@@ -18285,7 +18285,7 @@ function useUncontrolledState({ defaultProp, onChange }) {
 		onChangeRef
 	];
 }
-function isFunction(value) {
+function isFunction$1(value) {
 	return typeof value === "function";
 }
 //#endregion
@@ -18314,7 +18314,7 @@ var VisuallyHidden = import_react.forwardRef((props, forwardedRef) => {
 	});
 });
 VisuallyHidden.displayName = NAME$2;
-var Root$3 = VisuallyHidden;
+var Root$4 = VisuallyHidden;
 //#endregion
 //#region ../../cache/modules/app-descontos-restaurantes-36a48/node_modules/.pnpm/@radix-ui+react-toast@1.2.15_@types+react-dom@19.2.3_@types+react@19.2.14__@types+react_4581e89c6ba13e4159ce65546c8b2a16/node_modules/@radix-ui/react-toast/dist/index.mjs
 var PROVIDER_NAME$1 = "ToastProvider";
@@ -18614,7 +18614,7 @@ var ToastImpl = import_react.forwardRef((props, forwardedRef) => {
 		onClose: handleClose,
 		children: import_react_dom.createPortal(/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Collection$1.ItemSlot, {
 			scope: __scopeToast,
-			children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Root$4, {
+			children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Root$5, {
 				asChild: true,
 				onEscapeKeyDown: composeEventHandlers(onEscapeKeyDown, () => {
 					if (!context.isFocusedToastEscapeKeyDownRef.current) handleClose();
@@ -20679,6 +20679,57 @@ var twMerge = /* @__PURE__ */ createTailwindMerge(getDefaultConfig);
 */
 function cn$1(...inputs) {
 	return twMerge(clsx(inputs));
+}
+var DAYS_OF_WEEK = [
+	{
+		value: 0,
+		label: "Domingo"
+	},
+	{
+		value: 1,
+		label: "Segunda-feira"
+	},
+	{
+		value: 2,
+		label: "Terça-feira"
+	},
+	{
+		value: 3,
+		label: "Quarta-feira"
+	},
+	{
+		value: 4,
+		label: "Quinta-feira"
+	},
+	{
+		value: 5,
+		label: "Sexta-feira"
+	},
+	{
+		value: 6,
+		label: "Sábado"
+	}
+];
+function isPlaceOpen(operatingHours) {
+	if (!operatingHours || operatingHours.length === 0) return false;
+	const now = /* @__PURE__ */ new Date();
+	const currentDay = now.getDay();
+	const currentHour = now.getHours();
+	const currentMinute = now.getMinutes();
+	const currentTimeStr = `${currentHour.toString().padStart(2, "0")}:${currentMinute.toString().padStart(2, "0")}`;
+	const todayHours = operatingHours.find((h) => h.day === currentDay);
+	let isOpenToday = false;
+	if (todayHours?.isOpen) {
+		if (todayHours.closeTime < todayHours.openTime) {
+			if (currentTimeStr >= todayHours.openTime) isOpenToday = true;
+		} else if (currentTimeStr >= todayHours.openTime && currentTimeStr <= todayHours.closeTime) isOpenToday = true;
+	}
+	const yesterdayDay = currentDay === 0 ? 6 : currentDay - 1;
+	const yesterdayHours = operatingHours.find((h) => h.day === yesterdayDay);
+	if (!isOpenToday && yesterdayHours?.isOpen && yesterdayHours.closeTime < yesterdayHours.openTime) {
+		if (currentTimeStr <= yesterdayHours.closeTime) return true;
+	}
+	return isOpenToday;
 }
 //#endregion
 //#region src/components/ui/toast.tsx
@@ -23433,7 +23484,7 @@ var Arrow$1 = import_react.forwardRef((props, forwardedRef) => {
 	});
 });
 Arrow$1.displayName = NAME$1;
-var Root$2 = Arrow$1;
+var Root$3 = Arrow$1;
 //#endregion
 //#region ../../cache/modules/app-descontos-restaurantes-36a48/node_modules/.pnpm/@radix-ui+react-use-size@1.1.1_@types+react@19.2.14_react@19.2.4/node_modules/@radix-ui/react-use-size/dist/index.mjs
 function useSize(element) {
@@ -23654,7 +23705,7 @@ var PopperArrow = import_react.forwardRef(function PopperArrow2(props, forwarded
 			}[contentContext.placedSide],
 			visibility: contentContext.shouldHideArrow ? "hidden" : void 0
 		},
-		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Root$2, {
+		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Root$3, {
 			...arrowProps,
 			ref: forwardedRef,
 			style: {
@@ -23837,11 +23888,11 @@ var Tooltip$1 = (props) => {
 	});
 };
 Tooltip$1.displayName = TOOLTIP_NAME;
-var TRIGGER_NAME$2 = "TooltipTrigger";
+var TRIGGER_NAME$3 = "TooltipTrigger";
 var TooltipTrigger$1 = import_react.forwardRef((props, forwardedRef) => {
 	const { __scopeTooltip, ...triggerProps } = props;
-	const context = useTooltipContext(TRIGGER_NAME$2, __scopeTooltip);
-	const providerContext = useTooltipProviderContext(TRIGGER_NAME$2, __scopeTooltip);
+	const context = useTooltipContext(TRIGGER_NAME$3, __scopeTooltip);
+	const providerContext = useTooltipProviderContext(TRIGGER_NAME$3, __scopeTooltip);
 	const popperScope = usePopperScope$1(__scopeTooltip);
 	const composedRefs = useComposedRefs(forwardedRef, import_react.useRef(null), context.onTriggerChange);
 	const isPointerDownRef = import_react.useRef(false);
@@ -23882,7 +23933,7 @@ var TooltipTrigger$1 = import_react.forwardRef((props, forwardedRef) => {
 		})
 	});
 });
-TooltipTrigger$1.displayName = TRIGGER_NAME$2;
+TooltipTrigger$1.displayName = TRIGGER_NAME$3;
 var PORTAL_NAME$2 = "TooltipPortal";
 var [PortalProvider$1, usePortalContext$1] = createTooltipContext(PORTAL_NAME$2, { forceMount: void 0 });
 var TooltipPortal = (props) => {
@@ -24038,7 +24089,7 @@ var TooltipContentImpl = import_react.forwardRef((props, forwardedRef) => {
 			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Slottable, { children }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(VisuallyHiddenContentContextProvider, {
 				scope: __scopeTooltip,
 				isInside: true,
-				children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Root$3, {
+				children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Root$4, {
 					id: context.contentId,
 					role: "tooltip",
 					children: ariaLabel || children
@@ -24333,6 +24384,50 @@ var DEFAULT_CATEGORIES = [
 	"Museus",
 	"Vinícolas"
 ];
+var createDefaultHours = () => [
+	{
+		day: 0,
+		isOpen: true,
+		openTime: "09:00",
+		closeTime: "18:00"
+	},
+	{
+		day: 1,
+		isOpen: true,
+		openTime: "09:00",
+		closeTime: "18:00"
+	},
+	{
+		day: 2,
+		isOpen: true,
+		openTime: "09:00",
+		closeTime: "18:00"
+	},
+	{
+		day: 3,
+		isOpen: true,
+		openTime: "09:00",
+		closeTime: "18:00"
+	},
+	{
+		day: 4,
+		isOpen: true,
+		openTime: "09:00",
+		closeTime: "18:00"
+	},
+	{
+		day: 5,
+		isOpen: true,
+		openTime: "09:00",
+		closeTime: "23:00"
+	},
+	{
+		day: 6,
+		isOpen: true,
+		openTime: "09:00",
+		closeTime: "23:00"
+	}
+];
 var DEFAULT_PLACES = [
 	{
 		id: "1",
@@ -24357,6 +24452,7 @@ var DEFAULT_PLACES = [
 			lat: -34.912,
 			lng: -56.155
 		},
+		operatingHours: createDefaultHours(),
 		featured: true
 	},
 	{
@@ -24382,6 +24478,7 @@ var DEFAULT_PLACES = [
 			lat: -34.962,
 			lng: -54.943
 		},
+		operatingHours: createDefaultHours(),
 		featured: true,
 		included: [
 			"Transfer ida e volta",
@@ -24421,6 +24518,7 @@ var DEFAULT_PLACES = [
 			lat: -34.471,
 			lng: -57.852
 		},
+		operatingHours: createDefaultHours(),
 		featured: true
 	},
 	{
@@ -24446,6 +24544,7 @@ var DEFAULT_PLACES = [
 			lat: -34.593,
 			lng: -54.551
 		},
+		operatingHours: createDefaultHours(),
 		included: [
 			"Passeio guiado pelas vinhas",
 			"Degustação de 4 vinhos",
@@ -24787,102 +24886,108 @@ function PlaceCard({ place }) {
 	const favorite = isFavorite(place.id);
 	const dist = calculateDistance(place.coordinates.lat, place.coordinates.lng);
 	const displayDistance = dist ? `${dist.toFixed(1)} km` : "Calculando...";
+	const isOpen = isPlaceOpen(place.operatingHours);
 	const handleFavoriteClick = (e) => {
 		e.preventDefault();
 		e.stopPropagation();
 		toggleFavorite(place.id);
 	};
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
-		"data-uid": "src/components/PlaceCard.tsx:28:5",
+		"data-uid": "src/components/PlaceCard.tsx:29:5",
 		"data-prohibitions": "[editContent]",
 		to: `/place/${place.id}`,
 		className: "group block h-full",
 		children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-			"data-uid": "src/components/PlaceCard.tsx:29:7",
+			"data-uid": "src/components/PlaceCard.tsx:30:7",
 			"data-prohibitions": "[editContent]",
 			className: "relative flex h-full flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm transition-all duration-300 hover:shadow-xl",
 			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				"data-uid": "src/components/PlaceCard.tsx:30:9",
+				"data-uid": "src/components/PlaceCard.tsx:31:9",
 				"data-prohibitions": "[editContent]",
 				className: "relative aspect-[4/3] w-full shrink-0 overflow-hidden",
 				children: [
 					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("img", {
-						"data-uid": "src/components/PlaceCard.tsx:31:11",
+						"data-uid": "src/components/PlaceCard.tsx:32:11",
 						"data-prohibitions": "[editContent]",
 						src: place.coverImage,
 						alt: place.name,
 						className: "h-full w-full object-cover transition-transform duration-500 group-hover:scale-105",
 						loading: "lazy"
 					}),
-					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-						"data-uid": "src/components/PlaceCard.tsx:37:11",
+					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						"data-uid": "src/components/PlaceCard.tsx:38:11",
 						"data-prohibitions": "[editContent]",
-						className: "absolute left-3 top-3",
-						children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Badge, {
-							"data-uid": "src/components/PlaceCard.tsx:38:13",
+						className: "absolute left-3 top-3 flex flex-col gap-1.5 items-start",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Badge, {
+							"data-uid": "src/components/PlaceCard.tsx:39:13",
 							"data-prohibitions": "[editContent]",
 							className: "border-none bg-secondary font-bold text-slate-900 shadow-md hover:bg-secondary/90",
 							children: place.discountBadge
-						})
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Badge, {
+							"data-uid": "src/components/PlaceCard.tsx:42:13",
+							"data-prohibitions": "[editContent]",
+							className: cn$1("border-none font-bold shadow-md", isOpen ? "bg-green-500 text-white hover:bg-green-600" : "bg-slate-600 text-white hover:bg-slate-700"),
+							children: isOpen ? "Aberto Agora" : "Fechado"
+						})]
 					}),
 					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-						"data-uid": "src/components/PlaceCard.tsx:42:11",
+						"data-uid": "src/components/PlaceCard.tsx:53:11",
 						"data-prohibitions": "[editContent]",
 						onClick: handleFavoriteClick,
 						className: "absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 text-slate-700 shadow-sm backdrop-blur-sm transition-all hover:bg-white active:scale-95",
 						children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Heart, {
-							"data-uid": "src/components/PlaceCard.tsx:46:13",
+							"data-uid": "src/components/PlaceCard.tsx:57:13",
 							"data-prohibitions": "[editContent]",
 							className: cn$1("h-5 w-5 transition-colors", { "animate-heart-pop fill-primary text-primary": favorite })
 						})
 					})
 				]
 			}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				"data-uid": "src/components/PlaceCard.tsx:53:9",
+				"data-uid": "src/components/PlaceCard.tsx:64:9",
 				"data-prohibitions": "[editContent]",
 				className: "flex flex-1 flex-col p-4",
 				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					"data-uid": "src/components/PlaceCard.tsx:54:11",
+					"data-uid": "src/components/PlaceCard.tsx:65:11",
 					"data-prohibitions": "[editContent]",
 					className: "mb-1 flex items-start justify-between gap-2",
 					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						"data-uid": "src/components/PlaceCard.tsx:55:13",
+						"data-uid": "src/components/PlaceCard.tsx:66:13",
 						"data-prohibitions": "[editContent]",
 						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
-							"data-uid": "src/components/PlaceCard.tsx:56:15",
+							"data-uid": "src/components/PlaceCard.tsx:67:15",
 							"data-prohibitions": "[editContent]",
 							className: "line-clamp-1 font-display text-lg font-bold leading-tight text-slate-900",
 							children: place.name
 						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-							"data-uid": "src/components/PlaceCard.tsx:59:15",
+							"data-uid": "src/components/PlaceCard.tsx:70:15",
 							"data-prohibitions": "[editContent]",
 							className: "mt-0.5 text-xs font-medium uppercase tracking-wider text-primary",
 							children: place.category
 						})]
 					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						"data-uid": "src/components/PlaceCard.tsx:63:13",
+						"data-uid": "src/components/PlaceCard.tsx:74:13",
 						"data-prohibitions": "[editContent]",
 						className: "flex items-center gap-1 rounded-md bg-secondary/20 px-1.5 py-0.5 text-sm font-bold text-slate-800",
 						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Star, {
-							"data-uid": "src/components/PlaceCard.tsx:64:15",
+							"data-uid": "src/components/PlaceCard.tsx:75:15",
 							"data-prohibitions": "[editContent]",
 							className: "h-3.5 w-3.5 fill-secondary text-secondary"
 						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-							"data-uid": "src/components/PlaceCard.tsx:65:15",
+							"data-uid": "src/components/PlaceCard.tsx:76:15",
 							"data-prohibitions": "[editContent]",
 							children: place.rating
 						})]
 					})]
 				}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					"data-uid": "src/components/PlaceCard.tsx:68:11",
+					"data-uid": "src/components/PlaceCard.tsx:79:11",
 					"data-prohibitions": "[editContent]",
 					className: "mt-auto flex items-center pt-3 text-sm text-slate-500",
 					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(MapPin, {
-						"data-uid": "src/components/PlaceCard.tsx:69:13",
+						"data-uid": "src/components/PlaceCard.tsx:80:13",
 						"data-prohibitions": "[editContent]",
 						className: "mr-1 h-4 w-4 shrink-0 text-slate-400"
 					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-						"data-uid": "src/components/PlaceCard.tsx:70:13",
+						"data-uid": "src/components/PlaceCard.tsx:81:13",
 						"data-prohibitions": "[editContent]",
 						className: "truncate",
 						children: [
@@ -26795,6 +26900,209 @@ function Autoplay(userOptions = {}) {
 }
 Autoplay.globalOptions = void 0;
 //#endregion
+//#region ../../cache/modules/app-descontos-restaurantes-36a48/node_modules/.pnpm/@radix-ui+react-use-previous@1.1.1_@types+react@19.2.14_react@19.2.4/node_modules/@radix-ui/react-use-previous/dist/index.mjs
+function usePrevious(value) {
+	const ref = import_react.useRef({
+		value,
+		previous: value
+	});
+	return import_react.useMemo(() => {
+		if (ref.current.value !== value) {
+			ref.current.previous = ref.current.value;
+			ref.current.value = value;
+		}
+		return ref.current.previous;
+	}, [value]);
+}
+//#endregion
+//#region ../../cache/modules/app-descontos-restaurantes-36a48/node_modules/.pnpm/@radix-ui+react-switch@1.2.6_@types+react-dom@19.2.3_@types+react@19.2.14__@types+react_e3738c514c10df2ef7e24af5ee461853/node_modules/@radix-ui/react-switch/dist/index.mjs
+var SWITCH_NAME = "Switch";
+var [createSwitchContext, createSwitchScope] = createContextScope(SWITCH_NAME);
+var [SwitchProvider, useSwitchContext] = createSwitchContext(SWITCH_NAME);
+var Switch$1 = import_react.forwardRef((props, forwardedRef) => {
+	const { __scopeSwitch, name, checked: checkedProp, defaultChecked, required, disabled, value = "on", onCheckedChange, form, ...switchProps } = props;
+	const [button, setButton] = import_react.useState(null);
+	const composedRefs = useComposedRefs(forwardedRef, (node) => setButton(node));
+	const hasConsumerStoppedPropagationRef = import_react.useRef(false);
+	const isFormControl = button ? form || !!button.closest("form") : true;
+	const [checked, setChecked] = useControllableState({
+		prop: checkedProp,
+		defaultProp: defaultChecked ?? false,
+		onChange: onCheckedChange,
+		caller: SWITCH_NAME
+	});
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(SwitchProvider, {
+		scope: __scopeSwitch,
+		checked,
+		disabled,
+		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive$1.button, {
+			type: "button",
+			role: "switch",
+			"aria-checked": checked,
+			"aria-required": required,
+			"data-state": getState$2(checked),
+			"data-disabled": disabled ? "" : void 0,
+			disabled,
+			value,
+			...switchProps,
+			ref: composedRefs,
+			onClick: composeEventHandlers(props.onClick, (event) => {
+				setChecked((prevChecked) => !prevChecked);
+				if (isFormControl) {
+					hasConsumerStoppedPropagationRef.current = event.isPropagationStopped();
+					if (!hasConsumerStoppedPropagationRef.current) event.stopPropagation();
+				}
+			})
+		}), isFormControl && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SwitchBubbleInput, {
+			control: button,
+			bubbles: !hasConsumerStoppedPropagationRef.current,
+			name,
+			value,
+			checked,
+			required,
+			disabled,
+			form,
+			style: { transform: "translateX(-100%)" }
+		})]
+	});
+});
+Switch$1.displayName = SWITCH_NAME;
+var THUMB_NAME = "SwitchThumb";
+var SwitchThumb = import_react.forwardRef((props, forwardedRef) => {
+	const { __scopeSwitch, ...thumbProps } = props;
+	const context = useSwitchContext(THUMB_NAME, __scopeSwitch);
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive$1.span, {
+		"data-state": getState$2(context.checked),
+		"data-disabled": context.disabled ? "" : void 0,
+		...thumbProps,
+		ref: forwardedRef
+	});
+});
+SwitchThumb.displayName = THUMB_NAME;
+var BUBBLE_INPUT_NAME$2 = "SwitchBubbleInput";
+var SwitchBubbleInput = import_react.forwardRef(({ __scopeSwitch, control, checked, bubbles = true, ...props }, forwardedRef) => {
+	const ref = import_react.useRef(null);
+	const composedRefs = useComposedRefs(ref, forwardedRef);
+	const prevChecked = usePrevious(checked);
+	const controlSize = useSize(control);
+	import_react.useEffect(() => {
+		const input = ref.current;
+		if (!input) return;
+		const inputProto = window.HTMLInputElement.prototype;
+		const setChecked = Object.getOwnPropertyDescriptor(inputProto, "checked").set;
+		if (prevChecked !== checked && setChecked) {
+			const event = new Event("click", { bubbles });
+			setChecked.call(input, checked);
+			input.dispatchEvent(event);
+		}
+	}, [
+		prevChecked,
+		checked,
+		bubbles
+	]);
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+		type: "checkbox",
+		"aria-hidden": true,
+		defaultChecked: checked,
+		...props,
+		tabIndex: -1,
+		ref: composedRefs,
+		style: {
+			...props.style,
+			...controlSize,
+			position: "absolute",
+			pointerEvents: "none",
+			opacity: 0,
+			margin: 0
+		}
+	});
+});
+SwitchBubbleInput.displayName = BUBBLE_INPUT_NAME$2;
+function getState$2(checked) {
+	return checked ? "checked" : "unchecked";
+}
+var Root$2 = Switch$1;
+var Thumb = SwitchThumb;
+//#endregion
+//#region src/components/ui/switch.tsx
+var Switch = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Root$2, {
+	"data-uid": "src/components/ui/switch.tsx:11:3",
+	"data-prohibitions": "[editContent]",
+	className: cn$1("peer inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=unchecked]:bg-input", className),
+	...props,
+	ref,
+	children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Thumb, {
+		"data-uid": "src/components/ui/switch.tsx:19:5",
+		"data-prohibitions": "[editContent]",
+		className: cn$1("pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0")
+	})
+}));
+Switch.displayName = Root$2.displayName;
+//#endregion
+//#region ../../cache/modules/app-descontos-restaurantes-36a48/node_modules/.pnpm/@radix-ui+react-primitive@2.1.4_@types+react-dom@19.2.3_@types+react@19.2.14__@types+re_0243fb2db8a1fb85ca77b8d9e5c2d650/node_modules/@radix-ui/react-primitive/dist/index.mjs
+var Primitive = [
+	"a",
+	"button",
+	"div",
+	"form",
+	"h2",
+	"h3",
+	"img",
+	"input",
+	"label",
+	"li",
+	"nav",
+	"ol",
+	"p",
+	"select",
+	"span",
+	"svg",
+	"ul"
+].reduce((primitive, node) => {
+	const Slot = /* @__PURE__ */ createSlot(`Primitive.${node}`);
+	const Node = import_react.forwardRef((props, forwardedRef) => {
+		const { asChild, ...primitiveProps } = props;
+		const Comp = asChild ? Slot : node;
+		if (typeof window !== "undefined") window[Symbol.for("radix-ui")] = true;
+		return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Comp, {
+			...primitiveProps,
+			ref: forwardedRef
+		});
+	});
+	Node.displayName = `Primitive.${node}`;
+	return {
+		...primitive,
+		[node]: Node
+	};
+}, {});
+//#endregion
+//#region ../../cache/modules/app-descontos-restaurantes-36a48/node_modules/.pnpm/@radix-ui+react-label@2.1.8_@types+react-dom@19.2.3_@types+react@19.2.14__@types+react@_55fa612a976b7bdfbf4dcdd93d861aab/node_modules/@radix-ui/react-label/dist/index.mjs
+var NAME = "Label";
+var Label$2 = import_react.forwardRef((props, forwardedRef) => {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.label, {
+		...props,
+		ref: forwardedRef,
+		onMouseDown: (event) => {
+			if (event.target.closest("button, input, select, textarea")) return;
+			props.onMouseDown?.(event);
+			if (!event.defaultPrevented && event.detail > 1) event.preventDefault();
+		}
+	});
+});
+Label$2.displayName = NAME;
+var Root$1 = Label$2;
+//#endregion
+//#region src/components/ui/label.tsx
+var labelVariants = cva("text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70");
+var Label$1 = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Root$1, {
+	"data-uid": "src/components/ui/label.tsx:16:3",
+	"data-prohibitions": "[editContent]",
+	ref,
+	className: cn$1(labelVariants(), className),
+	...props
+}));
+Label$1.displayName = Root$1.displayName;
+//#endregion
 //#region src/pages/Index.tsx
 function Index() {
 	const { places, categories } = usePlaces();
@@ -26806,6 +27114,7 @@ function Index() {
 	const [selectedCity, setSelectedCity] = (0, import_react.useState)("Todas");
 	const [selectedCategory, setSelectedCategory] = (0, import_react.useState)("Todas");
 	const [maxDistance, setMaxDistance] = (0, import_react.useState)("Qualquer");
+	const [openNowOnly, setOpenNowOnly] = (0, import_react.useState)(false);
 	const CITIES = [
 		"Todas",
 		"Montevideo",
@@ -26831,6 +27140,7 @@ function Index() {
 				return d !== null && d <= limit;
 			});
 		}
+		if (openNowOnly) result = result.filter((p) => isPlaceOpen(p.operatingHours));
 		return result.sort((a, b) => {
 			return (calculateDistance(a.coordinates.lat, a.coordinates.lng) || 9999) - (calculateDistance(b.coordinates.lat, b.coordinates.lng) || 9999);
 		});
@@ -26839,77 +27149,78 @@ function Index() {
 		selectedCity,
 		selectedCategory,
 		maxDistance,
+		openNowOnly,
 		calculateDistance
 	]);
 	const featured = places.filter((p) => p.featured);
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-		"data-uid": "src/pages/Index.tsx:46:5",
+		"data-uid": "src/pages/Index.tsx:54:5",
 		"data-prohibitions": "[editContent]",
 		className: "flex flex-col gap-6 pb-8 pt-4 md:px-8 md:pt-8",
 		children: [
 			featured.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", {
-				"data-uid": "src/pages/Index.tsx:48:9",
+				"data-uid": "src/pages/Index.tsx:56:9",
 				"data-prohibitions": "[editContent]",
 				className: "px-4 md:px-0",
 				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
-					"data-uid": "src/pages/Index.tsx:49:11",
+					"data-uid": "src/pages/Index.tsx:57:11",
 					"data-prohibitions": "[]",
 					className: "mb-3 font-display text-xl font-bold text-slate-900 md:text-2xl",
 					children: "Destaques da Semana"
 				}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Carousel, {
-					"data-uid": "src/pages/Index.tsx:52:11",
+					"data-uid": "src/pages/Index.tsx:60:11",
 					"data-prohibitions": "[editContent]",
 					plugins: [plugin.current],
 					className: "w-full",
 					opts: { loop: true },
 					children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CarouselContent, {
-						"data-uid": "src/pages/Index.tsx:53:13",
+						"data-uid": "src/pages/Index.tsx:61:13",
 						"data-prohibitions": "[editContent]",
 						className: "-ml-2 md:-ml-4",
 						children: featured.map((place) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CarouselItem, {
-							"data-uid": "src/pages/Index.tsx:55:17",
+							"data-uid": "src/pages/Index.tsx:63:17",
 							"data-prohibitions": "[editContent]",
 							className: "pl-2 md:basis-3/4 md:pl-4 lg:basis-2/3 xl:basis-1/2",
 							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
-								"data-uid": "src/pages/Index.tsx:59:19",
+								"data-uid": "src/pages/Index.tsx:67:19",
 								"data-prohibitions": "[editContent]",
 								to: `/place/${place.id}`,
 								children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									"data-uid": "src/pages/Index.tsx:60:21",
+									"data-uid": "src/pages/Index.tsx:68:21",
 									"data-prohibitions": "[editContent]",
 									className: "group relative h-48 w-full overflow-hidden rounded-2xl md:h-64",
 									children: [
 										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("img", {
-											"data-uid": "src/pages/Index.tsx:61:23",
+											"data-uid": "src/pages/Index.tsx:69:23",
 											"data-prohibitions": "[editContent]",
 											src: place.coverImage,
 											alt: place.name,
 											className: "absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
 										}),
 										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-											"data-uid": "src/pages/Index.tsx:66:23",
+											"data-uid": "src/pages/Index.tsx:74:23",
 											"data-prohibitions": "[editContent]",
 											className: "absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"
 										}),
 										/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-											"data-uid": "src/pages/Index.tsx:67:23",
+											"data-uid": "src/pages/Index.tsx:75:23",
 											"data-prohibitions": "[editContent]",
 											className: "absolute bottom-0 left-0 p-4 md:p-6",
 											children: [
 												/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Badge, {
-													"data-uid": "src/pages/Index.tsx:68:25",
+													"data-uid": "src/pages/Index.tsx:76:25",
 													"data-prohibitions": "[editContent]",
 													className: "mb-2 border-none bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary",
 													children: place.discountBadge
 												}),
 												/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
-													"data-uid": "src/pages/Index.tsx:71:25",
+													"data-uid": "src/pages/Index.tsx:79:25",
 													"data-prohibitions": "[editContent]",
 													className: "font-display text-xl font-bold text-white md:text-3xl",
 													children: place.name
 												}),
 												/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
-													"data-uid": "src/pages/Index.tsx:74:25",
+													"data-uid": "src/pages/Index.tsx:82:25",
 													"data-prohibitions": "[editContent]",
 													className: "text-sm text-slate-200 md:text-base",
 													children: [
@@ -26928,20 +27239,20 @@ function Index() {
 				})]
 			}),
 			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", {
-				"data-uid": "src/pages/Index.tsx:87:7",
+				"data-uid": "src/pages/Index.tsx:95:7",
 				"data-prohibitions": "[editContent]",
 				className: "flex flex-col gap-4 px-4 md:px-0",
 				children: [
 					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-						"data-uid": "src/pages/Index.tsx:88:9",
+						"data-uid": "src/pages/Index.tsx:96:9",
 						"data-prohibitions": "[editContent]",
 						className: "hide-scrollbar -mx-4 flex overflow-x-auto px-4 md:mx-0 md:px-0",
 						children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-							"data-uid": "src/pages/Index.tsx:89:11",
+							"data-uid": "src/pages/Index.tsx:97:11",
 							"data-prohibitions": "[editContent]",
 							className: "flex gap-2",
 							children: CATEGORIES.map((category) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-								"data-uid": "src/pages/Index.tsx:91:15",
+								"data-uid": "src/pages/Index.tsx:99:15",
 								"data-prohibitions": "[editContent]",
 								onClick: () => setSelectedCategory(category),
 								className: `whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium transition-all ${selectedCategory === category ? "bg-primary text-white shadow-md" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`,
@@ -26950,15 +27261,15 @@ function Index() {
 						})
 					}),
 					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-						"data-uid": "src/pages/Index.tsx:105:9",
+						"data-uid": "src/pages/Index.tsx:113:9",
 						"data-prohibitions": "[editContent]",
 						className: "hide-scrollbar -mx-4 flex overflow-x-auto px-4 md:mx-0 md:px-0",
 						children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-							"data-uid": "src/pages/Index.tsx:106:11",
+							"data-uid": "src/pages/Index.tsx:114:11",
 							"data-prohibitions": "[editContent]",
 							className: "flex gap-2",
 							children: CITIES.map((city) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-								"data-uid": "src/pages/Index.tsx:108:15",
+								"data-uid": "src/pages/Index.tsx:116:15",
 								"data-prohibitions": "[editContent]",
 								onClick: () => setSelectedCity(city),
 								className: `whitespace-nowrap rounded-full px-5 py-2 text-sm font-semibold transition-all ${selectedCity === city ? "bg-secondary text-slate-900 shadow-md" : "border border-slate-200 bg-white text-slate-600 shadow-sm hover:bg-slate-50"}`,
@@ -26966,60 +27277,82 @@ function Index() {
 							}, city))
 						})
 					}),
-					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-						"data-uid": "src/pages/Index.tsx:122:9",
+					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						"data-uid": "src/pages/Index.tsx:131:9",
 						"data-prohibitions": "[editContent]",
-						className: "hide-scrollbar -mx-4 flex overflow-x-auto px-4 md:mx-0 md:px-0",
-						children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							"data-uid": "src/pages/Index.tsx:123:11",
+						className: "flex flex-col md:flex-row md:items-center justify-between gap-4 mt-2",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+							"data-uid": "src/pages/Index.tsx:132:11",
 							"data-prohibitions": "[editContent]",
-							className: "flex items-center gap-2",
-							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-								"data-uid": "src/pages/Index.tsx:124:13",
-								"data-prohibitions": "[]",
-								className: "text-xs font-bold text-slate-400 uppercase tracking-wider",
-								children: "Distância:"
-							}), DISTANCES.map((dist) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-								"data-uid": "src/pages/Index.tsx:128:15",
+							className: "hide-scrollbar -mx-4 flex overflow-x-auto px-4 md:mx-0 md:px-0",
+							children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								"data-uid": "src/pages/Index.tsx:133:13",
 								"data-prohibitions": "[editContent]",
-								onClick: () => setMaxDistance(dist),
-								className: `whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium transition-all ${maxDistance === dist ? "bg-slate-800 text-white shadow-md" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`,
-								children: dist
-							}, dist))]
-						})
+								className: "flex items-center gap-2",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+									"data-uid": "src/pages/Index.tsx:134:15",
+									"data-prohibitions": "[]",
+									className: "text-xs font-bold text-slate-400 uppercase tracking-wider",
+									children: "Distância:"
+								}), DISTANCES.map((dist) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+									"data-uid": "src/pages/Index.tsx:138:17",
+									"data-prohibitions": "[editContent]",
+									onClick: () => setMaxDistance(dist),
+									className: `whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium transition-all ${maxDistance === dist ? "bg-slate-800 text-white shadow-md" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`,
+									children: dist
+								}, dist))]
+							})
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							"data-uid": "src/pages/Index.tsx:153:11",
+							"data-prohibitions": "[]",
+							className: "flex items-center space-x-2 rounded-full border border-slate-200 bg-white px-4 py-2 shadow-sm shrink-0 w-fit",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Switch, {
+								"data-uid": "src/pages/Index.tsx:154:13",
+								"data-prohibitions": "[editContent]",
+								id: "open-now",
+								checked: openNowOnly,
+								onCheckedChange: setOpenNowOnly
+							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label$1, {
+								"data-uid": "src/pages/Index.tsx:155:13",
+								"data-prohibitions": "[]",
+								htmlFor: "open-now",
+								className: "cursor-pointer font-bold text-slate-700",
+								children: "Aberto Agora"
+							})]
+						})]
 					})
 				]
 			}),
 			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", {
-				"data-uid": "src/pages/Index.tsx:144:7",
+				"data-uid": "src/pages/Index.tsx:162:7",
 				"data-prohibitions": "[editContent]",
 				className: "px-4 md:px-0",
 				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-					"data-uid": "src/pages/Index.tsx:145:9",
+					"data-uid": "src/pages/Index.tsx:163:9",
 					"data-prohibitions": "[]",
 					className: "mb-4 flex items-center justify-between",
 					children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
-						"data-uid": "src/pages/Index.tsx:146:11",
+						"data-uid": "src/pages/Index.tsx:164:11",
 						"data-prohibitions": "[]",
 						className: "font-display text-xl font-bold text-slate-900 md:text-2xl",
 						children: "Descubra Mais"
 					})
 				}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					"data-uid": "src/pages/Index.tsx:150:9",
+					"data-uid": "src/pages/Index.tsx:168:9",
 					"data-prohibitions": "[editContent]",
 					className: "grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4",
 					children: [filteredPlaces.map((place, index) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-						"data-uid": "src/pages/Index.tsx:152:13",
+						"data-uid": "src/pages/Index.tsx:170:13",
 						"data-prohibitions": "[]",
 						className: "animate-fade-in-up",
 						style: { animationDelay: `${index * 50}ms` },
 						children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(PlaceCard, {
-							"data-uid": "src/pages/Index.tsx:157:15",
+							"data-uid": "src/pages/Index.tsx:175:15",
 							"data-prohibitions": "[editContent]",
 							place
 						})
 					}, place.id)), filteredPlaces.length === 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-						"data-uid": "src/pages/Index.tsx:161:13",
+						"data-uid": "src/pages/Index.tsx:179:13",
 						"data-prohibitions": "[]",
 						className: "col-span-full py-8 text-center text-slate-500",
 						children: "Nenhuma atividade encontrada para os filtros selecionados."
@@ -28092,23 +28425,23 @@ var Dialog$1 = (props) => {
 	});
 };
 Dialog$1.displayName = DIALOG_NAME;
-var TRIGGER_NAME$1 = "DialogTrigger";
+var TRIGGER_NAME$2 = "DialogTrigger";
 var DialogTrigger$1 = import_react.forwardRef((props, forwardedRef) => {
 	const { __scopeDialog, ...triggerProps } = props;
-	const context = useDialogContext(TRIGGER_NAME$1, __scopeDialog);
+	const context = useDialogContext(TRIGGER_NAME$2, __scopeDialog);
 	const composedTriggerRef = useComposedRefs(forwardedRef, context.triggerRef);
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive$1.button, {
 		type: "button",
 		"aria-haspopup": "dialog",
 		"aria-expanded": context.open,
 		"aria-controls": context.contentId,
-		"data-state": getState(context.open),
+		"data-state": getState$1(context.open),
 		...triggerProps,
 		ref: composedTriggerRef,
 		onClick: composeEventHandlers(props.onClick, context.onOpenToggle)
 	});
 });
-DialogTrigger$1.displayName = TRIGGER_NAME$1;
+DialogTrigger$1.displayName = TRIGGER_NAME$2;
 var PORTAL_NAME$1 = "DialogPortal";
 var [PortalProvider, usePortalContext] = createDialogContext(PORTAL_NAME$1, { forceMount: void 0 });
 var DialogPortal$1 = (props) => {
@@ -28151,7 +28484,7 @@ var DialogOverlayImpl = import_react.forwardRef((props, forwardedRef) => {
 		allowPinchZoom: true,
 		shards: [context.contentRef],
 		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive$1.div, {
-			"data-state": getState(context.open),
+			"data-state": getState$1(context.open),
 			...overlayProps,
 			ref: forwardedRef,
 			style: {
@@ -28250,7 +28583,7 @@ var DialogContentImpl = import_react.forwardRef((props, forwardedRef) => {
 			id: context.contentId,
 			"aria-describedby": context.descriptionId,
 			"aria-labelledby": context.titleId,
-			"data-state": getState(context.open),
+			"data-state": getState$1(context.open),
 			...contentProps,
 			ref: composedRefs,
 			onDismiss: () => context.onOpenChange(false)
@@ -28294,7 +28627,7 @@ var DialogClose$1 = import_react.forwardRef((props, forwardedRef) => {
 	});
 });
 DialogClose$1.displayName = CLOSE_NAME;
-function getState(open) {
+function getState$1(open) {
 	return open ? "open" : "closed";
 }
 var TITLE_WARNING_NAME = "DialogTitleWarning";
@@ -28332,7 +28665,7 @@ var DescriptionWarning = ({ contentRef, descriptionId }) => {
 	]);
 	return null;
 };
-var Root$1 = Dialog$1;
+var Root = Dialog$1;
 var Trigger$1 = DialogTrigger$1;
 var Portal$1 = DialogPortal$1;
 var Overlay = DialogOverlay$1;
@@ -28342,7 +28675,7 @@ var Description = DialogDescription$1;
 var Close = DialogClose$1;
 //#endregion
 //#region src/components/ui/dialog.tsx
-var Dialog = Root$1;
+var Dialog = Root;
 var DialogTrigger = Trigger$1;
 var DialogPortal = Portal$1;
 var DialogOverlay = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Overlay, {
@@ -30824,6 +31157,7 @@ function PlaceDetails() {
 	const dist = calculateDistance(place.coordinates.lat, place.coordinates.lng);
 	const displayDistance = dist ? `${dist.toFixed(1)} km` : "Calculando...";
 	const checkInTime = getPlaceCheckIn(place.id);
+	const isOpen = isPlaceOpen(place.operatingHours);
 	const handleShare = () => {
 		if (navigator.share) navigator.share({
 			title: place.name,
@@ -30839,47 +31173,47 @@ function PlaceDetails() {
 		setShowCheckInDialog(false);
 	};
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-		"data-uid": "src/pages/PlaceDetails.tsx:74:5",
+		"data-uid": "src/pages/PlaceDetails.tsx:75:5",
 		"data-prohibitions": "[editContent]",
 		className: "relative flex flex-col lg:h-full lg:flex-row lg:overflow-hidden",
 		children: [
 			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-				"data-uid": "src/pages/PlaceDetails.tsx:75:7",
+				"data-uid": "src/pages/PlaceDetails.tsx:76:7",
 				"data-prohibitions": "[]",
 				onClick: () => navigate(-1),
 				className: "absolute left-4 top-4 z-50 flex h-10 w-10 items-center justify-center rounded-full bg-white/80 text-slate-900 shadow-md backdrop-blur-md transition-transform hover:scale-105 lg:hidden",
 				children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ArrowLeft, {
-					"data-uid": "src/pages/PlaceDetails.tsx:79:9",
+					"data-uid": "src/pages/PlaceDetails.tsx:80:9",
 					"data-prohibitions": "[editContent]",
 					className: "h-5 w-5"
 				})
 			}),
 			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				"data-uid": "src/pages/PlaceDetails.tsx:82:7",
+				"data-uid": "src/pages/PlaceDetails.tsx:83:7",
 				"data-prohibitions": "[editContent]",
 				className: "hide-scrollbar flex-1 overflow-y-auto lg:border-r",
 				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-					"data-uid": "src/pages/PlaceDetails.tsx:83:9",
+					"data-uid": "src/pages/PlaceDetails.tsx:84:9",
 					"data-prohibitions": "[editContent]",
 					className: "relative bg-slate-900",
 					children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Carousel, {
-						"data-uid": "src/pages/PlaceDetails.tsx:84:11",
+						"data-uid": "src/pages/PlaceDetails.tsx:85:11",
 						"data-prohibitions": "[editContent]",
 						opts: { loop: true },
 						className: "w-full",
 						children: [
 							/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CarouselContent, {
-								"data-uid": "src/pages/PlaceDetails.tsx:85:13",
+								"data-uid": "src/pages/PlaceDetails.tsx:86:13",
 								"data-prohibitions": "[editContent]",
 								children: place.galleryImages.map((img, index) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CarouselItem, {
-									"data-uid": "src/pages/PlaceDetails.tsx:87:17",
+									"data-uid": "src/pages/PlaceDetails.tsx:88:17",
 									"data-prohibitions": "[]",
 									children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-										"data-uid": "src/pages/PlaceDetails.tsx:88:19",
+										"data-uid": "src/pages/PlaceDetails.tsx:89:19",
 										"data-prohibitions": "[]",
 										className: "aspect-[4/3] w-full md:aspect-[16/9] lg:aspect-[3/2]",
 										children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("img", {
-											"data-uid": "src/pages/PlaceDetails.tsx:89:21",
+											"data-uid": "src/pages/PlaceDetails.tsx:90:21",
 											"data-prohibitions": "[editContent]",
 											src: img,
 											alt: `Foto ${index + 1}`,
@@ -30889,21 +31223,21 @@ function PlaceDetails() {
 								}, index))
 							}),
 							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								"data-uid": "src/pages/PlaceDetails.tsx:98:13",
+								"data-uid": "src/pages/PlaceDetails.tsx:99:13",
 								"data-prohibitions": "[]",
 								className: "hidden lg:block",
 								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CarouselPrevious, {
-									"data-uid": "src/pages/PlaceDetails.tsx:99:15",
+									"data-uid": "src/pages/PlaceDetails.tsx:100:15",
 									"data-prohibitions": "[editContent]",
 									className: "border-none bg-white/50 left-4 hover:bg-white"
 								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CarouselNext, {
-									"data-uid": "src/pages/PlaceDetails.tsx:100:15",
+									"data-uid": "src/pages/PlaceDetails.tsx:101:15",
 									"data-prohibitions": "[editContent]",
 									className: "border-none bg-white/50 right-4 hover:bg-white"
 								})]
 							}),
 							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-								"data-uid": "src/pages/PlaceDetails.tsx:102:13",
+								"data-uid": "src/pages/PlaceDetails.tsx:103:13",
 								"data-prohibitions": "[]",
 								className: "absolute bottom-4 right-4 z-10 rounded-md bg-black/60 px-2 py-1 text-xs font-medium text-white lg:hidden",
 								children: "Fotos"
@@ -30911,16 +31245,16 @@ function PlaceDetails() {
 						]
 					})
 				}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					"data-uid": "src/pages/PlaceDetails.tsx:108:9",
+					"data-uid": "src/pages/PlaceDetails.tsx:109:9",
 					"data-prohibitions": "[]",
 					className: "hidden p-8 lg:block",
 					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
-						"data-uid": "src/pages/PlaceDetails.tsx:109:11",
+						"data-uid": "src/pages/PlaceDetails.tsx:110:11",
 						"data-prohibitions": "[]",
 						className: "mb-4 font-display text-xl font-bold",
 						children: "Localização"
 					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(PlaceMapSection, {
-						"data-uid": "src/pages/PlaceDetails.tsx:110:11",
+						"data-uid": "src/pages/PlaceDetails.tsx:111:11",
 						"data-prohibitions": "[editContent]",
 						lat: place.coordinates.lat,
 						lng: place.coordinates.lng,
@@ -30930,44 +31264,44 @@ function PlaceDetails() {
 				})]
 			}),
 			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				"data-uid": "src/pages/PlaceDetails.tsx:119:7",
+				"data-uid": "src/pages/PlaceDetails.tsx:120:7",
 				"data-prohibitions": "[editContent]",
 				className: "hide-scrollbar flex-1 bg-white pb-24 lg:w-[480px] lg:flex-none lg:overflow-y-auto lg:pb-0",
 				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					"data-uid": "src/pages/PlaceDetails.tsx:120:9",
+					"data-uid": "src/pages/PlaceDetails.tsx:121:9",
 					"data-prohibitions": "[editContent]",
 					className: "p-5 md:p-8",
 					children: [
 						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							"data-uid": "src/pages/PlaceDetails.tsx:121:11",
+							"data-uid": "src/pages/PlaceDetails.tsx:122:11",
 							"data-prohibitions": "[editContent]",
 							className: "mb-3 flex items-center justify-between",
 							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-								"data-uid": "src/pages/PlaceDetails.tsx:122:13",
+								"data-uid": "src/pages/PlaceDetails.tsx:123:13",
 								"data-prohibitions": "[editContent]",
 								className: "rounded-md bg-primary/10 px-2 py-1 text-xs font-bold uppercase tracking-wider text-primary",
 								children: place.category
 							}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								"data-uid": "src/pages/PlaceDetails.tsx:125:13",
+								"data-uid": "src/pages/PlaceDetails.tsx:126:13",
 								"data-prohibitions": "[editContent]",
 								className: "flex items-center gap-2",
 								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-									"data-uid": "src/pages/PlaceDetails.tsx:126:15",
+									"data-uid": "src/pages/PlaceDetails.tsx:127:15",
 									"data-prohibitions": "[]",
 									onClick: handleShare,
 									className: "flex h-10 w-10 items-center justify-center rounded-full border border-slate-100 bg-slate-50 transition-transform hover:scale-105",
 									children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Share2, {
-										"data-uid": "src/pages/PlaceDetails.tsx:130:17",
+										"data-uid": "src/pages/PlaceDetails.tsx:131:17",
 										"data-prohibitions": "[editContent]",
 										className: "h-4 w-4 text-slate-600"
 									})
 								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-									"data-uid": "src/pages/PlaceDetails.tsx:132:15",
+									"data-uid": "src/pages/PlaceDetails.tsx:133:15",
 									"data-prohibitions": "[editContent]",
 									onClick: () => toggleFavorite(place.id),
 									className: "flex h-10 w-10 items-center justify-center rounded-full border border-slate-100 bg-slate-50 transition-transform hover:scale-105",
 									children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Heart, {
-										"data-uid": "src/pages/PlaceDetails.tsx:136:17",
+										"data-uid": "src/pages/PlaceDetails.tsx:137:17",
 										"data-prohibitions": "[editContent]",
 										className: cn$1("h-5 w-5", favorite ? "animate-heart-pop fill-primary text-primary" : "text-slate-600")
 									})
@@ -30975,29 +31309,29 @@ function PlaceDetails() {
 							})]
 						}),
 						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", {
-							"data-uid": "src/pages/PlaceDetails.tsx:146:11",
+							"data-uid": "src/pages/PlaceDetails.tsx:147:11",
 							"data-prohibitions": "[editContent]",
 							className: "mb-2 font-display text-3xl font-bold leading-tight text-slate-900",
 							children: place.name
 						}),
 						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-							"data-uid": "src/pages/PlaceDetails.tsx:149:11",
+							"data-uid": "src/pages/PlaceDetails.tsx:150:11",
 							"data-prohibitions": "[editContent]",
 							className: "mb-4 font-medium text-slate-500 text-lg",
 							children: place.city
 						}),
 						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							"data-uid": "src/pages/PlaceDetails.tsx:151:11",
+							"data-uid": "src/pages/PlaceDetails.tsx:152:11",
 							"data-prohibitions": "[editContent]",
 							className: "mb-8 flex flex-wrap items-center gap-4 border-b pb-6 text-sm text-slate-600",
 							children: [
 								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									"data-uid": "src/pages/PlaceDetails.tsx:152:13",
+									"data-uid": "src/pages/PlaceDetails.tsx:153:13",
 									"data-prohibitions": "[editContent]",
 									className: "flex items-center gap-1.5 rounded-md bg-secondary/20 px-2 py-1 font-bold text-slate-900",
 									children: [
 										/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Star, {
-											"data-uid": "src/pages/PlaceDetails.tsx:153:15",
+											"data-uid": "src/pages/PlaceDetails.tsx:154:15",
 											"data-prohibitions": "[editContent]",
 											className: "h-4 w-4 fill-secondary text-secondary"
 										}),
@@ -31006,12 +31340,12 @@ function PlaceDetails() {
 									]
 								}),
 								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									"data-uid": "src/pages/PlaceDetails.tsx:155:13",
+									"data-uid": "src/pages/PlaceDetails.tsx:156:13",
 									"data-prohibitions": "[editContent]",
 									className: "flex items-center gap-1.5 font-medium",
 									children: [
 										/* @__PURE__ */ (0, import_jsx_runtime.jsx)(MapPin, {
-											"data-uid": "src/pages/PlaceDetails.tsx:156:15",
+											"data-uid": "src/pages/PlaceDetails.tsx:157:15",
 											"data-prohibitions": "[editContent]",
 											className: "h-4 w-4 text-slate-400"
 										}),
@@ -31020,77 +31354,81 @@ function PlaceDetails() {
 									]
 								}),
 								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									"data-uid": "src/pages/PlaceDetails.tsx:158:13",
-									"data-prohibitions": "[]",
-									className: "flex items-center gap-1.5 font-medium text-green-600",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Clock, {
-										"data-uid": "src/pages/PlaceDetails.tsx:159:15",
-										"data-prohibitions": "[editContent]",
-										className: "h-4 w-4"
-									}), " Aberto agora"]
+									"data-uid": "src/pages/PlaceDetails.tsx:159:13",
+									"data-prohibitions": "[editContent]",
+									className: cn$1("flex items-center gap-1.5 font-medium", isOpen ? "text-green-600" : "text-red-500"),
+									children: [
+										/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Clock, {
+											"data-uid": "src/pages/PlaceDetails.tsx:165:15",
+											"data-prohibitions": "[editContent]",
+											className: "h-4 w-4"
+										}),
+										" ",
+										isOpen ? "Aberto agora" : "Fechado"
+									]
 								})
 							]
 						}),
 						!isTour && checkInTime && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(PlaceCheckInTicket, {
-							"data-uid": "src/pages/PlaceDetails.tsx:163:38",
+							"data-uid": "src/pages/PlaceDetails.tsx:169:38",
 							"data-prohibitions": "[editContent]",
 							checkInTime
 						}),
 						isTour ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							"data-uid": "src/pages/PlaceDetails.tsx:166:13",
+							"data-uid": "src/pages/PlaceDetails.tsx:172:13",
 							"data-prohibitions": "[editContent]",
 							className: "mb-8 rounded-2xl border border-primary/20 bg-primary/5 p-5",
 							children: [
 								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									"data-uid": "src/pages/PlaceDetails.tsx:167:15",
+									"data-uid": "src/pages/PlaceDetails.tsx:173:15",
 									"data-prohibitions": "[]",
 									className: "mb-3 flex items-center gap-2",
 									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Ticket, {
-										"data-uid": "src/pages/PlaceDetails.tsx:168:17",
+										"data-uid": "src/pages/PlaceDetails.tsx:174:17",
 										"data-prohibitions": "[editContent]",
 										className: "h-5 w-5 text-primary"
 									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
-										"data-uid": "src/pages/PlaceDetails.tsx:169:17",
+										"data-uid": "src/pages/PlaceDetails.tsx:175:17",
 										"data-prohibitions": "[]",
 										className: "font-bold text-lg text-primary",
 										children: "Cupom de Desconto"
 									})]
 								}),
 								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-									"data-uid": "src/pages/PlaceDetails.tsx:171:15",
+									"data-uid": "src/pages/PlaceDetails.tsx:177:15",
 									"data-prohibitions": "[editContent]",
 									className: "mb-4 text-sm text-slate-700 font-medium",
 									children: place.discountDescription
 								}),
 								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									"data-uid": "src/pages/PlaceDetails.tsx:172:15",
+									"data-uid": "src/pages/PlaceDetails.tsx:178:15",
 									"data-prohibitions": "[editContent]",
 									className: "mb-4 rounded-xl border-2 border-dashed border-primary/30 bg-white p-4 text-center",
 									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-										"data-uid": "src/pages/PlaceDetails.tsx:173:17",
+										"data-uid": "src/pages/PlaceDetails.tsx:179:17",
 										"data-prohibitions": "[]",
 										className: "mb-1 block text-xs font-bold uppercase tracking-widest text-slate-500",
 										children: "Código do Cupom"
 									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-										"data-uid": "src/pages/PlaceDetails.tsx:176:17",
+										"data-uid": "src/pages/PlaceDetails.tsx:182:17",
 										"data-prohibitions": "[editContent]",
 										className: "font-mono text-2xl font-black text-slate-900",
 										children: place.couponCode
 									})]
 								}),
 								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
-									"data-uid": "src/pages/PlaceDetails.tsx:180:15",
+									"data-uid": "src/pages/PlaceDetails.tsx:186:15",
 									"data-prohibitions": "[]",
 									asChild: true,
 									className: "h-12 w-full font-bold text-base shadow-md",
 									children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("a", {
-										"data-uid": "src/pages/PlaceDetails.tsx:181:17",
+										"data-uid": "src/pages/PlaceDetails.tsx:187:17",
 										"data-prohibitions": "[]",
 										href: place.bookingUrl,
 										target: "_blank",
 										rel: "noreferrer",
 										children: ["Reservar Agora ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ExternalLink, {
-											"data-uid": "src/pages/PlaceDetails.tsx:182:34",
+											"data-uid": "src/pages/PlaceDetails.tsx:188:34",
 											"data-prohibitions": "[editContent]",
 											className: "ml-2 h-4 w-4"
 										})]
@@ -31098,78 +31436,111 @@ function PlaceDetails() {
 								})
 							]
 						}) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							"data-uid": "src/pages/PlaceDetails.tsx:187:13",
+							"data-uid": "src/pages/PlaceDetails.tsx:193:13",
 							"data-prohibitions": "[editContent]",
 							className: "mb-8 rounded-2xl border border-secondary/30 bg-secondary/10 p-5 shadow-sm",
 							children: [
 								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									"data-uid": "src/pages/PlaceDetails.tsx:188:15",
+									"data-uid": "src/pages/PlaceDetails.tsx:194:15",
 									"data-prohibitions": "[]",
 									className: "mb-2 flex items-center gap-2 text-slate-900",
 									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Ticket, {
-										"data-uid": "src/pages/PlaceDetails.tsx:189:17",
+										"data-uid": "src/pages/PlaceDetails.tsx:195:17",
 										"data-prohibitions": "[editContent]",
 										className: "h-6 w-6 text-secondary"
 									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
-										"data-uid": "src/pages/PlaceDetails.tsx:190:17",
+										"data-uid": "src/pages/PlaceDetails.tsx:196:17",
 										"data-prohibitions": "[]",
 										className: "font-display text-lg font-bold",
 										children: "Oferta Exclusiva"
 									})]
 								}),
 								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-									"data-uid": "src/pages/PlaceDetails.tsx:192:15",
+									"data-uid": "src/pages/PlaceDetails.tsx:198:15",
 									"data-prohibitions": "[editContent]",
 									className: "mb-3 text-2xl font-black text-slate-900",
 									children: place.discountBadge
 								}),
 								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-									"data-uid": "src/pages/PlaceDetails.tsx:193:15",
+									"data-uid": "src/pages/PlaceDetails.tsx:199:15",
 									"data-prohibitions": "[editContent]",
 									className: "text-sm font-medium leading-relaxed text-slate-700",
 									children: place.discountDescription
 								})
 							]
 						}),
-						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							"data-uid": "src/pages/PlaceDetails.tsx:199:11",
+						place.operatingHours && place.operatingHours.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							"data-uid": "src/pages/PlaceDetails.tsx:206:13",
 							"data-prohibitions": "[editContent]",
 							className: "mb-8",
 							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
-								"data-uid": "src/pages/PlaceDetails.tsx:200:13",
+								"data-uid": "src/pages/PlaceDetails.tsx:207:15",
+								"data-prohibitions": "[]",
+								className: "mb-3 font-display text-xl font-bold text-slate-900",
+								children: "Horários de Funcionamento"
+							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+								"data-uid": "src/pages/PlaceDetails.tsx:210:15",
+								"data-prohibitions": "[editContent]",
+								className: "space-y-2 rounded-xl border border-slate-100 bg-slate-50 p-4",
+								children: DAYS_OF_WEEK.map((day) => {
+									const hours = place.operatingHours?.find((h) => h.day === day.value);
+									const isToday = (/* @__PURE__ */ new Date()).getDay() === day.value;
+									return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+										"data-uid": "src/pages/PlaceDetails.tsx:215:21",
+										"data-prohibitions": "[editContent]",
+										className: cn$1("flex justify-between text-sm", isToday ? "font-bold text-primary" : "text-slate-600 font-medium"),
+										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+											"data-uid": "src/pages/PlaceDetails.tsx:222:23",
+											"data-prohibitions": "[editContent]",
+											children: day.label
+										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+											"data-uid": "src/pages/PlaceDetails.tsx:223:23",
+											"data-prohibitions": "[editContent]",
+											children: hours?.isOpen ? `${hours.openTime} - ${hours.closeTime}` : "Fechado"
+										})]
+									}, day.value);
+								})
+							})]
+						}),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							"data-uid": "src/pages/PlaceDetails.tsx:233:11",
+							"data-prohibitions": "[editContent]",
+							className: "mb-8",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
+								"data-uid": "src/pages/PlaceDetails.tsx:234:13",
 								"data-prohibitions": "[]",
 								className: "mb-3 font-display text-xl font-bold text-slate-900",
 								children: "Sobre"
 							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-								"data-uid": "src/pages/PlaceDetails.tsx:201:13",
+								"data-uid": "src/pages/PlaceDetails.tsx:235:13",
 								"data-prohibitions": "[editContent]",
 								className: "leading-relaxed text-slate-600",
 								children: place.description
 							})]
 						}),
 						isTour && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							"data-uid": "src/pages/PlaceDetails.tsx:205:13",
+							"data-uid": "src/pages/PlaceDetails.tsx:239:13",
 							"data-prohibitions": "[editContent]",
 							className: "mb-8 space-y-6",
 							children: [place.included && place.included.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								"data-uid": "src/pages/PlaceDetails.tsx:207:17",
+								"data-uid": "src/pages/PlaceDetails.tsx:241:17",
 								"data-prohibitions": "[editContent]",
 								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
-									"data-uid": "src/pages/PlaceDetails.tsx:208:19",
+									"data-uid": "src/pages/PlaceDetails.tsx:242:19",
 									"data-prohibitions": "[]",
 									className: "mb-3 font-display text-lg font-bold",
 									children: "O que está incluído"
 								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", {
-									"data-uid": "src/pages/PlaceDetails.tsx:209:19",
+									"data-uid": "src/pages/PlaceDetails.tsx:243:19",
 									"data-prohibitions": "[editContent]",
 									className: "space-y-2",
 									children: place.included.map((item) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("li", {
-										"data-uid": "src/pages/PlaceDetails.tsx:211:23",
+										"data-uid": "src/pages/PlaceDetails.tsx:245:23",
 										"data-prohibitions": "[editContent]",
 										className: "flex items-center gap-2 text-slate-600",
 										children: [
 											/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CircleCheck, {
-												"data-uid": "src/pages/PlaceDetails.tsx:212:25",
+												"data-uid": "src/pages/PlaceDetails.tsx:246:25",
 												"data-prohibitions": "[editContent]",
 												className: "h-5 w-5 text-green-500"
 											}),
@@ -31179,19 +31550,19 @@ function PlaceDetails() {
 									}, item))
 								})]
 							}), place.availableDays && place.availableDays.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								"data-uid": "src/pages/PlaceDetails.tsx:219:17",
+								"data-uid": "src/pages/PlaceDetails.tsx:253:17",
 								"data-prohibitions": "[editContent]",
 								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
-									"data-uid": "src/pages/PlaceDetails.tsx:220:19",
+									"data-uid": "src/pages/PlaceDetails.tsx:254:19",
 									"data-prohibitions": "[]",
 									className: "mb-3 font-display text-lg font-bold",
 									children: "Dias disponíveis"
 								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-									"data-uid": "src/pages/PlaceDetails.tsx:221:19",
+									"data-uid": "src/pages/PlaceDetails.tsx:255:19",
 									"data-prohibitions": "[editContent]",
 									className: "flex flex-wrap gap-2",
 									children: place.availableDays.map((day) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Badge, {
-										"data-uid": "src/pages/PlaceDetails.tsx:223:23",
+										"data-uid": "src/pages/PlaceDetails.tsx:257:23",
 										"data-prohibitions": "[editContent]",
 										variant: "outline",
 										className: "bg-slate-50",
@@ -31201,16 +31572,16 @@ function PlaceDetails() {
 							})]
 						}),
 						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							"data-uid": "src/pages/PlaceDetails.tsx:233:11",
+							"data-uid": "src/pages/PlaceDetails.tsx:267:11",
 							"data-prohibitions": "[]",
 							className: "mb-8 lg:hidden",
 							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
-								"data-uid": "src/pages/PlaceDetails.tsx:234:13",
+								"data-uid": "src/pages/PlaceDetails.tsx:268:13",
 								"data-prohibitions": "[]",
 								className: "mb-3 font-display text-xl font-bold text-slate-900",
 								children: "Localização"
 							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(PlaceMapSection, {
-								"data-uid": "src/pages/PlaceDetails.tsx:235:13",
+								"data-uid": "src/pages/PlaceDetails.tsx:269:13",
 								"data-prohibitions": "[editContent]",
 								lat: place.coordinates.lat,
 								lng: place.coordinates.lng,
@@ -31220,51 +31591,51 @@ function PlaceDetails() {
 						})
 					]
 				}), !isTour && !checkInTime && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-					"data-uid": "src/pages/PlaceDetails.tsx:245:11",
+					"data-uid": "src/pages/PlaceDetails.tsx:279:11",
 					"data-prohibitions": "[]",
 					className: "fixed bottom-0 left-0 right-0 z-40 border-t bg-white p-4 pb-safe shadow-[0_-10px_15px_-3px_rgb(0,0,0,0.05)] lg:sticky lg:border-none lg:bg-transparent lg:px-8 lg:pb-8 lg:shadow-none",
 					children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Dialog, {
-						"data-uid": "src/pages/PlaceDetails.tsx:246:13",
+						"data-uid": "src/pages/PlaceDetails.tsx:280:13",
 						"data-prohibitions": "[]",
 						open: showCheckInDialog,
 						onOpenChange: setShowCheckInDialog,
 						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
-							"data-uid": "src/pages/PlaceDetails.tsx:247:15",
+							"data-uid": "src/pages/PlaceDetails.tsx:281:15",
 							"data-prohibitions": "[]",
 							size: "lg",
 							onClick: () => setShowCheckInDialog(true),
 							className: "h-14 w-full rounded-2xl text-lg font-bold shadow-xl shadow-primary/20 transition-transform hover:scale-[1.02] active:scale-[0.98]",
 							children: "Realizar Check-in"
 						}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DialogContent, {
-							"data-uid": "src/pages/PlaceDetails.tsx:254:15",
+							"data-uid": "src/pages/PlaceDetails.tsx:288:15",
 							"data-prohibitions": "[]",
 							className: "sm:max-w-md rounded-2xl",
 							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DialogHeader, {
-								"data-uid": "src/pages/PlaceDetails.tsx:255:17",
+								"data-uid": "src/pages/PlaceDetails.tsx:289:17",
 								"data-prohibitions": "[]",
 								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogTitle, {
-									"data-uid": "src/pages/PlaceDetails.tsx:256:19",
+									"data-uid": "src/pages/PlaceDetails.tsx:290:19",
 									"data-prohibitions": "[]",
 									className: "font-display text-xl",
 									children: "Confirmar Check-in"
 								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogDescription, {
-									"data-uid": "src/pages/PlaceDetails.tsx:257:19",
+									"data-uid": "src/pages/PlaceDetails.tsx:291:19",
 									"data-prohibitions": "[]",
 									className: "text-base pt-2",
 									children: "Atenção: O check-in ativará seu desconto neste estabelecimento pelas próximas 24 horas. Certifique-se de estar no local antes de prosseguir."
 								})]
 							}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								"data-uid": "src/pages/PlaceDetails.tsx:262:17",
+								"data-uid": "src/pages/PlaceDetails.tsx:296:17",
 								"data-prohibitions": "[]",
 								className: "flex gap-3 pt-4 justify-end",
 								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
-									"data-uid": "src/pages/PlaceDetails.tsx:263:19",
+									"data-uid": "src/pages/PlaceDetails.tsx:297:19",
 									"data-prohibitions": "[]",
 									variant: "outline",
 									onClick: () => setShowCheckInDialog(false),
 									children: "Cancelar"
 								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
-									"data-uid": "src/pages/PlaceDetails.tsx:266:19",
+									"data-uid": "src/pages/PlaceDetails.tsx:300:19",
 									"data-prohibitions": "[]",
 									onClick: handleCheckInConfirm,
 									children: "Confirmar Check-in"
@@ -31487,70 +31858,6 @@ var Input = import_react.forwardRef(({ className, type, ...props }, ref) => {
 });
 Input.displayName = "Input";
 //#endregion
-//#region ../../cache/modules/app-descontos-restaurantes-36a48/node_modules/.pnpm/@radix-ui+react-primitive@2.1.4_@types+react-dom@19.2.3_@types+react@19.2.14__@types+re_0243fb2db8a1fb85ca77b8d9e5c2d650/node_modules/@radix-ui/react-primitive/dist/index.mjs
-var Primitive = [
-	"a",
-	"button",
-	"div",
-	"form",
-	"h2",
-	"h3",
-	"img",
-	"input",
-	"label",
-	"li",
-	"nav",
-	"ol",
-	"p",
-	"select",
-	"span",
-	"svg",
-	"ul"
-].reduce((primitive, node) => {
-	const Slot = /* @__PURE__ */ createSlot(`Primitive.${node}`);
-	const Node = import_react.forwardRef((props, forwardedRef) => {
-		const { asChild, ...primitiveProps } = props;
-		const Comp = asChild ? Slot : node;
-		if (typeof window !== "undefined") window[Symbol.for("radix-ui")] = true;
-		return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Comp, {
-			...primitiveProps,
-			ref: forwardedRef
-		});
-	});
-	Node.displayName = `Primitive.${node}`;
-	return {
-		...primitive,
-		[node]: Node
-	};
-}, {});
-//#endregion
-//#region ../../cache/modules/app-descontos-restaurantes-36a48/node_modules/.pnpm/@radix-ui+react-label@2.1.8_@types+react-dom@19.2.3_@types+react@19.2.14__@types+react@_55fa612a976b7bdfbf4dcdd93d861aab/node_modules/@radix-ui/react-label/dist/index.mjs
-var NAME = "Label";
-var Label$2 = import_react.forwardRef((props, forwardedRef) => {
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive.label, {
-		...props,
-		ref: forwardedRef,
-		onMouseDown: (event) => {
-			if (event.target.closest("button, input, select, textarea")) return;
-			props.onMouseDown?.(event);
-			if (!event.defaultPrevented && event.detail > 1) event.preventDefault();
-		}
-	});
-});
-Label$2.displayName = NAME;
-var Root = Label$2;
-//#endregion
-//#region src/components/ui/label.tsx
-var labelVariants = cva("text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70");
-var Label$1 = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Root, {
-	"data-uid": "src/components/ui/label.tsx:16:3",
-	"data-prohibitions": "[editContent]",
-	ref,
-	className: cn$1(labelVariants(), className),
-	...props
-}));
-Label$1.displayName = Root.displayName;
-//#endregion
 //#region src/components/ui/textarea.tsx
 var Textarea = import_react.forwardRef(({ className, ...props }, ref) => {
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("textarea", {
@@ -31573,21 +31880,6 @@ var DirectionContext = import_react.createContext(void 0);
 function useDirection(localDir) {
 	const globalDir = import_react.useContext(DirectionContext);
 	return localDir || globalDir || "ltr";
-}
-//#endregion
-//#region ../../cache/modules/app-descontos-restaurantes-36a48/node_modules/.pnpm/@radix-ui+react-use-previous@1.1.1_@types+react@19.2.14_react@19.2.4/node_modules/@radix-ui/react-use-previous/dist/index.mjs
-function usePrevious(value) {
-	const ref = import_react.useRef({
-		value,
-		previous: value
-	});
-	return import_react.useMemo(() => {
-		if (ref.current.value !== value) {
-			ref.current.previous = ref.current.value;
-			ref.current.value = value;
-		}
-		return ref.current.previous;
-	}, [value]);
 }
 //#endregion
 //#region ../../cache/modules/app-descontos-restaurantes-36a48/node_modules/.pnpm/@radix-ui+react-select@2.2.6_@types+react-dom@19.2.3_@types+react@19.2.14__@types+react_53894a32562cb9eeb6aef8b357a4f4e3/node_modules/@radix-ui/react-select/dist/index.mjs
@@ -31678,11 +31970,11 @@ var Select$1 = (props) => {
 	});
 };
 Select$1.displayName = SELECT_NAME;
-var TRIGGER_NAME = "SelectTrigger";
+var TRIGGER_NAME$1 = "SelectTrigger";
 var SelectTrigger$1 = import_react.forwardRef((props, forwardedRef) => {
 	const { __scopeSelect, disabled = false, ...triggerProps } = props;
 	const popperScope = usePopperScope(__scopeSelect);
-	const context = useSelectContext(TRIGGER_NAME, __scopeSelect);
+	const context = useSelectContext(TRIGGER_NAME$1, __scopeSelect);
 	const isDisabled = context.disabled || disabled;
 	const composedRefs = useComposedRefs(forwardedRef, context.onTriggerChange);
 	const getItems = useCollection(__scopeSelect);
@@ -31744,7 +32036,7 @@ var SelectTrigger$1 = import_react.forwardRef((props, forwardedRef) => {
 		})
 	});
 });
-SelectTrigger$1.displayName = TRIGGER_NAME;
+SelectTrigger$1.displayName = TRIGGER_NAME$1;
 var VALUE_NAME = "SelectValue";
 var SelectValue$1 = import_react.forwardRef((props, forwardedRef) => {
 	const { __scopeSelect, className, style, children, placeholder = "", ...valueProps } = props;
@@ -32459,7 +32751,7 @@ var SelectArrow = import_react.forwardRef((props, forwardedRef) => {
 	}) : null;
 });
 SelectArrow.displayName = ARROW_NAME;
-var BUBBLE_INPUT_NAME = "SelectBubbleInput";
+var BUBBLE_INPUT_NAME$1 = "SelectBubbleInput";
 var SelectBubbleInput = import_react.forwardRef(({ __scopeSelect, value, ...props }, forwardedRef) => {
 	const ref = import_react.useRef(null);
 	const composedRefs = useComposedRefs(forwardedRef, ref);
@@ -32485,7 +32777,7 @@ var SelectBubbleInput = import_react.forwardRef(({ __scopeSelect, value, ...prop
 		defaultValue: value
 	});
 });
-SelectBubbleInput.displayName = BUBBLE_INPUT_NAME;
+SelectBubbleInput.displayName = BUBBLE_INPUT_NAME$1;
 function shouldShowPlaceholder(value) {
 	return value === "" || value === void 0;
 }
@@ -32660,22 +32952,308 @@ var SelectSeparator = import_react.forwardRef(({ className, ...props }, ref) => 
 }));
 SelectSeparator.displayName = Separator.displayName;
 //#endregion
+//#region ../../cache/modules/app-descontos-restaurantes-36a48/node_modules/.pnpm/@radix-ui+react-checkbox@1.3.3_@types+react-dom@19.2.3_@types+react@19.2.14__@types+rea_a9bfe74df417688e01ae6068318bf0dd/node_modules/@radix-ui/react-checkbox/dist/index.mjs
+var CHECKBOX_NAME = "Checkbox";
+var [createCheckboxContext, createCheckboxScope] = createContextScope(CHECKBOX_NAME);
+var [CheckboxProviderImpl, useCheckboxContext] = createCheckboxContext(CHECKBOX_NAME);
+function CheckboxProvider(props) {
+	const { __scopeCheckbox, checked: checkedProp, children, defaultChecked, disabled, form, name, onCheckedChange, required, value = "on", internal_do_not_use_render } = props;
+	const [checked, setChecked] = useControllableState({
+		prop: checkedProp,
+		defaultProp: defaultChecked ?? false,
+		onChange: onCheckedChange,
+		caller: CHECKBOX_NAME
+	});
+	const [control, setControl] = import_react.useState(null);
+	const [bubbleInput, setBubbleInput] = import_react.useState(null);
+	const hasConsumerStoppedPropagationRef = import_react.useRef(false);
+	const isFormControl = control ? !!form || !!control.closest("form") : true;
+	const context = {
+		checked,
+		disabled,
+		setChecked,
+		control,
+		setControl,
+		name,
+		form,
+		value,
+		hasConsumerStoppedPropagationRef,
+		required,
+		defaultChecked: isIndeterminate(defaultChecked) ? false : defaultChecked,
+		isFormControl,
+		bubbleInput,
+		setBubbleInput
+	};
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CheckboxProviderImpl, {
+		scope: __scopeCheckbox,
+		...context,
+		children: isFunction(internal_do_not_use_render) ? internal_do_not_use_render(context) : children
+	});
+}
+var TRIGGER_NAME = "CheckboxTrigger";
+var CheckboxTrigger = import_react.forwardRef(({ __scopeCheckbox, onKeyDown, onClick, ...checkboxProps }, forwardedRef) => {
+	const { control, value, disabled, checked, required, setControl, setChecked, hasConsumerStoppedPropagationRef, isFormControl, bubbleInput } = useCheckboxContext(TRIGGER_NAME, __scopeCheckbox);
+	const composedRefs = useComposedRefs(forwardedRef, setControl);
+	const initialCheckedStateRef = import_react.useRef(checked);
+	import_react.useEffect(() => {
+		const form = control?.form;
+		if (form) {
+			const reset = () => setChecked(initialCheckedStateRef.current);
+			form.addEventListener("reset", reset);
+			return () => form.removeEventListener("reset", reset);
+		}
+	}, [control, setChecked]);
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive$1.button, {
+		type: "button",
+		role: "checkbox",
+		"aria-checked": isIndeterminate(checked) ? "mixed" : checked,
+		"aria-required": required,
+		"data-state": getState(checked),
+		"data-disabled": disabled ? "" : void 0,
+		disabled,
+		value,
+		...checkboxProps,
+		ref: composedRefs,
+		onKeyDown: composeEventHandlers(onKeyDown, (event) => {
+			if (event.key === "Enter") event.preventDefault();
+		}),
+		onClick: composeEventHandlers(onClick, (event) => {
+			setChecked((prevChecked) => isIndeterminate(prevChecked) ? true : !prevChecked);
+			if (bubbleInput && isFormControl) {
+				hasConsumerStoppedPropagationRef.current = event.isPropagationStopped();
+				if (!hasConsumerStoppedPropagationRef.current) event.stopPropagation();
+			}
+		})
+	});
+});
+CheckboxTrigger.displayName = TRIGGER_NAME;
+var Checkbox$1 = import_react.forwardRef((props, forwardedRef) => {
+	const { __scopeCheckbox, name, checked, defaultChecked, required, disabled, value, onCheckedChange, form, ...checkboxProps } = props;
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CheckboxProvider, {
+		__scopeCheckbox,
+		checked,
+		defaultChecked,
+		disabled,
+		required,
+		onCheckedChange,
+		name,
+		form,
+		value,
+		internal_do_not_use_render: ({ isFormControl }) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CheckboxTrigger, {
+			...checkboxProps,
+			ref: forwardedRef,
+			__scopeCheckbox
+		}), isFormControl && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CheckboxBubbleInput, { __scopeCheckbox })] })
+	});
+});
+Checkbox$1.displayName = CHECKBOX_NAME;
+var INDICATOR_NAME = "CheckboxIndicator";
+var CheckboxIndicator = import_react.forwardRef((props, forwardedRef) => {
+	const { __scopeCheckbox, forceMount, ...indicatorProps } = props;
+	const context = useCheckboxContext(INDICATOR_NAME, __scopeCheckbox);
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Presence, {
+		present: forceMount || isIndeterminate(context.checked) || context.checked === true,
+		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive$1.span, {
+			"data-state": getState(context.checked),
+			"data-disabled": context.disabled ? "" : void 0,
+			...indicatorProps,
+			ref: forwardedRef,
+			style: {
+				pointerEvents: "none",
+				...props.style
+			}
+		})
+	});
+});
+CheckboxIndicator.displayName = INDICATOR_NAME;
+var BUBBLE_INPUT_NAME = "CheckboxBubbleInput";
+var CheckboxBubbleInput = import_react.forwardRef(({ __scopeCheckbox, ...props }, forwardedRef) => {
+	const { control, hasConsumerStoppedPropagationRef, checked, defaultChecked, required, disabled, name, value, form, bubbleInput, setBubbleInput } = useCheckboxContext(BUBBLE_INPUT_NAME, __scopeCheckbox);
+	const composedRefs = useComposedRefs(forwardedRef, setBubbleInput);
+	const prevChecked = usePrevious(checked);
+	const controlSize = useSize(control);
+	import_react.useEffect(() => {
+		const input = bubbleInput;
+		if (!input) return;
+		const inputProto = window.HTMLInputElement.prototype;
+		const setChecked = Object.getOwnPropertyDescriptor(inputProto, "checked").set;
+		const bubbles = !hasConsumerStoppedPropagationRef.current;
+		if (prevChecked !== checked && setChecked) {
+			const event = new Event("click", { bubbles });
+			input.indeterminate = isIndeterminate(checked);
+			setChecked.call(input, isIndeterminate(checked) ? false : checked);
+			input.dispatchEvent(event);
+		}
+	}, [
+		bubbleInput,
+		prevChecked,
+		checked,
+		hasConsumerStoppedPropagationRef
+	]);
+	const defaultCheckedRef = import_react.useRef(isIndeterminate(checked) ? false : checked);
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Primitive$1.input, {
+		type: "checkbox",
+		"aria-hidden": true,
+		defaultChecked: defaultChecked ?? defaultCheckedRef.current,
+		required,
+		disabled,
+		name,
+		value,
+		form,
+		...props,
+		tabIndex: -1,
+		ref: composedRefs,
+		style: {
+			...props.style,
+			...controlSize,
+			position: "absolute",
+			pointerEvents: "none",
+			opacity: 0,
+			margin: 0,
+			transform: "translateX(-100%)"
+		}
+	});
+});
+CheckboxBubbleInput.displayName = BUBBLE_INPUT_NAME;
+function isFunction(value) {
+	return typeof value === "function";
+}
+function isIndeterminate(checked) {
+	return checked === "indeterminate";
+}
+function getState(checked) {
+	return isIndeterminate(checked) ? "indeterminate" : checked ? "checked" : "unchecked";
+}
+//#endregion
+//#region src/components/ui/checkbox.tsx
+var Checkbox = import_react.forwardRef(({ className, ...props }, ref) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Checkbox$1, {
+	"data-uid": "src/components/ui/checkbox.tsx:12:3",
+	"data-prohibitions": "[editContent]",
+	ref,
+	className: cn$1("peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground", className),
+	...props,
+	children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(CheckboxIndicator, {
+		"data-uid": "src/components/ui/checkbox.tsx:20:5",
+		"data-prohibitions": "[editContent]",
+		className: cn$1("flex items-center justify-center text-current"),
+		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Check, {
+			"data-uid": "src/components/ui/checkbox.tsx:21:7",
+			"data-prohibitions": "[editContent]",
+			className: "h-4 w-4"
+		})
+	})
+}));
+Checkbox.displayName = Checkbox$1.displayName;
+//#endregion
+//#region src/components/AdminHoursForm.tsx
+function AdminHoursForm({ hours, onChange }) {
+	const handleHourChange = (day, field, value) => {
+		onChange(hours.map((h) => h.day === day ? {
+			...h,
+			[field]: value
+		} : h));
+	};
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+		"data-uid": "src/components/AdminHoursForm.tsx:18:5",
+		"data-prohibitions": "[editContent]",
+		className: "space-y-4 rounded-xl border border-slate-200 p-4",
+		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
+			"data-uid": "src/components/AdminHoursForm.tsx:19:7",
+			"data-prohibitions": "[]",
+			className: "font-bold text-slate-900",
+			children: "Horário de Funcionamento"
+		}), DAYS_OF_WEEK.map((day) => {
+			const dHours = hours.find((h) => h.day === day.value) || {
+				day: day.value,
+				isOpen: false,
+				openTime: "00:00",
+				closeTime: "00:00"
+			};
+			return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+				"data-uid": "src/components/AdminHoursForm.tsx:28:11",
+				"data-prohibitions": "[editContent]",
+				className: "flex flex-col gap-2 sm:flex-row sm:items-center",
+				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					"data-uid": "src/components/AdminHoursForm.tsx:29:13",
+					"data-prohibitions": "[editContent]",
+					className: "flex w-40 items-center gap-2",
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Checkbox, {
+						"data-uid": "src/components/AdminHoursForm.tsx:30:15",
+						"data-prohibitions": "[editContent]",
+						id: `day-${day.value}`,
+						checked: dHours.isOpen,
+						onCheckedChange: (c) => handleHourChange(day.value, "isOpen", c === true)
+					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label$1, {
+						"data-uid": "src/components/AdminHoursForm.tsx:35:15",
+						"data-prohibitions": "[editContent]",
+						htmlFor: `day-${day.value}`,
+						className: "cursor-pointer font-medium",
+						children: day.label
+					})]
+				}), dHours.isOpen ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					"data-uid": "src/components/AdminHoursForm.tsx:40:15",
+					"data-prohibitions": "[]",
+					className: "flex items-center gap-2",
+					children: [
+						/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Input, {
+							"data-uid": "src/components/AdminHoursForm.tsx:41:17",
+							"data-prohibitions": "[editContent]",
+							type: "time",
+							value: dHours.openTime,
+							onChange: (e) => handleHourChange(day.value, "openTime", e.target.value),
+							className: "w-32",
+							required: true
+						}),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+							"data-uid": "src/components/AdminHoursForm.tsx:48:17",
+							"data-prohibitions": "[]",
+							className: "text-sm font-medium text-slate-500",
+							children: "até"
+						}),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Input, {
+							"data-uid": "src/components/AdminHoursForm.tsx:49:17",
+							"data-prohibitions": "[editContent]",
+							type: "time",
+							value: dHours.closeTime,
+							onChange: (e) => handleHourChange(day.value, "closeTime", e.target.value),
+							className: "w-32",
+							required: true
+						})
+					]
+				}) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+					"data-uid": "src/components/AdminHoursForm.tsx:58:15",
+					"data-prohibitions": "[]",
+					className: "text-sm font-medium text-slate-500 italic py-2 sm:py-0",
+					children: "Fechado"
+				})]
+			}, day.value);
+		})]
+	});
+}
+//#endregion
 //#region src/components/AdminPlaceForm.tsx
 function AdminPlaceForm({ initialData, categories, onSave, onCancel }) {
-	const [formData, setFormData] = (0, import_react.useState)(initialData || {
-		id: Math.random().toString(36).substr(2, 9),
-		type: "restaurant",
-		galleryImages: [
-			"",
-			"",
-			"",
-			"",
-			""
-		],
-		coordinates: {
-			lat: 0,
-			lng: 0
-		}
+	const [formData, setFormData] = (0, import_react.useState)(() => {
+		if (initialData) return {
+			...initialData,
+			operatingHours: initialData.operatingHours || createDefaultHours()
+		};
+		return {
+			id: Math.random().toString(36).substr(2, 9),
+			type: "restaurant",
+			galleryImages: [
+				"",
+				"",
+				"",
+				"",
+				""
+			],
+			coordinates: {
+				lat: 0,
+				lng: 0
+			},
+			operatingHours: createDefaultHours()
+		};
 	});
 	const handleChange = (field, value) => {
 		setFormData((prev) => ({
@@ -32712,60 +33290,60 @@ function AdminPlaceForm({ initialData, categories, onSave, onCancel }) {
 	};
 	const isTour = formData.type === "tour";
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("form", {
-		"data-uid": "src/components/AdminPlaceForm.tsx:57:5",
+		"data-uid": "src/components/AdminPlaceForm.tsx:65:5",
 		"data-prohibitions": "[editContent]",
 		onSubmit: handleSubmit,
 		className: "space-y-4 py-4",
 		children: [
 			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				"data-uid": "src/components/AdminPlaceForm.tsx:58:7",
+				"data-uid": "src/components/AdminPlaceForm.tsx:66:7",
 				"data-prohibitions": "[]",
 				className: "grid grid-cols-2 gap-4",
 				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					"data-uid": "src/components/AdminPlaceForm.tsx:59:9",
-					"data-prohibitions": "[]",
-					className: "space-y-2",
-					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label$1, {
-						"data-uid": "src/components/AdminPlaceForm.tsx:60:11",
-						"data-prohibitions": "[]",
-						children: "Nome do Local"
-					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Input, {
-						"data-uid": "src/components/AdminPlaceForm.tsx:61:11",
-						"data-prohibitions": "[editContent]",
-						value: formData.name || "",
-						onChange: (e) => handleChange("name", e.target.value),
-						required: true
-					})]
-				}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 					"data-uid": "src/components/AdminPlaceForm.tsx:67:9",
 					"data-prohibitions": "[]",
 					className: "space-y-2",
 					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label$1, {
 						"data-uid": "src/components/AdminPlaceForm.tsx:68:11",
 						"data-prohibitions": "[]",
+						children: "Nome do Local"
+					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Input, {
+						"data-uid": "src/components/AdminPlaceForm.tsx:69:11",
+						"data-prohibitions": "[editContent]",
+						value: formData.name || "",
+						onChange: (e) => handleChange("name", e.target.value),
+						required: true
+					})]
+				}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					"data-uid": "src/components/AdminPlaceForm.tsx:75:9",
+					"data-prohibitions": "[]",
+					className: "space-y-2",
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label$1, {
+						"data-uid": "src/components/AdminPlaceForm.tsx:76:11",
+						"data-prohibitions": "[]",
 						children: "Tipo"
 					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Select, {
-						"data-uid": "src/components/AdminPlaceForm.tsx:69:11",
+						"data-uid": "src/components/AdminPlaceForm.tsx:77:11",
 						"data-prohibitions": "[]",
 						value: formData.type,
 						onValueChange: (v) => handleChange("type", v),
 						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectTrigger, {
-							"data-uid": "src/components/AdminPlaceForm.tsx:70:13",
+							"data-uid": "src/components/AdminPlaceForm.tsx:78:13",
 							"data-prohibitions": "[]",
 							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectValue, {
-								"data-uid": "src/components/AdminPlaceForm.tsx:71:15",
+								"data-uid": "src/components/AdminPlaceForm.tsx:79:15",
 								"data-prohibitions": "[editContent]"
 							})
 						}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(SelectContent, {
-							"data-uid": "src/components/AdminPlaceForm.tsx:73:13",
+							"data-uid": "src/components/AdminPlaceForm.tsx:81:13",
 							"data-prohibitions": "[]",
 							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectItem, {
-								"data-uid": "src/components/AdminPlaceForm.tsx:74:15",
+								"data-uid": "src/components/AdminPlaceForm.tsx:82:15",
 								"data-prohibitions": "[]",
 								value: "restaurant",
 								children: "Restaurante/Bar"
 							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectItem, {
-								"data-uid": "src/components/AdminPlaceForm.tsx:75:15",
+								"data-uid": "src/components/AdminPlaceForm.tsx:83:15",
 								"data-prohibitions": "[]",
 								value: "tour",
 								children: "Passeio/Atividade"
@@ -32775,35 +33353,35 @@ function AdminPlaceForm({ initialData, categories, onSave, onCancel }) {
 				})]
 			}),
 			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				"data-uid": "src/components/AdminPlaceForm.tsx:80:7",
+				"data-uid": "src/components/AdminPlaceForm.tsx:88:7",
 				"data-prohibitions": "[editContent]",
 				className: "grid grid-cols-2 gap-4",
 				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					"data-uid": "src/components/AdminPlaceForm.tsx:81:9",
+					"data-uid": "src/components/AdminPlaceForm.tsx:89:9",
 					"data-prohibitions": "[editContent]",
 					className: "space-y-2",
 					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label$1, {
-						"data-uid": "src/components/AdminPlaceForm.tsx:82:11",
+						"data-uid": "src/components/AdminPlaceForm.tsx:90:11",
 						"data-prohibitions": "[]",
 						children: "Categoria"
 					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Select, {
-						"data-uid": "src/components/AdminPlaceForm.tsx:83:11",
+						"data-uid": "src/components/AdminPlaceForm.tsx:91:11",
 						"data-prohibitions": "[editContent]",
 						value: formData.category || "",
 						onValueChange: (v) => handleChange("category", v),
 						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectTrigger, {
-							"data-uid": "src/components/AdminPlaceForm.tsx:87:13",
+							"data-uid": "src/components/AdminPlaceForm.tsx:95:13",
 							"data-prohibitions": "[]",
 							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectValue, {
-								"data-uid": "src/components/AdminPlaceForm.tsx:88:15",
+								"data-uid": "src/components/AdminPlaceForm.tsx:96:15",
 								"data-prohibitions": "[editContent]",
 								placeholder: "Selecione..."
 							})
 						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectContent, {
-							"data-uid": "src/components/AdminPlaceForm.tsx:90:13",
+							"data-uid": "src/components/AdminPlaceForm.tsx:98:13",
 							"data-prohibitions": "[editContent]",
 							children: categories.map((c) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectItem, {
-								"data-uid": "src/components/AdminPlaceForm.tsx:92:17",
+								"data-uid": "src/components/AdminPlaceForm.tsx:100:17",
 								"data-prohibitions": "[editContent]",
 								value: c,
 								children: c
@@ -32811,44 +33389,44 @@ function AdminPlaceForm({ initialData, categories, onSave, onCancel }) {
 						})]
 					})]
 				}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					"data-uid": "src/components/AdminPlaceForm.tsx:99:9",
+					"data-uid": "src/components/AdminPlaceForm.tsx:107:9",
 					"data-prohibitions": "[]",
 					className: "space-y-2",
 					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label$1, {
-						"data-uid": "src/components/AdminPlaceForm.tsx:100:11",
+						"data-uid": "src/components/AdminPlaceForm.tsx:108:11",
 						"data-prohibitions": "[]",
 						children: "Cidade"
 					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Select, {
-						"data-uid": "src/components/AdminPlaceForm.tsx:101:11",
+						"data-uid": "src/components/AdminPlaceForm.tsx:109:11",
 						"data-prohibitions": "[]",
 						value: formData.city || "",
 						onValueChange: (v) => handleChange("city", v),
 						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectTrigger, {
-							"data-uid": "src/components/AdminPlaceForm.tsx:102:13",
+							"data-uid": "src/components/AdminPlaceForm.tsx:110:13",
 							"data-prohibitions": "[]",
 							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectValue, {
-								"data-uid": "src/components/AdminPlaceForm.tsx:103:15",
+								"data-uid": "src/components/AdminPlaceForm.tsx:111:15",
 								"data-prohibitions": "[editContent]",
 								placeholder: "Selecione..."
 							})
 						}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(SelectContent, {
-							"data-uid": "src/components/AdminPlaceForm.tsx:105:13",
+							"data-uid": "src/components/AdminPlaceForm.tsx:113:13",
 							"data-prohibitions": "[]",
 							children: [
 								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectItem, {
-									"data-uid": "src/components/AdminPlaceForm.tsx:106:15",
+									"data-uid": "src/components/AdminPlaceForm.tsx:114:15",
 									"data-prohibitions": "[]",
 									value: "Montevideo",
 									children: "Montevideo"
 								}),
 								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectItem, {
-									"data-uid": "src/components/AdminPlaceForm.tsx:107:15",
+									"data-uid": "src/components/AdminPlaceForm.tsx:115:15",
 									"data-prohibitions": "[]",
 									value: "Punta del Este",
 									children: "Punta del Este"
 								}),
 								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(SelectItem, {
-									"data-uid": "src/components/AdminPlaceForm.tsx:108:15",
+									"data-uid": "src/components/AdminPlaceForm.tsx:116:15",
 									"data-prohibitions": "[]",
 									value: "Colonia del Sacramento",
 									children: "Colonia del Sacramento"
@@ -32858,45 +33436,51 @@ function AdminPlaceForm({ initialData, categories, onSave, onCancel }) {
 					})]
 				})]
 			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)(AdminHoursForm, {
+				"data-uid": "src/components/AdminPlaceForm.tsx:122:7",
+				"data-prohibitions": "[editContent]",
+				hours: formData.operatingHours || [],
+				onChange: (h) => handleChange("operatingHours", h)
+			}),
 			isTour && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				"data-uid": "src/components/AdminPlaceForm.tsx:115:9",
+				"data-uid": "src/components/AdminPlaceForm.tsx:128:9",
 				"data-prohibitions": "[]",
 				className: "space-y-4 rounded-xl border border-primary/20 bg-primary/5 p-4",
 				children: [
 					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", {
-						"data-uid": "src/components/AdminPlaceForm.tsx:116:11",
+						"data-uid": "src/components/AdminPlaceForm.tsx:129:11",
 						"data-prohibitions": "[]",
 						className: "font-bold text-primary",
 						children: "Informações do Passeio"
 					}),
 					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						"data-uid": "src/components/AdminPlaceForm.tsx:117:11",
+						"data-uid": "src/components/AdminPlaceForm.tsx:130:11",
 						"data-prohibitions": "[]",
 						className: "grid grid-cols-2 gap-4",
 						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							"data-uid": "src/components/AdminPlaceForm.tsx:118:13",
+							"data-uid": "src/components/AdminPlaceForm.tsx:131:13",
 							"data-prohibitions": "[]",
 							className: "space-y-2",
 							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label$1, {
-								"data-uid": "src/components/AdminPlaceForm.tsx:119:15",
+								"data-uid": "src/components/AdminPlaceForm.tsx:132:15",
 								"data-prohibitions": "[]",
 								children: "O que está incluído (separar por vírgula)"
 							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Input, {
-								"data-uid": "src/components/AdminPlaceForm.tsx:120:15",
+								"data-uid": "src/components/AdminPlaceForm.tsx:133:15",
 								"data-prohibitions": "[editContent]",
 								value: formData.included?.join(", ") || "",
 								onChange: (e) => handleChange("included", e.target.value.split(",").map((s) => s.trim()))
 							})]
 						}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							"data-uid": "src/components/AdminPlaceForm.tsx:130:13",
+							"data-uid": "src/components/AdminPlaceForm.tsx:143:13",
 							"data-prohibitions": "[]",
 							className: "space-y-2",
 							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label$1, {
-								"data-uid": "src/components/AdminPlaceForm.tsx:131:15",
+								"data-uid": "src/components/AdminPlaceForm.tsx:144:15",
 								"data-prohibitions": "[]",
 								children: "Dias disponíveis (separar por vírgula)"
 							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Input, {
-								"data-uid": "src/components/AdminPlaceForm.tsx:132:15",
+								"data-uid": "src/components/AdminPlaceForm.tsx:145:15",
 								"data-prohibitions": "[editContent]",
 								value: formData.availableDays?.join(", ") || "",
 								onChange: (e) => handleChange("availableDays", e.target.value.split(",").map((s) => s.trim()))
@@ -32904,33 +33488,33 @@ function AdminPlaceForm({ initialData, categories, onSave, onCancel }) {
 						})]
 					}),
 					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						"data-uid": "src/components/AdminPlaceForm.tsx:143:11",
+						"data-uid": "src/components/AdminPlaceForm.tsx:156:11",
 						"data-prohibitions": "[]",
 						className: "grid grid-cols-2 gap-4",
 						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							"data-uid": "src/components/AdminPlaceForm.tsx:144:13",
+							"data-uid": "src/components/AdminPlaceForm.tsx:157:13",
 							"data-prohibitions": "[]",
 							className: "space-y-2",
 							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label$1, {
-								"data-uid": "src/components/AdminPlaceForm.tsx:145:15",
+								"data-uid": "src/components/AdminPlaceForm.tsx:158:15",
 								"data-prohibitions": "[]",
 								children: "URL de Reserva"
 							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Input, {
-								"data-uid": "src/components/AdminPlaceForm.tsx:146:15",
+								"data-uid": "src/components/AdminPlaceForm.tsx:159:15",
 								"data-prohibitions": "[editContent]",
 								value: formData.bookingUrl || "",
 								onChange: (e) => handleChange("bookingUrl", e.target.value)
 							})]
 						}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							"data-uid": "src/components/AdminPlaceForm.tsx:151:13",
+							"data-uid": "src/components/AdminPlaceForm.tsx:164:13",
 							"data-prohibitions": "[]",
 							className: "space-y-2",
 							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label$1, {
-								"data-uid": "src/components/AdminPlaceForm.tsx:152:15",
+								"data-uid": "src/components/AdminPlaceForm.tsx:165:15",
 								"data-prohibitions": "[]",
 								children: "Código do Cupom"
 							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Input, {
-								"data-uid": "src/components/AdminPlaceForm.tsx:153:15",
+								"data-uid": "src/components/AdminPlaceForm.tsx:166:15",
 								"data-prohibitions": "[editContent]",
 								value: formData.couponCode || "",
 								onChange: (e) => handleChange("couponCode", e.target.value)
@@ -32940,15 +33524,15 @@ function AdminPlaceForm({ initialData, categories, onSave, onCancel }) {
 				]
 			}),
 			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				"data-uid": "src/components/AdminPlaceForm.tsx:162:7",
+				"data-uid": "src/components/AdminPlaceForm.tsx:175:7",
 				"data-prohibitions": "[]",
 				className: "space-y-2",
 				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label$1, {
-					"data-uid": "src/components/AdminPlaceForm.tsx:163:9",
+					"data-uid": "src/components/AdminPlaceForm.tsx:176:9",
 					"data-prohibitions": "[]",
 					children: "Badge de Desconto (ex: 20% OFF)"
 				}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Input, {
-					"data-uid": "src/components/AdminPlaceForm.tsx:164:9",
+					"data-uid": "src/components/AdminPlaceForm.tsx:177:9",
 					"data-prohibitions": "[editContent]",
 					value: formData.discountBadge || "",
 					onChange: (e) => handleChange("discountBadge", e.target.value),
@@ -32956,15 +33540,15 @@ function AdminPlaceForm({ initialData, categories, onSave, onCancel }) {
 				})]
 			}),
 			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				"data-uid": "src/components/AdminPlaceForm.tsx:170:7",
+				"data-uid": "src/components/AdminPlaceForm.tsx:183:7",
 				"data-prohibitions": "[]",
 				className: "space-y-2",
 				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label$1, {
-					"data-uid": "src/components/AdminPlaceForm.tsx:171:9",
+					"data-uid": "src/components/AdminPlaceForm.tsx:184:9",
 					"data-prohibitions": "[]",
 					children: "Descrição"
 				}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Textarea, {
-					"data-uid": "src/components/AdminPlaceForm.tsx:172:9",
+					"data-uid": "src/components/AdminPlaceForm.tsx:185:9",
 					"data-prohibitions": "[editContent]",
 					value: formData.description || "",
 					onChange: (e) => handleChange("description", e.target.value),
@@ -32972,15 +33556,15 @@ function AdminPlaceForm({ initialData, categories, onSave, onCancel }) {
 				})]
 			}),
 			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				"data-uid": "src/components/AdminPlaceForm.tsx:178:7",
+				"data-uid": "src/components/AdminPlaceForm.tsx:191:7",
 				"data-prohibitions": "[]",
 				className: "space-y-2",
 				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label$1, {
-					"data-uid": "src/components/AdminPlaceForm.tsx:179:9",
+					"data-uid": "src/components/AdminPlaceForm.tsx:192:9",
 					"data-prohibitions": "[]",
 					children: "Detalhes da Regra do Desconto"
 				}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Textarea, {
-					"data-uid": "src/components/AdminPlaceForm.tsx:180:9",
+					"data-uid": "src/components/AdminPlaceForm.tsx:193:9",
 					"data-prohibitions": "[editContent]",
 					value: formData.discountDescription || "",
 					onChange: (e) => handleChange("discountDescription", e.target.value),
@@ -32988,34 +33572,34 @@ function AdminPlaceForm({ initialData, categories, onSave, onCancel }) {
 				})]
 			}),
 			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				"data-uid": "src/components/AdminPlaceForm.tsx:186:7",
+				"data-uid": "src/components/AdminPlaceForm.tsx:199:7",
 				"data-prohibitions": "[]",
 				className: "grid grid-cols-2 gap-4",
 				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					"data-uid": "src/components/AdminPlaceForm.tsx:187:9",
+					"data-uid": "src/components/AdminPlaceForm.tsx:200:9",
 					"data-prohibitions": "[]",
 					className: "space-y-2",
 					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label$1, {
-						"data-uid": "src/components/AdminPlaceForm.tsx:188:11",
+						"data-uid": "src/components/AdminPlaceForm.tsx:201:11",
 						"data-prohibitions": "[]",
 						children: "Endereço Completo"
 					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Input, {
-						"data-uid": "src/components/AdminPlaceForm.tsx:189:11",
+						"data-uid": "src/components/AdminPlaceForm.tsx:202:11",
 						"data-prohibitions": "[editContent]",
 						value: formData.address || "",
 						onChange: (e) => handleChange("address", e.target.value),
 						required: true
 					})]
 				}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					"data-uid": "src/components/AdminPlaceForm.tsx:195:9",
+					"data-uid": "src/components/AdminPlaceForm.tsx:208:9",
 					"data-prohibitions": "[]",
 					className: "space-y-2",
 					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label$1, {
-						"data-uid": "src/components/AdminPlaceForm.tsx:196:11",
+						"data-uid": "src/components/AdminPlaceForm.tsx:209:11",
 						"data-prohibitions": "[]",
 						children: "URL Imagem de Capa"
 					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Input, {
-						"data-uid": "src/components/AdminPlaceForm.tsx:197:11",
+						"data-uid": "src/components/AdminPlaceForm.tsx:210:11",
 						"data-prohibitions": "[editContent]",
 						value: formData.coverImage || "",
 						onChange: (e) => handleChange("coverImage", e.target.value),
@@ -33024,19 +33608,19 @@ function AdminPlaceForm({ initialData, categories, onSave, onCancel }) {
 				})]
 			}),
 			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				"data-uid": "src/components/AdminPlaceForm.tsx:204:7",
+				"data-uid": "src/components/AdminPlaceForm.tsx:217:7",
 				"data-prohibitions": "[]",
 				className: "grid grid-cols-2 gap-4",
 				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					"data-uid": "src/components/AdminPlaceForm.tsx:205:9",
+					"data-uid": "src/components/AdminPlaceForm.tsx:218:9",
 					"data-prohibitions": "[]",
 					className: "space-y-2",
 					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label$1, {
-						"data-uid": "src/components/AdminPlaceForm.tsx:206:11",
+						"data-uid": "src/components/AdminPlaceForm.tsx:219:11",
 						"data-prohibitions": "[]",
 						children: "Latitude"
 					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Input, {
-						"data-uid": "src/components/AdminPlaceForm.tsx:207:11",
+						"data-uid": "src/components/AdminPlaceForm.tsx:220:11",
 						"data-prohibitions": "[editContent]",
 						type: "number",
 						step: "any",
@@ -33045,15 +33629,15 @@ function AdminPlaceForm({ initialData, categories, onSave, onCancel }) {
 						required: true
 					})]
 				}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					"data-uid": "src/components/AdminPlaceForm.tsx:215:9",
+					"data-uid": "src/components/AdminPlaceForm.tsx:228:9",
 					"data-prohibitions": "[]",
 					className: "space-y-2",
 					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label$1, {
-						"data-uid": "src/components/AdminPlaceForm.tsx:216:11",
+						"data-uid": "src/components/AdminPlaceForm.tsx:229:11",
 						"data-prohibitions": "[]",
 						children: "Longitude"
 					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Input, {
-						"data-uid": "src/components/AdminPlaceForm.tsx:217:11",
+						"data-uid": "src/components/AdminPlaceForm.tsx:230:11",
 						"data-prohibitions": "[editContent]",
 						type: "number",
 						step: "any",
@@ -33064,11 +33648,11 @@ function AdminPlaceForm({ initialData, categories, onSave, onCancel }) {
 				})]
 			}),
 			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				"data-uid": "src/components/AdminPlaceForm.tsx:226:7",
+				"data-uid": "src/components/AdminPlaceForm.tsx:239:7",
 				"data-prohibitions": "[editContent]",
 				className: "space-y-2",
 				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Label$1, {
-					"data-uid": "src/components/AdminPlaceForm.tsx:227:9",
+					"data-uid": "src/components/AdminPlaceForm.tsx:240:9",
 					"data-prohibitions": "[]",
 					children: "URLs das 5 Imagens da Galeria"
 				}), [
@@ -33078,7 +33662,7 @@ function AdminPlaceForm({ initialData, categories, onSave, onCancel }) {
 					3,
 					4
 				].map((i) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Input, {
-					"data-uid": "src/components/AdminPlaceForm.tsx:229:11",
+					"data-uid": "src/components/AdminPlaceForm.tsx:242:11",
 					"data-prohibitions": "[editContent]",
 					value: formData.galleryImages?.[i] || "",
 					onChange: (e) => handleGalleryChange(i, e.target.value),
@@ -33087,18 +33671,18 @@ function AdminPlaceForm({ initialData, categories, onSave, onCancel }) {
 				}, i))]
 			}),
 			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				"data-uid": "src/components/AdminPlaceForm.tsx:238:7",
+				"data-uid": "src/components/AdminPlaceForm.tsx:251:7",
 				"data-prohibitions": "[]",
 				className: "flex justify-end gap-2 pt-4",
 				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
-					"data-uid": "src/components/AdminPlaceForm.tsx:239:9",
+					"data-uid": "src/components/AdminPlaceForm.tsx:252:9",
 					"data-prohibitions": "[]",
 					type: "button",
 					variant: "outline",
 					onClick: onCancel,
 					children: "Cancelar"
 				}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
-					"data-uid": "src/components/AdminPlaceForm.tsx:242:9",
+					"data-uid": "src/components/AdminPlaceForm.tsx:255:9",
 					"data-prohibitions": "[]",
 					type: "submit",
 					children: "Salvar Local"
@@ -33501,4 +34085,4 @@ var App = () => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(BrowserRouter, {
 }));
 //#endregion
 
-//# sourceMappingURL=index-CJdWFcQz.js.map
+//# sourceMappingURL=index--FRMkIdM.js.map

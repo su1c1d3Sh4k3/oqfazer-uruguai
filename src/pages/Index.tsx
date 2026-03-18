@@ -6,6 +6,9 @@ import Autoplay from 'embla-carousel-autoplay'
 import { useRef, useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { Badge } from '@/components/ui/badge'
+import { Switch } from '@/components/ui/switch'
+import { Label } from '@/components/ui/label'
+import { isPlaceOpen } from '@/lib/utils'
 
 export default function Index() {
   const { places, categories } = usePlaces()
@@ -15,6 +18,7 @@ export default function Index() {
   const [selectedCity, setSelectedCity] = useState('Todas')
   const [selectedCategory, setSelectedCategory] = useState('Todas')
   const [maxDistance, setMaxDistance] = useState('Qualquer')
+  const [openNowOnly, setOpenNowOnly] = useState(false)
 
   const CITIES = ['Todas', 'Montevideo', 'Punta del Este', 'Colonia del Sacramento']
   const DISTANCES = ['Qualquer', '5km', '10km', '20km', '50km']
@@ -33,12 +37,16 @@ export default function Index() {
       })
     }
 
+    if (openNowOnly) {
+      result = result.filter((p) => isPlaceOpen(p.operatingHours))
+    }
+
     return result.sort((a, b) => {
       const distA = calculateDistance(a.coordinates.lat, a.coordinates.lng) || 9999
       const distB = calculateDistance(b.coordinates.lat, b.coordinates.lng) || 9999
       return distA - distB
     })
-  }, [places, selectedCity, selectedCategory, maxDistance, calculateDistance])
+  }, [places, selectedCity, selectedCategory, maxDistance, openNowOnly, calculateDistance])
 
   const featured = places.filter((p) => p.featured)
 
@@ -119,24 +127,34 @@ export default function Index() {
             ))}
           </div>
         </div>
-        <div className="hide-scrollbar -mx-4 flex overflow-x-auto px-4 md:mx-0 md:px-0">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-              Distância:
-            </span>
-            {DISTANCES.map((dist) => (
-              <button
-                key={dist}
-                onClick={() => setMaxDistance(dist)}
-                className={`whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
-                  maxDistance === dist
-                    ? 'bg-slate-800 text-white shadow-md'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                }`}
-              >
-                {dist}
-              </button>
-            ))}
+
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-2">
+          <div className="hide-scrollbar -mx-4 flex overflow-x-auto px-4 md:mx-0 md:px-0">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                Distância:
+              </span>
+              {DISTANCES.map((dist) => (
+                <button
+                  key={dist}
+                  onClick={() => setMaxDistance(dist)}
+                  className={`whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
+                    maxDistance === dist
+                      ? 'bg-slate-800 text-white shadow-md'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  }`}
+                >
+                  {dist}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-2 rounded-full border border-slate-200 bg-white px-4 py-2 shadow-sm shrink-0 w-fit">
+            <Switch id="open-now" checked={openNowOnly} onCheckedChange={setOpenNowOnly} />
+            <Label htmlFor="open-now" className="cursor-pointer font-bold text-slate-700">
+              Aberto Agora
+            </Label>
           </div>
         </div>
       </section>

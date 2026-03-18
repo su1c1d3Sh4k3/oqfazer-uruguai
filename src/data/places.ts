@@ -1,5 +1,12 @@
 export type PlaceType = 'restaurant' | 'tour'
 
+export interface DailyHours {
+  day: number
+  isOpen: boolean
+  openTime: string
+  closeTime: string
+}
+
 export interface Place {
   id: string
   type: PlaceType
@@ -15,6 +22,7 @@ export interface Place {
   address: string
   coordinates: { lat: number; lng: number }
   featured?: boolean
+  operatingHours?: DailyHours[]
 
   // Tour specific fields
   included?: string[]
@@ -30,6 +38,16 @@ export const DEFAULT_CATEGORIES = [
   'Bares',
   'Museus',
   'Vinícolas',
+]
+
+export const createDefaultHours = (): DailyHours[] => [
+  { day: 0, isOpen: true, openTime: '09:00', closeTime: '18:00' },
+  { day: 1, isOpen: true, openTime: '09:00', closeTime: '18:00' },
+  { day: 2, isOpen: true, openTime: '09:00', closeTime: '18:00' },
+  { day: 3, isOpen: true, openTime: '09:00', closeTime: '18:00' },
+  { day: 4, isOpen: true, openTime: '09:00', closeTime: '18:00' },
+  { day: 5, isOpen: true, openTime: '09:00', closeTime: '23:00' },
+  { day: 6, isOpen: true, openTime: '09:00', closeTime: '23:00' },
 ]
 
 export const DEFAULT_PLACES: Place[] = [
@@ -54,6 +72,7 @@ export const DEFAULT_PLACES: Place[] = [
     discountDescription: '20% de desconto em todas as carnes da parrilla. Bebidas não inclusas.',
     address: 'Rambla República del Perú, 1234 - Montevideo',
     coordinates: { lat: -34.912, lng: -56.155 },
+    operatingHours: createDefaultHours(),
     featured: true,
   },
   {
@@ -78,6 +97,7 @@ export const DEFAULT_PLACES: Place[] = [
       'Utilize o código de cupom no site do parceiro para ganhar 5% de desconto.',
     address: 'Ponto de encontro: Porto de Punta del Este',
     coordinates: { lat: -34.962, lng: -54.943 },
+    operatingHours: createDefaultHours(),
     featured: true,
     included: ['Transfer ida e volta', 'Guia bilíngue', 'Almoço incluso', 'Ingressos para museus'],
     availableDays: ['Segunda-feira', 'Quarta-feira', 'Sexta-feira', 'Sábado'],
@@ -106,6 +126,7 @@ export const DEFAULT_PLACES: Place[] = [
       'Na compra de um café especial, ganhe 50% de desconto no nosso alfajor artesanal de doce de leite.',
     address: 'Calle de los Suspiros, 45 - Colonia del Sacramento',
     coordinates: { lat: -34.471, lng: -57.852 },
+    operatingHours: createDefaultHours(),
     featured: true,
   },
   {
@@ -130,6 +151,7 @@ export const DEFAULT_PLACES: Place[] = [
       'Apresente o cupom ao reservar para ganhar uma degustação premium adicional.',
     address: 'Ruta 9 km 175 - Pueblo Garzón',
     coordinates: { lat: -34.593, lng: -54.551 },
+    operatingHours: createDefaultHours(),
     included: ['Passeio guiado pelas vinhas', 'Degustação de 4 vinhos', 'Tábua de queijos'],
     availableDays: ['Terça-feira', 'Quinta-feira', 'Sábado', 'Domingo'],
     bookingUrl: 'https://example.com/booking-garzon',

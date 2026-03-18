@@ -10,7 +10,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Place } from '@/data/places'
+import { Place, createDefaultHours } from '@/data/places'
+import { AdminHoursForm } from './AdminHoursForm'
 
 interface Props {
   initialData?: Place
@@ -20,14 +21,21 @@ interface Props {
 }
 
 export function AdminPlaceForm({ initialData, categories, onSave, onCancel }: Props) {
-  const [formData, setFormData] = useState<Partial<Place>>(
-    initialData || {
+  const [formData, setFormData] = useState<Partial<Place>>(() => {
+    if (initialData) {
+      return {
+        ...initialData,
+        operatingHours: initialData.operatingHours || createDefaultHours(),
+      }
+    }
+    return {
       id: Math.random().toString(36).substr(2, 9),
       type: 'restaurant',
       galleryImages: ['', '', '', '', ''],
       coordinates: { lat: 0, lng: 0 },
-    },
-  )
+      operatingHours: createDefaultHours(),
+    }
+  })
 
   const handleChange = (field: keyof Place, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
@@ -110,6 +118,11 @@ export function AdminPlaceForm({ initialData, categories, onSave, onCancel }: Pr
           </Select>
         </div>
       </div>
+
+      <AdminHoursForm
+        hours={formData.operatingHours || []}
+        onChange={(h) => handleChange('operatingHours', h)}
+      />
 
       {isTour && (
         <div className="space-y-4 rounded-xl border border-primary/20 bg-primary/5 p-4">

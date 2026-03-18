@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { Place } from '@/data/places'
 import { useFavorites } from '@/context/FavoritesContext'
 import { useGeo } from '@/context/GeoContext'
-import { cn } from '@/lib/utils'
+import { cn, isPlaceOpen } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 
 interface PlaceCardProps {
@@ -17,6 +17,7 @@ export function PlaceCard({ place }: PlaceCardProps) {
 
   const dist = calculateDistance(place.coordinates.lat, place.coordinates.lng)
   const displayDistance = dist ? `${dist.toFixed(1)} km` : 'Calculando...'
+  const isOpen = isPlaceOpen(place.operatingHours)
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -34,9 +35,19 @@ export function PlaceCard({ place }: PlaceCardProps) {
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
           />
-          <div className="absolute left-3 top-3">
+          <div className="absolute left-3 top-3 flex flex-col gap-1.5 items-start">
             <Badge className="border-none bg-secondary font-bold text-slate-900 shadow-md hover:bg-secondary/90">
               {place.discountBadge}
+            </Badge>
+            <Badge
+              className={cn(
+                'border-none font-bold shadow-md',
+                isOpen
+                  ? 'bg-green-500 text-white hover:bg-green-600'
+                  : 'bg-slate-600 text-white hover:bg-slate-700',
+              )}
+            >
+              {isOpen ? 'Aberto Agora' : 'Fechado'}
             </Badge>
           </div>
           <button
