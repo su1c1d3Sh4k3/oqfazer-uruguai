@@ -17,7 +17,8 @@ export function PlaceCard({ place }: PlaceCardProps) {
 
   const dist = calculateDistance(place.coordinates.lat, place.coordinates.lng)
   const displayDistance = dist ? `${dist.toFixed(1)} km` : 'Calculando...'
-  const isOpen = isPlaceOpen(place.operatingHours)
+  const isTour = place.type === 'tour'
+  const isOpen = !isTour && isPlaceOpen(place.operatingHours)
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -28,7 +29,7 @@ export function PlaceCard({ place }: PlaceCardProps) {
   return (
     <Link to={`/place/${place.id}`} className="group block h-full">
       <div className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm transition-all duration-300 hover:shadow-xl">
-        <div className="relative aspect-[4/3] w-full shrink-0 overflow-hidden">
+        <div className="relative aspect-[4/3] w-full shrink-0 overflow-hidden bg-slate-100">
           <img
             src={place.coverImage}
             alt={place.name}
@@ -39,16 +40,18 @@ export function PlaceCard({ place }: PlaceCardProps) {
             <Badge className="border-none bg-brand-yellow font-bold text-brand-yellow-foreground shadow-md hover:bg-brand-yellow/90">
               {place.discountBadge}
             </Badge>
-            <Badge
-              className={cn(
-                'border-none font-bold shadow-md',
-                isOpen
-                  ? 'bg-secondary text-secondary-foreground hover:bg-secondary/90'
-                  : 'bg-slate-600 text-white hover:bg-slate-700',
-              )}
-            >
-              {isOpen ? 'Aberto Agora' : 'Fechado'}
-            </Badge>
+            {!isTour && (
+              <Badge
+                className={cn(
+                  'border-none font-bold shadow-md',
+                  isOpen
+                    ? 'bg-secondary text-secondary-foreground hover:bg-secondary/90'
+                    : 'bg-slate-600 text-white hover:bg-slate-700',
+                )}
+              >
+                {isOpen ? 'Aberto Agora' : 'Fechado'}
+              </Badge>
+            )}
           </div>
           <button
             onClick={handleFavoriteClick}
@@ -75,7 +78,7 @@ export function PlaceCard({ place }: PlaceCardProps) {
           <div className="mt-auto flex items-center pt-3 text-sm text-slate-500">
             <MapPin className="mr-1 h-4 w-4 shrink-0 text-slate-400" />
             <span className="truncate">
-              {displayDistance} • {place.city}
+              {isTour ? place.city : `${displayDistance} • ${place.city}`}
             </span>
           </div>
         </div>

@@ -17,7 +17,16 @@ export function PlacesProvider({ children }: { children: React.ReactNode }) {
   const [places, setPlaces] = useState<Place[]>(() => {
     try {
       const saved = localStorage.getItem('@uruguai:places')
-      return saved ? JSON.parse(saved) : DEFAULT_PLACES
+      if (saved) {
+        const parsed = JSON.parse(saved)
+        // Ensure any newly added default places (like the new tours) are included
+        // if they haven't been saved yet.
+        const missingDefaults = DEFAULT_PLACES.filter(
+          (dp) => !parsed.some((p: Place) => p.id === dp.id),
+        )
+        return [...parsed, ...missingDefaults]
+      }
+      return DEFAULT_PLACES
     } catch {
       return DEFAULT_PLACES
     }

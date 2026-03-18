@@ -71,7 +71,7 @@ export default function PlaceDetails() {
   const dist = calculateDistance(place.coordinates.lat, place.coordinates.lng)
   const displayDistance = dist ? `${dist.toFixed(1)} km` : 'Calculando...'
   const checkInTime = getPlaceCheckIn(place.id)
-  const isOpen = isPlaceOpen(place.operatingHours)
+  const isOpen = !isTour && isPlaceOpen(place.operatingHours)
 
   const handleShare = () => {
     if (navigator.share) navigator.share({ title: place.name, url: window.location.href })
@@ -108,13 +108,18 @@ export default function PlaceDetails() {
         <ArrowLeft className="h-5 w-5" />
       </button>
 
-      <div className="hide-scrollbar flex-1 overflow-y-auto lg:border-r">
+      <div className="hide-scrollbar flex-1 overflow-y-auto lg:border-r bg-slate-50">
         <div className="relative bg-slate-900">
           <Carousel opts={{ loop: true }} className="w-full">
             <CarouselContent>
               {place.galleryImages.map((img, index) => (
                 <CarouselItem key={index}>
-                  <div className="aspect-[4/3] w-full md:aspect-[16/9] lg:aspect-[3/2]">
+                  <div
+                    className={cn(
+                      'w-full bg-slate-100',
+                      isTour ? 'aspect-[4/3]' : 'aspect-[4/3] md:aspect-[16/9] lg:aspect-[3/2]',
+                    )}
+                  >
                     <img
                       src={img}
                       alt={`Foto ${index + 1}`}
@@ -134,15 +139,17 @@ export default function PlaceDetails() {
           </Carousel>
         </div>
 
-        <div className="hidden p-8 lg:block">
-          <h3 className="mb-4 font-display text-xl font-bold">Localização</h3>
-          <PlaceMapSection
-            lat={place.coordinates.lat}
-            lng={place.coordinates.lng}
-            address={place.address}
-            distance={displayDistance}
-          />
-        </div>
+        {!isTour && (
+          <div className="hidden p-8 lg:block">
+            <h3 className="mb-4 font-display text-xl font-bold">Localização</h3>
+            <PlaceMapSection
+              lat={place.coordinates.lat}
+              lng={place.coordinates.lng}
+              address={place.address}
+              distance={displayDistance}
+            />
+          </div>
+        )}
       </div>
 
       <div className="hide-scrollbar flex-1 bg-white pb-24 lg:w-[480px] lg:flex-none lg:overflow-y-auto lg:pb-0">
@@ -181,20 +188,34 @@ export default function PlaceDetails() {
           <p className="mb-4 font-medium text-slate-500 text-lg">{place.city}</p>
 
           <div className="mb-8 flex flex-wrap items-center gap-4 border-b pb-6 text-sm text-slate-600">
-            <div className="flex items-center gap-1.5 font-medium">
-              <MapPin className="h-4 w-4 text-slate-400" /> {displayDistance}
-            </div>
-            <div
-              className={cn(
-                'flex items-center gap-1.5 font-medium',
-                isOpen ? 'text-secondary' : 'text-red-500',
-              )}
-            >
-              <Clock className="h-4 w-4" /> {isOpen ? 'Aberto agora' : 'Fechado'}
-            </div>
+            {!isTour && (
+              <>
+                <div className="flex items-center gap-1.5 font-medium">
+                  <MapPin className="h-4 w-4 text-slate-400" /> {displayDistance}
+                </div>
+                <div
+                  className={cn(
+                    'flex items-center gap-1.5 font-medium',
+                    isOpen ? 'text-secondary' : 'text-red-500',
+                  )}
+                >
+                  <Clock className="h-4 w-4" /> {isOpen ? 'Aberto agora' : 'Fechado'}
+                </div>
+              </>
+            )}
+            {isTour && place.duration && (
+              <div className="flex items-center gap-1.5 font-medium">
+                <Clock className="h-4 w-4 text-slate-400" /> Duração: {place.duration}
+              </div>
+            )}
+            {isTour && place.departureCity && (
+              <div className="flex items-center gap-1.5 font-medium">
+                <MapPin className="h-4 w-4 text-slate-400" /> Saída de: {place.departureCity}
+              </div>
+            )}
           </div>
 
-          {checkInTime && <PlaceCheckInTicket checkInTime={checkInTime} />}
+          {!isTour && checkInTime && <PlaceCheckInTicket checkInTime={checkInTime} />}
 
           {isTour ? (
             <div className="mb-8 rounded-2xl border border-primary/20 bg-primary/5 p-5">
@@ -202,18 +223,22 @@ export default function PlaceDetails() {
                 <Ticket className="h-5 w-5 text-primary" />
                 <h3 className="font-bold text-lg text-primary">Cupom de Desconto</h3>
               </div>
-              <p className="mb-4 text-sm text-slate-700 font-medium">{place.discountDescription}</p>
-              <div className="mb-4 rounded-xl border-2 border-dashed border-primary/30 bg-white p-4 text-center">
-                <span className="mb-1 block text-xs font-bold uppercase tracking-widest text-slate-500">
-                  Código do Cupom
-                </span>
-                <span className="font-mono text-2xl font-black text-slate-900">
-                  {place.couponCode}
-                </span>
-              </div>
+              <p className="mb-4 text-sm text-slate-700 font-medium leading-relaxed">
+                {place.discountDescription}
+              </p>
+              {place.couponCode && (
+                <div className="mb-4 rounded-xl border-2 border-dashed border-primary/30 bg-white p-4 text-center">
+                  <span className="mb-1 block text-xs font-bold uppercase tracking-widest text-slate-500">
+                    Código do Cupom
+                  </span>
+                  <span className="font-mono text-2xl font-black text-slate-900">
+                    {place.couponCode}
+                  </span>
+                </div>
+              )}
               <Button asChild className="h-12 w-full font-bold text-base shadow-md">
                 <a href={place.bookingUrl} target="_blank" rel="noreferrer">
-                  Reservar Agora <ExternalLink className="ml-2 h-4 w-4" />
+                  Acessar Site e Reservar <ExternalLink className="ml-2 h-4 w-4" />
                 </a>
               </Button>
             </div>
@@ -230,7 +255,7 @@ export default function PlaceDetails() {
             </div>
           )}
 
-          {place.operatingHours && place.operatingHours.length > 0 && (
+          {!isTour && place.operatingHours && place.operatingHours.length > 0 && (
             <div className="mb-8">
               <h3 className="mb-3 font-display text-xl font-bold text-slate-900">
                 Horários de Funcionamento
@@ -292,18 +317,20 @@ export default function PlaceDetails() {
             </div>
           )}
 
-          <div className="mb-8 lg:hidden">
-            <h3 className="mb-3 font-display text-xl font-bold text-slate-900">Localização</h3>
-            <PlaceMapSection
-              lat={place.coordinates.lat}
-              lng={place.coordinates.lng}
-              address={place.address}
-              distance={displayDistance}
-            />
-          </div>
+          {!isTour && (
+            <div className="mb-8 lg:hidden">
+              <h3 className="mb-3 font-display text-xl font-bold text-slate-900">Localização</h3>
+              <PlaceMapSection
+                lat={place.coordinates.lat}
+                lng={place.coordinates.lng}
+                address={place.address}
+                distance={displayDistance}
+              />
+            </div>
+          )}
         </div>
 
-        {!checkInTime && (
+        {!isTour && !checkInTime && (
           <div className="fixed bottom-0 left-0 right-0 z-40 border-t bg-white p-4 pb-safe shadow-[0_-10px_15px_-3px_rgb(0,0,0,0.05)] lg:sticky lg:border-none lg:bg-transparent lg:px-8 lg:pb-8 lg:shadow-none">
             <Dialog open={showCheckInDialog} onOpenChange={setShowCheckInDialog}>
               <Button

@@ -24,6 +24,8 @@ export interface Place {
   operatingHours?: DailyHours[]
 
   // Tour specific fields
+  duration?: string
+  departureCity?: string
   included?: string[]
   availableDays?: string[]
   bookingUrl?: string
@@ -49,7 +51,129 @@ export const createDefaultHours = (): DailyHours[] => [
   { day: 6, isOpen: true, openTime: '09:00', closeTime: '23:00' },
 ]
 
+const tourLinks = [
+  {
+    slug: 'city-tour-punta-del-este',
+    name: 'City Tour Punta del Este',
+    city: 'Punta del Este',
+    cat: 'Passeios',
+  },
+  {
+    slug: 'city-tour-montevideo',
+    name: 'City Tour Montevideo',
+    city: 'Montevideo',
+    cat: 'Passeios',
+  },
+  {
+    slug: 'city-tour-colonia-del-sacramento',
+    name: 'City Tour Colonia del Sacramento',
+    city: 'Colonia del Sacramento',
+    cat: 'Passeios',
+  },
+  {
+    slug: 'bodega-bouza-visita-e-almoco',
+    name: 'Bodega Bouza: Visita e Almoço',
+    city: 'Montevideo',
+    cat: 'Vinícolas',
+  },
+  {
+    slug: 'bodega-pizzorno-visita-e-almoco',
+    name: 'Bodega Pizzorno: Visita e Almoço',
+    city: 'Montevideo',
+    cat: 'Vinícolas',
+  },
+  {
+    slug: 'primuseum-restaurante-montevideo',
+    name: 'Primuseum Restaurante',
+    city: 'Montevideo',
+    cat: 'Restaurantes',
+  },
+  {
+    slug: 'el-milongon-show-de-tango-em-montevideo',
+    name: 'El Milongón: Show de Tango',
+    city: 'Montevideo',
+    cat: 'Passeios',
+  },
+  {
+    slug: 'bodega-bouza-e-pizzorno-visita',
+    name: 'Bodega Bouza e Pizzorno: Visita',
+    city: 'Montevideo',
+    cat: 'Vinícolas',
+  },
+  {
+    slug: 'bodega-spinoglio-visita',
+    name: 'Bodega Spinoglio: Visita',
+    city: 'Montevideo',
+    cat: 'Vinícolas',
+  },
+  {
+    slug: 'bodega-familia-deicas-juanico-visita-degustacao',
+    name: 'Bodega Familia Deicas / Juanicó',
+    city: 'Montevideo',
+    cat: 'Vinícolas',
+  },
+  {
+    slug: 'day-tour-punta-del-este-saindo-de-punta-del-este',
+    name: 'Day Tour Punta del Este (Saindo de PDE)',
+    city: 'Punta del Este',
+    cat: 'Passeios',
+  },
+  {
+    slug: 'bodega-garzon-visita-e-almoco',
+    name: 'Bodega Garzón: Visita e Almoço',
+    city: 'Punta del Este',
+    cat: 'Vinícolas',
+  },
+  {
+    slug: 'bodega-alto-de-la-ballena',
+    name: 'Bodega Alto de la Ballena',
+    city: 'Punta del Este',
+    cat: 'Vinícolas',
+  },
+  {
+    slug: 'bodega-fripp-colonia-visita-almoco',
+    name: 'Bodega Fripp: Visita e Almoço',
+    city: 'Colonia del Sacramento',
+    cat: 'Vinícolas',
+  },
+]
+
+const GENERATED_TOURS: Place[] = tourLinks.map((t, i) => {
+  const isWine = t.cat === 'Vinícolas'
+  const isLunch = t.name.includes('Almoço')
+  return {
+    id: `bnu-tour-${t.slug}`,
+    type: 'tour',
+    name: t.name,
+    category: t.cat,
+    city: t.city,
+    departureCity: t.city,
+    duration: isLunch ? 'Meio dia (4h a 5h)' : '2 a 3 horas',
+    discountBadge: '5% OFF',
+    coverImage: `https://img.usecurling.com/p/800/600?q=${isWine ? 'vineyard' : 'city'}&seed=${i + 10}&color=blue`,
+    galleryImages: Array(5)
+      .fill(0)
+      .map(
+        (_, j) =>
+          `https://img.usecurling.com/p/800/600?q=${isWine ? 'wine' : 'tourist'}&seed=${i * 10 + j}&color=blue`,
+      ),
+    description: `Descubra o melhor do Uruguai com: ${t.name}. Uma experiência inesquecível selecionada pelo Brasileiros no Uruguai para você.`,
+    discountDescription:
+      'Utilize nosso código exclusivo na página do parceiro para garantir seu desconto especial.',
+    address: 'Ponto de encontro enviado após confirmação',
+    coordinates: { lat: -34.9 + i * 0.01, lng: -56.1 + i * 0.01 },
+    included: isWine
+      ? ['Visita guiada', 'Degustação de vinhos']
+      : ['Guia especializado', 'Transporte ida e volta'],
+    availableDays: ['Terça-feira', 'Quinta-feira', 'Sábado', 'Domingo'],
+    bookingUrl: `https://brasileirosnouruguai.com.br/passeios/${t.slug}/`,
+    couponCode: 'BNU5',
+    featured: i < 3,
+  }
+})
+
 export const DEFAULT_PLACES: Place[] = [
+  ...GENERATED_TOURS,
   {
     id: '1',
     type: 'restaurant',
@@ -74,34 +198,6 @@ export const DEFAULT_PLACES: Place[] = [
     featured: true,
   },
   {
-    id: '2',
-    type: 'tour',
-    name: 'Tour por Punta del Este',
-    category: 'Passeios',
-    city: 'Punta del Este',
-    discountBadge: '5% OFF',
-    coverImage: 'https://img.usecurling.com/p/600/400?q=beach&color=red',
-    galleryImages: [
-      'https://img.usecurling.com/p/800/600?q=beach&seed=1&color=red',
-      'https://img.usecurling.com/p/800/600?q=sunset&seed=2&color=red',
-      'https://img.usecurling.com/p/800/600?q=monument&seed=3&color=red',
-      'https://img.usecurling.com/p/800/600?q=ocean&seed=4&color=red',
-      'https://img.usecurling.com/p/800/600?q=tourist&seed=5&color=red',
-    ],
-    description:
-      'Explore as belezas de Punta del Este em um passeio inesquecível de dia inteiro pelos principais pontos turísticos.',
-    discountDescription:
-      'Utilize o código de cupom no site do parceiro para ganhar 5% de desconto.',
-    address: 'Ponto de encontro: Porto de Punta del Este',
-    coordinates: { lat: -34.962, lng: -54.943 },
-    operatingHours: createDefaultHours(),
-    featured: true,
-    included: ['Transfer ida e volta', 'Guia bilíngue', 'Almoço incluso', 'Ingressos para museus'],
-    availableDays: ['Segunda-feira', 'Quarta-feira', 'Sexta-feira', 'Sábado'],
-    bookingUrl: 'https://example.com/booking',
-    couponCode: 'DESCONTOAPP',
-  },
-  {
     id: '3',
     type: 'restaurant',
     name: 'Café de los Pájaros',
@@ -123,33 +219,5 @@ export const DEFAULT_PLACES: Place[] = [
     address: 'Calle de los Suspiros, 45 - Colonia del Sacramento',
     coordinates: { lat: -34.471, lng: -57.852 },
     operatingHours: createDefaultHours(),
-    featured: true,
-  },
-  {
-    id: '4',
-    type: 'tour',
-    name: 'Visita à Vinícola Garzón',
-    category: 'Vinícolas',
-    city: 'Punta del Este',
-    discountBadge: 'Degustação Extra',
-    coverImage: 'https://img.usecurling.com/p/600/400?q=vineyard&color=red',
-    galleryImages: [
-      'https://img.usecurling.com/p/800/600?q=wine%20glass&seed=6&color=red',
-      'https://img.usecurling.com/p/800/600?q=wine%20barrel&seed=7&color=red',
-      'https://img.usecurling.com/p/800/600?q=vineyard&seed=8&color=red',
-      'https://img.usecurling.com/p/800/600?q=wine%20tasting&seed=9&color=red',
-      'https://img.usecurling.com/p/800/600?q=sommelier&seed=10&color=red',
-    ],
-    description:
-      'Descubra a arte da produção de vinhos na mais premiada vinícola do Uruguai, com uma vista deslumbrante.',
-    discountDescription:
-      'Apresente o cupom ao reservar para ganhar uma degustação premium adicional.',
-    address: 'Ruta 9 km 175 - Pueblo Garzón',
-    coordinates: { lat: -34.593, lng: -54.551 },
-    operatingHours: createDefaultHours(),
-    included: ['Passeio guiado pelas vinhas', 'Degustação de 4 vinhos', 'Tábua de queijos'],
-    availableDays: ['Terça-feira', 'Quinta-feira', 'Sábado', 'Domingo'],
-    bookingUrl: 'https://example.com/booking-garzon',
-    couponCode: 'GARZONAPP',
   },
 ]
