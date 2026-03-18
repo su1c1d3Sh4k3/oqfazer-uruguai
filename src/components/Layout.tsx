@@ -1,7 +1,14 @@
 import { Link, Outlet, useLocation } from 'react-router-dom'
-import { Compass, Heart, Map as MapIcon, Settings, Menu, Award, ExternalLink } from 'lucide-react'
+import {
+  Compass,
+  Heart,
+  Map as MapIcon,
+  Menu,
+  Award,
+  ExternalLink,
+  ShieldCheck,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { useAccess } from '@/context/AccessContext'
 import {
   Sheet,
   SheetContent,
@@ -14,14 +21,12 @@ import logoUrl from '@/assets/favicon-bnu-9afaa.jpg'
 
 export function Layout() {
   const location = useLocation()
-  const { isGranted } = useAccess()
 
   const navItems = [
     { name: 'Explorar', path: '/', icon: Compass },
     { name: 'Mapa', path: '/map', icon: MapIcon },
     { name: 'Favoritos', path: '/favorites', icon: Heart },
     { name: 'Progresso', path: '/profile', icon: Award },
-    ...(isGranted ? [{ name: 'Admin', path: '/admin', icon: Settings }] : []),
   ]
 
   return (
@@ -71,6 +76,17 @@ export function Layout() {
                 </Button>
               )
             })}
+
+            <Button
+              asChild
+              size="sm"
+              className="ml-2 flex items-center gap-2 rounded-full px-4 transition-all duration-300 bg-primary text-white hover:bg-secondary border-b-2 border-brand-yellow shadow-sm"
+            >
+              <Link to="/admin">
+                <ShieldCheck className="h-4 w-4 text-brand-yellow" />
+                <span className="font-bold">Painel Admin</span>
+              </Link>
+            </Button>
           </nav>
 
           {/* Mobile Nav */}
@@ -128,6 +144,18 @@ export function Layout() {
                         </SheetTrigger>
                       )
                     })}
+
+                    <SheetTrigger asChild>
+                      <Button
+                        asChild
+                        className="mt-2 w-full justify-start gap-3 rounded-xl h-12 transition-all bg-primary text-white hover:bg-secondary border-l-4 border-brand-yellow shadow-sm"
+                      >
+                        <Link to="/admin">
+                          <ShieldCheck className="h-5 w-5 text-brand-yellow" />
+                          <span className="font-bold text-base">Painel Admin</span>
+                        </Link>
+                      </Button>
+                    </SheetTrigger>
                   </nav>
                 </div>
               </SheetContent>

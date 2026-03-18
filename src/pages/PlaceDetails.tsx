@@ -25,13 +25,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog'
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from '@/components/ui/carousel'
+import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel'
 import { cn, DAYS_OF_WEEK, isPlaceOpen } from '@/lib/utils'
 import { PlaceMapSection } from '@/components/PlaceMapSection'
 import { PlaceCheckInTicket } from '@/components/PlaceCheckInTicket'
@@ -109,7 +103,8 @@ export default function PlaceDetails() {
       </button>
 
       <div className="hide-scrollbar flex-1 overflow-y-auto lg:border-r bg-slate-50">
-        <div className="relative bg-slate-900">
+        {/* Mobile Carousel */}
+        <div className="relative bg-slate-900 lg:hidden">
           <Carousel opts={{ loop: true }} className="w-full">
             <CarouselContent>
               {place.galleryImages.map((img, index) => (
@@ -117,7 +112,7 @@ export default function PlaceDetails() {
                   <div
                     className={cn(
                       'w-full bg-slate-100',
-                      isTour ? 'aspect-[4/3]' : 'aspect-[4/3] md:aspect-[16/9] lg:aspect-[3/2]',
+                      isTour ? 'aspect-[4/3]' : 'aspect-[4/3] md:aspect-[16/9]',
                     )}
                   >
                     <img
@@ -129,14 +124,35 @@ export default function PlaceDetails() {
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <div className="hidden lg:block">
-              <CarouselPrevious className="border-none bg-white/50 left-4 hover:bg-white" />
-              <CarouselNext className="border-none bg-white/50 right-4 hover:bg-white" />
-            </div>
-            <div className="absolute bottom-4 right-4 z-10 rounded-md bg-black/60 px-2 py-1 text-xs font-medium text-white lg:hidden">
+            <div className="absolute bottom-4 right-4 z-10 rounded-md bg-black/60 px-2 py-1 text-xs font-medium text-white">
               Fotos
             </div>
           </Carousel>
+        </div>
+
+        {/* Desktop Dual-Image Layout */}
+        <div className="hidden lg:grid grid-cols-2 gap-1 bg-slate-900 p-1 shrink-0">
+          {place.galleryImages.slice(0, 2).map((img, index) => (
+            <div
+              key={index}
+              className={cn(
+                'relative w-full overflow-hidden bg-slate-100 group',
+                isTour ? 'aspect-[4/3]' : 'aspect-[4/3] xl:aspect-[3/2]',
+              )}
+            >
+              <img
+                src={img}
+                alt={`Foto ${index + 1}`}
+                className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              {index === 1 && place.galleryImages.length > 2 && (
+                <div className="absolute bottom-4 right-4 z-10 rounded-full bg-black/70 px-4 py-2 text-sm font-bold text-white shadow-md backdrop-blur-sm flex items-center gap-2 cursor-default border border-white/10">
+                  <span className="flex h-2 w-2 rounded-full bg-brand-yellow animate-pulse"></span>+
+                  {place.galleryImages.length - 2} fotos
+                </div>
+              )}
+            </div>
+          ))}
         </div>
 
         {!isTour && (

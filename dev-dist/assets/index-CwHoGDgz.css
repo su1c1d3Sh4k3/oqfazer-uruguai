@@ -1500,8 +1500,14 @@ video {
 .border-b {
   border-bottom-width: 1px;
 }
+.border-b-2 {
+  border-bottom-width: 2px;
+}
 .border-l {
   border-left-width: 1px;
+}
+.border-l-4 {
+  border-left-width: 4px;
 }
 .border-r {
   border-right-width: 1px;
@@ -1532,6 +1538,10 @@ video {
 }
 .border-border\/50 {
   border-color: hsl(var(--border) / 0.5);
+}
+.border-brand-yellow {
+  --tw-border-opacity: 1;
+  border-color: rgb(255 215 0 / var(--tw-border-opacity, 1));
 }
 .border-brand-yellow\/50 {
   border-color: rgb(255 215 0 / 0.5);
@@ -1569,6 +1579,9 @@ video {
 .border-white {
   --tw-border-opacity: 1;
   border-color: rgb(255 255 255 / var(--tw-border-opacity, 1));
+}
+.border-white\/10 {
+  border-color: rgb(255 255 255 / 0.1);
 }
 .border-white\/20 {
   border-color: rgb(255 255 255 / 0.2);
@@ -1613,6 +1626,9 @@ video {
 }
 .bg-black\/60 {
   background-color: rgb(0 0 0 / 0.6);
+}
+.bg-black\/70 {
+  background-color: rgb(0 0 0 / 0.7);
 }
 .bg-black\/80 {
   background-color: rgb(0 0 0 / 0.8);
@@ -1705,9 +1721,6 @@ video {
 }
 .bg-white\/15 {
   background-color: rgb(255 255 255 / 0.15);
-}
-.bg-white\/50 {
-  background-color: rgb(255 255 255 / 0.5);
 }
 .bg-white\/80 {
   background-color: rgb(255 255 255 / 0.8);
@@ -2339,6 +2352,9 @@ video {
 .duration-500 {
   transition-duration: 500ms;
 }
+.duration-700 {
+  transition-duration: 700ms;
+}
 .ease-in-out {
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -2394,6 +2410,9 @@ video {
 }
 .duration-500 {
   animation-duration: 500ms;
+}
+.duration-700 {
+  animation-duration: 700ms;
 }
 .ease-in-out {
   animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
@@ -3746,12 +3765,12 @@ video {
     display: block;
   }
 
-  .lg\:hidden {
-    display: none;
+  .lg\:grid {
+    display: grid;
   }
 
-  .lg\:aspect-\[3\/2\] {
-    aspect-ratio: 3/2;
+  .lg\:hidden {
+    display: none;
   }
 
   .lg\:h-full {
@@ -3819,6 +3838,10 @@ video {
 }
 
 @media (min-width: 1280px) {
+
+  .xl\:aspect-\[3\/2\] {
+    aspect-ratio: 3/2;
+  }
 
   .xl\:basis-1\/2 {
     flex-basis: 50%;
