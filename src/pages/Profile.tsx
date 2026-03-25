@@ -7,6 +7,7 @@ import { Progress } from '@/components/ui/progress'
 import { Button } from '@/components/ui/button'
 import { Link } from 'react-router-dom'
 import { cn } from '@/lib/utils'
+import { CompanyDashboard } from '@/components/CompanyDashboard'
 
 export default function Profile() {
   const { currentUser, logout } = useAuth()
@@ -25,6 +26,15 @@ export default function Profile() {
         <Button asChild size="lg" className="rounded-xl px-8 font-bold shadow-md h-12">
           <Link to="/auth">Fazer Login ou Cadastro</Link>
         </Button>
+      </div>
+    )
+  }
+
+  // Render company dashboard if the user role is establishment
+  if (currentUser.role === 'establishment') {
+    return (
+      <div className="flex h-full flex-col px-4 pb-12 pt-4 md:px-8 md:pt-8 w-full animate-fade-in">
+        <CompanyDashboard />
       </div>
     )
   }
@@ -76,7 +86,7 @@ export default function Profile() {
   const myPosition = uniqueScores.findIndex((s) => s.isMe) + 1
 
   return (
-    <div className="flex h-full flex-col px-4 pb-12 pt-4 md:px-8 md:pt-8 max-w-7xl mx-auto">
+    <div className="flex h-full flex-col px-4 pb-12 pt-4 md:px-8 md:pt-8 max-w-7xl mx-auto w-full animate-fade-in">
       <div className="mb-6 flex items-center justify-between md:mb-8">
         <div>
           <h1 className="font-display text-2xl font-bold text-slate-900 md:text-3xl">
@@ -84,7 +94,12 @@ export default function Profile() {
           </h1>
           <p className="text-slate-500 font-medium">{currentUser.email}</p>
         </div>
-        <Button variant="outline" size="sm" onClick={logout} className="rounded-xl">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={logout}
+          className="rounded-xl bg-white shadow-sm"
+        >
           Sair da Conta
         </Button>
       </div>

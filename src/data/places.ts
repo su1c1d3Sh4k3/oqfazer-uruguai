@@ -45,6 +45,7 @@ export interface Place {
   // Metrics
   accessCount?: number
   couponClickCount?: number
+  checkInCount?: number // New field for Top 20 ranking
 
   // Flash Offer
   flashOffer?: FlashOffer
@@ -189,11 +190,37 @@ const GENERATED_TOURS: Place[] = tourLinks.map((t, i) => {
     featured: i < 3,
     accessCount: Math.floor(Math.random() * 500) + 50,
     couponClickCount: Math.floor(Math.random() * 200) + 10,
+    checkInCount: Math.floor(Math.random() * 300) + 20,
   }
 })
 
+const MOCK_RESTAURANTS: Place[] = Array(18)
+  .fill(0)
+  .map((_, i) => {
+    const isCafe = i % 3 === 0
+    return {
+      id: `mock-rest-${i}`,
+      type: 'restaurant',
+      name: isCafe ? `Cafeteria del Sur ${i + 1}` : `Restaurante Sabor ${i + 1}`,
+      category: isCafe ? 'Cafeterias' : 'Restaurantes',
+      city: i % 2 === 0 ? 'Montevideo' : 'Punta del Este',
+      discountBadge: isCafe ? '15% OFF' : 'Sobremesa Grátis',
+      coverImage: `https://img.usecurling.com/p/600/400?q=${isCafe ? 'cafe' : 'food'}&seed=${i + 100}&color=${isCafe ? 'yellow' : 'orange'}`,
+      galleryImages: [],
+      description: 'Um ótimo estabelecimento para conhecer na sua viagem, super bem avaliado.',
+      discountDescription: 'Apresente seu cupom ao garçom para resgatar este benefício exclusivo.',
+      address: `Avenida Principal, ${100 + i}`,
+      coordinates: { lat: -34.9 + i * 0.002, lng: -56.15 + i * 0.002 },
+      accessCount: 200 + i * 15,
+      couponClickCount: 50 + i * 5,
+      checkInCount: Math.floor(Math.random() * 800) + 100, // Generates high check-in numbers for the ranking
+      operatingHours: createDefaultHours(),
+    }
+  })
+
 export const DEFAULT_PLACES: Place[] = [
   ...GENERATED_TOURS,
+  ...MOCK_RESTAURANTS,
   {
     id: '1',
     type: 'restaurant',
@@ -218,8 +245,9 @@ export const DEFAULT_PLACES: Place[] = [
     websiteUrl: 'https://example.com',
     operatingHours: createDefaultHours(),
     featured: true,
-    accessCount: 890,
-    couponClickCount: 340,
+    accessCount: 1890,
+    couponClickCount: 840,
+    checkInCount: 1250, // Top place
   },
   {
     id: '3',
@@ -244,7 +272,8 @@ export const DEFAULT_PLACES: Place[] = [
     coordinates: { lat: -34.471, lng: -57.852 },
     instagramUrl: 'https://instagram.com/cafedelospajaros',
     operatingHours: createDefaultHours(),
-    accessCount: 450,
-    couponClickCount: 120,
+    accessCount: 1450,
+    couponClickCount: 620,
+    checkInCount: 980, // Another top place
   },
 ]

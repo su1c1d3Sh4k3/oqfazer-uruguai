@@ -19,6 +19,7 @@ import EstablishmentAdmin from '@/pages/EstablishmentAdmin'
 import NotFound from '@/pages/NotFound'
 import Profile from '@/pages/Profile'
 import Auth from '@/pages/Auth'
+import TopRestaurants from '@/pages/TopRestaurants'
 
 const App = () => (
   <BrowserRouter future={{ v7_startTransition: false, v7_relativeSplatPath: false }}>
@@ -41,6 +42,7 @@ const App = () => (
                     <Route path="/auth" element={<Auth />} />
                     <Route path="/admin" element={<Admin />} />
                     <Route path="/empresa" element={<EstablishmentAdmin />} />
+                    <Route path="/top" element={<TopRestaurants />} />
                   </Route>
                   <Route path="*" element={<NotFound />} />
                 </Routes>

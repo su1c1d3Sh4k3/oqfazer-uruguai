@@ -1,5 +1,15 @@
 import { Link, Outlet, useLocation } from 'react-router-dom'
-import { Compass, Heart, Map as MapIcon, Menu, Award, ExternalLink } from 'lucide-react'
+import {
+  Compass,
+  Heart,
+  Map as MapIcon,
+  Menu,
+  Award,
+  ExternalLink,
+  Trophy,
+  Store,
+  ShieldAlert,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   Sheet,
@@ -11,13 +21,15 @@ import {
 import { cn } from '@/lib/utils'
 import logoUrl from '@/assets/favicon-bnu-9afaa.jpg'
 import { useAccess } from '@/context/AccessContext'
+import { useAuth } from '@/context/AuthContext'
 import { AccessExpired } from '@/pages/AccessExpired'
 import { useEffect } from 'react'
 import { toast } from 'sonner'
 
 export function Layout() {
   const location = useLocation()
-  const { isExpired } = useAccess()
+  const { isExpired, isGranted } = useAccess()
+  const { currentUser } = useAuth()
 
   useEffect(() => {
     const handleOffline = () => {
@@ -46,25 +58,38 @@ export function Layout() {
     }
   }, [])
 
-  const navItems = [
-    { name: 'Explorar', path: '/', icon: Compass },
-    { name: 'Mapa', path: '/map', icon: MapIcon },
-    { name: 'Favoritos', path: '/favorites', icon: Heart },
-    { name: 'Progresso', path: '/profile', icon: Award },
-  ]
+  const isCompany = currentUser?.role === 'establishment'
 
-  const blockedPaths = ['/', '/map', '/favorites']
+  const navItems = [
+    { name: 'Explorar', path: '/', icon: Compass, show: true },
+    { name: 'Mapa', path: '/map', icon: MapIcon, show: true },
+    { name: 'Top 20', path: '/top', icon: Trophy, show: true },
+    { name: 'Favoritos', path: '/favorites', icon: Heart, show: !isCompany },
+    {
+      name: isCompany ? 'Meu Negócio' : 'Progresso',
+      path: '/profile',
+      icon: isCompany ? Store : Award,
+      show: true,
+    },
+    { name: 'Painel Admin', path: '/admin', icon: ShieldAlert, show: isGranted },
+  ].filter((item) => item.show !== false)
+
+  const blockedPaths = ['/', '/map', '/favorites', '/top']
   const isBlockedPath =
     isExpired &&
+    !isCompany &&
+    !isGranted &&
     (blockedPaths.includes(location.pathname) || location.pathname.startsWith('/place/'))
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col font-sans relative">
-      <div className="w-full bg-slate-900 text-slate-400 py-1.5 px-4 flex justify-end text-[10px] font-bold uppercase tracking-widest z-50 relative">
-        <Link to="/empresa" className="hover:text-white transition-colors">
-          Acesso Empresa
-        </Link>
-      </div>
+      {!isCompany && !isGranted && (
+        <div className="w-full bg-slate-900 text-slate-400 py-1.5 px-4 flex justify-end text-[10px] font-bold uppercase tracking-widest z-50 relative">
+          <Link to="/empresa" className="hover:text-white transition-colors">
+            Acesso Empresa
+          </Link>
+        </div>
+      )}
 
       <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">

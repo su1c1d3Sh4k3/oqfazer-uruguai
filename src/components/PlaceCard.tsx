@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { Place } from '@/data/places'
 import { useFavorites } from '@/context/FavoritesContext'
 import { useGeo } from '@/context/GeoContext'
+import { useAuth } from '@/context/AuthContext'
 import { cn, isPlaceOpen } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 
@@ -13,12 +14,14 @@ interface PlaceCardProps {
 export function PlaceCard({ place }: PlaceCardProps) {
   const { isFavorite, toggleFavorite } = useFavorites()
   const { calculateDistance } = useGeo()
+  const { currentUser } = useAuth()
   const favorite = isFavorite(place.id)
 
   const dist = calculateDistance(place.coordinates.lat, place.coordinates.lng)
   const displayDistance = dist ? `${dist.toFixed(1)} km` : 'Calculando...'
   const isTour = place.type === 'tour'
   const isOpen = !isTour && isPlaceOpen(place.operatingHours)
+  const isCompany = currentUser?.role === 'establishment'
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -53,16 +56,18 @@ export function PlaceCard({ place }: PlaceCardProps) {
               </Badge>
             )}
           </div>
-          <button
-            onClick={handleFavoriteClick}
-            className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 text-slate-700 shadow-sm backdrop-blur-sm transition-all hover:bg-white active:scale-95"
-          >
-            <Heart
-              className={cn('h-5 w-5 transition-colors', {
-                'animate-heart-pop fill-primary text-primary': favorite,
-              })}
-            />
-          </button>
+          {!isCompany && (
+            <button
+              onClick={handleFavoriteClick}
+              className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 text-slate-700 shadow-sm backdrop-blur-sm transition-all hover:bg-white active:scale-95"
+            >
+              <Heart
+                className={cn('h-5 w-5 transition-colors', {
+                  'animate-heart-pop fill-primary text-primary': favorite,
+                })}
+              />
+            </button>
+          )}
         </div>
         <div className="flex flex-1 flex-col p-4">
           <div className="mb-1 flex items-start justify-between gap-2">
