@@ -79,30 +79,37 @@ export function AdminPlaceForm({ initialData, categories, onSave, onCancel }: Pr
     }
   }
 
-  const fetchCoordinatesByAddress = () => {
+  const fetchCoordinatesByAddress = async () => {
     if (!formData.address) {
       toast.error('Endereço necessário', { description: 'Preencha o campo endereço primeiro.' })
       return
     }
 
     setIsFetchingCoords(true)
-    // Simulate Geocoding API call
-    setTimeout(() => {
-      const isMontevideo = formData.address?.toLowerCase().includes('montevideo')
-      const lat = isMontevideo
-        ? -34.912 + (Math.random() * 0.01 - 0.005)
-        : -34.9 + Math.random() * 0.5
-      const lng = isMontevideo
-        ? -56.155 + (Math.random() * 0.01 - 0.005)
-        : -56.1 + Math.random() * 0.5
-
-      handleCoords('lat', lat.toString())
-      handleCoords('lng', lng.toString())
-      setIsFetchingCoords(false)
-      toast.success('Coordenadas encontradas com base no endereço!', {
-        description: 'Verifique se a localização está correta no mapa.',
+    try {
+      const query = encodeURIComponent(formData.address)
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=1`,
+      )
+      const data = await res.json()
+      if (data && data.length > 0) {
+        handleCoords('lat', data[0].lat)
+        handleCoords('lng', data[0].lon)
+        toast.success('Coordenadas encontradas!', {
+          description: 'A localização foi atualizada no mapa com sucesso.',
+        })
+      } else {
+        toast.error('Endereço não encontrado', {
+          description: 'Tente ser mais específico ou ajuste manualmente.',
+        })
+      }
+    } catch (err) {
+      toast.error('Erro na busca de coordenadas', {
+        description: 'Verifique sua conexão ou tente novamente.',
       })
-    }, 1200)
+    } finally {
+      setIsFetchingCoords(false)
+    }
   }
 
   const handleSubmit = (e: React.FormEvent) => {

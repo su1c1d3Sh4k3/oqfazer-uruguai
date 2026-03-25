@@ -202,8 +202,8 @@ export const DEFAULT_PLACES: Place[] = [
     description:
       'A melhor parrilla de Montevideo com cortes nobres e ambiente aconchegante, ideal para casais e grupos de amigos.',
     discountDescription: '20% de desconto em todas as carnes da parrilla. Bebidas não inclusas.',
-    address: 'Rambla República del Perú, 1234 - Montevideo',
-    coordinates: { lat: -34.912, lng: -56.155 },
+    address: 'San José 1065, 11100 Montevideo',
+    coordinates: { lat: -34.9063, lng: -56.1905 },
     instagramUrl: 'https://instagram.com/parrilladelsur',
     websiteUrl: 'https://example.com',
     operatingHours: createDefaultHours(),

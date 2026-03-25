@@ -20,7 +20,20 @@ export function PlacesProvider({ children }: { children: React.ReactNode }) {
     try {
       const saved = localStorage.getItem('@uruguai:places')
       if (saved) {
-        const parsed = JSON.parse(saved)
+        let parsed = JSON.parse(saved)
+
+        // Migration to fix Parrilla del Sur Address data mismatch if user already cached it
+        parsed = parsed.map((p: Place) => {
+          if (p.id === '1' && p.address && p.address.includes('Rambla')) {
+            return {
+              ...p,
+              address: 'San José 1065, 11100 Montevideo',
+              coordinates: { lat: -34.9063, lng: -56.1905 },
+            }
+          }
+          return p
+        })
+
         const missingDefaults = DEFAULT_PLACES.filter(
           (dp) => !parsed.some((p: Place) => p.id === dp.id),
         )
