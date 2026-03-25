@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { useAuth } from './AuthContext'
+import { toast } from 'sonner'
 
 interface AccessContextType {
   firstCheckIn: number | null
@@ -61,7 +62,24 @@ export function AccessProvider({ children }: { children: React.ReactNode }) {
 
   const getPlaceCheckIn = (placeId: string) => placeCheckIns[placeId] || null
 
-  const isExpired = firstCheckIn ? Date.now() > firstCheckIn + 10 * 24 * 60 * 60 * 1000 : false
+  const isExpired = currentUser?.firstLoginAt
+    ? Date.now() > currentUser.firstLoginAt + 20 * 24 * 60 * 60 * 1000
+    : false
+
+  // Trigger Summary Email when expired
+  useEffect(() => {
+    if (currentUser && isExpired) {
+      const emailSentKey = `@uruguai:summary_sent_${currentUser.id}`
+      if (!localStorage.getItem(emailSentKey)) {
+        const visitedCount = Object.keys(placeCheckIns).length
+        toast.success('Resumo da Viagem Enviado!', {
+          description: `Enviamos um e-mail com os ${visitedCount} locais que você visitou. Guarde as memórias e compartilhe com os amigos!`,
+          duration: 10000,
+        })
+        localStorage.setItem(emailSentKey, 'true')
+      }
+    }
+  }, [currentUser, isExpired, placeCheckIns])
 
   const grantAccess = (pwd: string) => {
     if (pwd === 'admin123') {

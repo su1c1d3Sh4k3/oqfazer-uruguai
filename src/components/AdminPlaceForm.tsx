@@ -14,7 +14,7 @@ import { Place, createDefaultHours } from '@/data/places'
 import { AdminHoursForm } from './AdminHoursForm'
 import { AdminTourFields } from './AdminTourFields'
 import { AdminImageFields } from './AdminImageFields'
-import { Download, Link as LinkIcon } from 'lucide-react'
+import { Download, Link as LinkIcon, MapPin } from 'lucide-react'
 import { toast } from 'sonner'
 import { parseImportUrl } from '@/lib/importUrl'
 
@@ -27,6 +27,7 @@ interface Props {
 
 export function AdminPlaceForm({ initialData, categories, onSave, onCancel }: Props) {
   const [importUrl, setImportUrl] = useState('')
+  const [mapsUrl, setMapsUrl] = useState('')
   const [formData, setFormData] = useState<Partial<Place>>(() => ({
     id: Math.random().toString(36).substr(2, 9),
     type: 'tour',
@@ -56,6 +57,23 @@ export function AdminPlaceForm({ initialData, categories, onSave, onCancel }: Pr
       toast.error('URL não reconhecida', {
         description:
           'Certifique-se de usar um link da página de passeios do Brasileiros no Uruguai.',
+      })
+    }
+  }
+
+  const extractCoords = () => {
+    const match = mapsUrl.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/)
+    if (match) {
+      handleCoords('lat', match[1])
+      handleCoords('lng', match[2])
+      toast.success('Coordenadas atualizadas com sucesso!', {
+        description: `Latitude: ${match[1]} | Longitude: ${match[2]}`,
+      })
+      setMapsUrl('')
+    } else {
+      toast.error('Link inválido', {
+        description:
+          'Não foi possível encontrar a latitude e longitude (ex: @-34.9,-56.1) no link fornecido.',
       })
     }
   }
@@ -169,24 +187,73 @@ export function AdminPlaceForm({ initialData, categories, onSave, onCancel }: Pr
             required
           />
         </div>
+
+        <div className="col-span-1 sm:col-span-2 space-y-3 p-5 bg-slate-50 rounded-2xl border border-slate-200 mt-2">
+          <Label className="flex items-center gap-2 text-slate-800 font-bold text-base">
+            <MapPin className="h-5 w-5 text-primary" /> Buscar Coordenadas via Google Maps
+          </Label>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex-1 space-y-1">
+              <Input
+                placeholder="Cole o link do Google Maps aqui..."
+                value={mapsUrl}
+                onChange={(e) => setMapsUrl(e.target.value)}
+                className="bg-white h-11"
+              />
+              <p className="text-[11px] text-slate-500 font-medium px-1">
+                Cole a URL que contém @latitude,longitude para preencher automaticamente.
+              </p>
+            </div>
+            <Button
+              type="button"
+              onClick={extractCoords}
+              variant="secondary"
+              className="shrink-0 h-11 font-bold"
+            >
+              Extrair Coordenadas
+            </Button>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 pt-2">
+            <div className="space-y-2">
+              <Label className="text-slate-600">Latitude</Label>
+              <Input
+                type="number"
+                step="any"
+                value={formData.coordinates?.lat || ''}
+                onChange={(e) => handleCoords('lat', e.target.value)}
+                className="bg-white"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-slate-600">Longitude</Label>
+              <Input
+                type="number"
+                step="any"
+                value={formData.coordinates?.lng || ''}
+                onChange={(e) => handleCoords('lng', e.target.value)}
+                className="bg-white"
+                required
+              />
+            </div>
+          </div>
+        </div>
+
         <div className="space-y-2">
-          <Label>Latitude</Label>
+          <Label>Instagram Link (Opcional)</Label>
           <Input
-            type="number"
-            step="any"
-            value={formData.coordinates?.lat || ''}
-            onChange={(e) => handleCoords('lat', e.target.value)}
-            required
+            value={formData.instagramUrl || ''}
+            onChange={(e) => handleChange('instagramUrl', e.target.value)}
+            placeholder="https://instagram.com/..."
           />
         </div>
         <div className="space-y-2">
-          <Label>Longitude</Label>
+          <Label>Website Link (Opcional)</Label>
           <Input
-            type="number"
-            step="any"
-            value={formData.coordinates?.lng || ''}
-            onChange={(e) => handleCoords('lng', e.target.value)}
-            required
+            value={formData.websiteUrl || ''}
+            onChange={(e) => handleChange('websiteUrl', e.target.value)}
+            placeholder="https://..."
           />
         </div>
       </div>
@@ -221,11 +288,13 @@ export function AdminPlaceForm({ initialData, categories, onSave, onCancel }: Pr
 
       <div className="flex justify-end gap-3 pt-6 border-t">
         {onCancel && (
-          <Button type="button" variant="outline" onClick={onCancel}>
+          <Button type="button" variant="outline" onClick={onCancel} className="h-11">
             Cancelar
           </Button>
         )}
-        <Button type="submit">{initialData ? 'Salvar Alterações' : 'Cadastrar Local'}</Button>
+        <Button type="submit" className="h-11 font-bold px-8">
+          {initialData ? 'Salvar Alterações' : 'Cadastrar Local'}
+        </Button>
       </div>
     </form>
   )

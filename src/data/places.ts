@@ -31,6 +31,10 @@ export interface Place {
   bookingUrl?: string
   couponCode?: string
 
+  // Social Links
+  instagramUrl?: string
+  websiteUrl?: string
+
   // Metrics
   accessCount?: number
   couponClickCount?: number
@@ -200,6 +204,8 @@ export const DEFAULT_PLACES: Place[] = [
     discountDescription: '20% de desconto em todas as carnes da parrilla. Bebidas não inclusas.',
     address: 'Rambla República del Perú, 1234 - Montevideo',
     coordinates: { lat: -34.912, lng: -56.155 },
+    instagramUrl: 'https://instagram.com/parrilladelsur',
+    websiteUrl: 'https://example.com',
     operatingHours: createDefaultHours(),
     featured: true,
     accessCount: 890,
@@ -226,6 +232,7 @@ export const DEFAULT_PLACES: Place[] = [
       'Na compra de um café especial, ganhe 50% de desconto no nosso alfajor artesanal de doce de leite.',
     address: 'Calle de los Suspiros, 45 - Colonia del Sacramento',
     coordinates: { lat: -34.471, lng: -57.852 },
+    instagramUrl: 'https://instagram.com/cafedelospajaros',
     operatingHours: createDefaultHours(),
     accessCount: 450,
     couponClickCount: 120,

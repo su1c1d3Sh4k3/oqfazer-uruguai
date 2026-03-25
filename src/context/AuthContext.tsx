@@ -4,6 +4,7 @@ import { toast } from 'sonner'
 export interface User {
   id: string
   email: string
+  firstLoginAt: number
 }
 
 interface AuthContextType {
@@ -34,14 +35,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [currentUser])
 
   const login = (email: string, _: string) => {
-    setCurrentUser({ id: email, email })
+    const users = JSON.parse(localStorage.getItem('@uruguai:users_db') || '{}')
+    const existing = users[email]
+    const firstLoginAt = existing ? existing.firstLoginAt : Date.now()
+
+    if (!existing) {
+      users[email] = { email, firstLoginAt }
+      localStorage.setItem('@uruguai:users_db', JSON.stringify(users))
+    }
+
+    setCurrentUser({ id: email, email, firstLoginAt })
     toast.success('Login realizado com sucesso!', {
       description: 'Bem-vindo(a) de volta ao Uruguai.',
     })
   }
 
   const register = (email: string, _: string) => {
-    setCurrentUser({ id: email, email })
+    const users = JSON.parse(localStorage.getItem('@uruguai:users_db') || '{}')
+    const firstLoginAt = Date.now()
+
+    users[email] = { email, firstLoginAt }
+    localStorage.setItem('@uruguai:users_db', JSON.stringify(users))
+
+    setCurrentUser({ id: email, email, firstLoginAt })
     toast.success('Conta criada com sucesso!', {
       description: 'Sua jornada de descontos começa agora.',
     })

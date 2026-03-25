@@ -9,6 +9,8 @@ import {
   ExternalLink,
   CheckCircle2,
   CalendarDays,
+  Instagram,
+  Globe,
 } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
 import { toast } from 'sonner'
@@ -31,6 +33,7 @@ import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carouse
 import { cn, DAYS_OF_WEEK, isPlaceOpen } from '@/lib/utils'
 import { PlaceMapSection } from '@/components/PlaceMapSection'
 import { PlaceCheckInTicket } from '@/components/PlaceCheckInTicket'
+import { PrivateReviews } from '@/components/PrivateReviews'
 
 export default function PlaceDetails() {
   const { id } = useParams()
@@ -270,7 +273,7 @@ END:VCALENDAR`
           </h1>
           <p className="mb-4 font-medium text-slate-500 text-lg">{place.city}</p>
 
-          <div className="mb-8 flex flex-wrap items-center gap-4 border-b pb-6 text-sm text-slate-600">
+          <div className="mb-8 flex flex-wrap items-center gap-4 border-b border-slate-100 pb-6 text-sm text-slate-600">
             {!isTour && (
               <>
                 <div className="flex items-center gap-1.5 font-medium">
@@ -297,6 +300,35 @@ END:VCALENDAR`
               </div>
             )}
           </div>
+
+          {(place.instagramUrl || place.websiteUrl) && (
+            <div className="mb-8 flex flex-wrap items-center gap-3">
+              {place.instagramUrl && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  asChild
+                  className="rounded-full gap-2 text-pink-600 hover:text-pink-700 hover:bg-pink-50 border-pink-200"
+                >
+                  <a href={place.instagramUrl} target="_blank" rel="noreferrer">
+                    <Instagram className="h-4 w-4" /> Instagram
+                  </a>
+                </Button>
+              )}
+              {place.websiteUrl && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  asChild
+                  className="rounded-full gap-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200"
+                >
+                  <a href={place.websiteUrl} target="_blank" rel="noreferrer">
+                    <Globe className="h-4 w-4" /> Website
+                  </a>
+                </Button>
+              )}
+            </div>
+          )}
 
           {!isTour && checkInTime && <PlaceCheckInTicket checkInTime={checkInTime} />}
 
@@ -415,6 +447,8 @@ END:VCALENDAR`
               />
             </div>
           )}
+
+          <PrivateReviews placeId={place.id} />
         </div>
 
         {!isTour && !checkInTime && (

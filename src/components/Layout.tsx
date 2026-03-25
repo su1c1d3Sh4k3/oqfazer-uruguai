@@ -18,9 +18,41 @@ import {
 } from '@/components/ui/sheet'
 import { cn } from '@/lib/utils'
 import logoUrl from '@/assets/favicon-bnu-9afaa.jpg'
+import { useAccess } from '@/context/AccessContext'
+import { AccessExpired } from '@/pages/AccessExpired'
+import { useEffect } from 'react'
+import { toast } from 'sonner'
 
 export function Layout() {
   const location = useLocation()
+  const { isExpired } = useAccess()
+
+  useEffect(() => {
+    const handleOffline = () => {
+      toast.error('Você está offline', {
+        description:
+          'O aplicativo continuará funcionando com os dados salvos em cache na memória do seu dispositivo.',
+        duration: 8000,
+      })
+    }
+    const handleOnline = () => {
+      toast.success('Conexão restaurada!', {
+        description: 'Seus dados voltarão a ser sincronizados em tempo real.',
+      })
+    }
+
+    window.addEventListener('offline', handleOffline)
+    window.addEventListener('online', handleOnline)
+
+    if (!navigator.onLine) {
+      handleOffline()
+    }
+
+    return () => {
+      window.removeEventListener('offline', handleOffline)
+      window.removeEventListener('online', handleOnline)
+    }
+  }, [])
 
   const navItems = [
     { name: 'Explorar', path: '/', icon: Compass },
@@ -28,6 +60,11 @@ export function Layout() {
     { name: 'Favoritos', path: '/favorites', icon: Heart },
     { name: 'Progresso', path: '/profile', icon: Award },
   ]
+
+  const blockedPaths = ['/', '/map', '/favorites']
+  const isBlockedPath =
+    isExpired &&
+    (blockedPaths.includes(location.pathname) || location.pathname.startsWith('/place/'))
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col font-sans">
@@ -165,7 +202,7 @@ export function Layout() {
       </header>
 
       <main className="flex-1 w-full bg-slate-50/50 dark:bg-slate-900/50">
-        <Outlet />
+        {isBlockedPath ? <AccessExpired /> : <Outlet />}
       </main>
 
       <footer className="border-t py-6 bg-card mt-auto">
