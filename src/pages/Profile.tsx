@@ -2,7 +2,7 @@ import { useAuth } from '@/context/AuthContext'
 import { useAccess } from '@/context/AccessContext'
 import { usePlaces } from '@/context/PlacesContext'
 import { PlaceCard } from '@/components/PlaceCard'
-import { Award, Compass, MapPin, Map as MapIcon, ShieldCheck, Trophy } from 'lucide-react'
+import { Award, Compass, MapPin, Map as MapIcon, ShieldCheck, Trophy, Medal } from 'lucide-react'
 import { Progress } from '@/components/ui/progress'
 import { Button } from '@/components/ui/button'
 import { Link } from 'react-router-dom'
@@ -63,7 +63,6 @@ export default function Profile() {
   const userEntry = { name: currentUser.email.split('@')[0], checkins: checkInCount, isMe: true }
   const allScores = [...MOCK_LEADERBOARD, userEntry].sort((a, b) => b.checkins - a.checkins)
 
-  // Filter out the duplicate if user is already naturally in Top 5 (this is just mock merge)
   const uniqueScores = allScores.reduce(
     (acc, curr) => {
       if (curr.isMe && acc.some((s) => s.isMe)) return acc
@@ -169,9 +168,10 @@ export default function Profile() {
                           Você
                         </span>
                       )}
+                      {idx === 0 && <Medal className="h-4 w-4 text-brand-yellow" />}
                     </p>
                     {idx === 0 && (
-                      <p className="text-[10px] font-bold text-brand-yellow uppercase tracking-wider">
+                      <p className="text-[10px] font-bold text-brand-yellow uppercase tracking-wider mt-0.5">
                         Explorador Ouro
                       </p>
                     )}
@@ -179,7 +179,9 @@ export default function Profile() {
                 </div>
                 <div className="font-bold text-slate-700 tabular-nums bg-white px-2 py-1 rounded-md shadow-sm border border-slate-100 text-sm">
                   {user.checkins}{' '}
-                  <span className="text-[10px] font-medium text-slate-400 uppercase">pts</span>
+                  <span className="text-[10px] font-medium text-slate-400 uppercase">
+                    Check-ins
+                  </span>
                 </div>
               </div>
             ))}
@@ -201,7 +203,9 @@ export default function Profile() {
                 </div>
                 <div className="font-bold text-primary tabular-nums bg-white px-2 py-1 rounded-md shadow-sm border border-primary/10 text-sm">
                   {userEntry.checkins}{' '}
-                  <span className="text-[10px] font-medium text-slate-400 uppercase">pts</span>
+                  <span className="text-[10px] font-medium text-slate-400 uppercase">
+                    Check-ins
+                  </span>
                 </div>
               </div>
             </div>

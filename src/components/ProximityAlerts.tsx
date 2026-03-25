@@ -30,8 +30,8 @@ export function ProximityAlerts() {
       if (dist !== null && dist <= 0.5) {
         alerted.current.add(place.id)
 
-        const alertTitle = `Desconto Próximo: ${place.name}`
-        const alertBody = `Aproveite seu cupom de ${place.discountBadge}!`
+        const alertTitle = `Lembrete Amigável 📍`
+        const alertBody = `Você está bem perto de ${place.name}! Aproveite para visitar e usar seu benefício de ${place.discountBadge}.`
 
         // In-app toast
         toast.message(alertTitle, {

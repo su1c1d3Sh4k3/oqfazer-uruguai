@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/context/AuthContext'
 import { useAccess } from '@/context/AccessContext'
-import { Star, Lock, Info } from 'lucide-react'
+import { Star, Lock, Info, Clock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from 'sonner'
@@ -16,12 +16,19 @@ export interface Review {
   date: number
 }
 
-export function PrivateReviews({ placeId }: { placeId: string }) {
+interface Props {
+  placeId: string
+  checkInTime: number | null
+}
+
+export function PrivateReviews({ placeId, checkInTime }: Props) {
   const { currentUser } = useAuth()
   const { isGranted } = useAccess()
   const [reviews, setReviews] = useState<Review[]>([])
   const [rating, setRating] = useState(0)
   const [comment, setComment] = useState('')
+  const [canReview, setCanReview] = useState(false)
+  const [timeMessage, setTimeMessage] = useState('')
 
   useEffect(() => {
     try {
@@ -41,6 +48,29 @@ export function PrivateReviews({ placeId }: { placeId: string }) {
       setReviews([])
     }
   }, [placeId, currentUser])
+
+  useEffect(() => {
+    if (!checkInTime) {
+      setCanReview(false)
+      setTimeMessage('Faça check-in neste local para poder avaliá-lo no futuro.')
+      return
+    }
+    const checkAvailability = () => {
+      const now = Date.now()
+      const diff = checkInTime + 24 * 60 * 60 * 1000 - now
+      if (diff <= 0) {
+        setCanReview(true)
+        setTimeMessage('')
+      } else {
+        setCanReview(false)
+        const hours = Math.ceil(diff / (1000 * 60 * 60))
+        setTimeMessage(`Sua avaliação será liberada em aproximadamente ${hours} hora(s).`)
+      }
+    }
+    checkAvailability()
+    const interval = setInterval(checkAvailability, 60000)
+    return () => clearInterval(interval)
+  }, [checkInTime])
 
   const handleSave = () => {
     if (!rating) return toast.error('Selecione uma nota com as estrelas.')
@@ -82,6 +112,12 @@ export function PrivateReviews({ placeId }: { placeId: string }) {
         <p className="text-sm font-medium text-slate-500 bg-slate-50 p-4 rounded-xl border border-slate-100">
           Faça login na sua conta para deixar uma avaliação sobre este local.
         </p>
+      ) : !canReview && !myReview ? (
+        <div className="flex flex-col items-center justify-center bg-slate-50 p-6 rounded-xl border border-slate-100 text-center gap-2">
+          <Clock className="h-8 w-8 text-slate-400 mb-2" />
+          <p className="text-sm font-bold text-slate-700">Avaliação Bloqueada Temporariamente</p>
+          <p className="text-xs font-medium text-slate-500">{timeMessage}</p>
+        </div>
       ) : (
         <div className="space-y-4">
           <p className="text-xs font-medium text-slate-500 flex items-start gap-1.5">
@@ -108,6 +144,7 @@ export function PrivateReviews({ placeId }: { placeId: string }) {
               value={comment}
               onChange={(e) => setComment(e.target.value.slice(0, 200))}
               className="resize-none h-28 bg-slate-50 border-slate-200 text-base"
+              maxLength={200}
             />
             <span
               className={`absolute bottom-3 right-3 text-xs font-bold ${comment.length >= 200 ? 'text-red-500' : 'text-slate-400'}`}

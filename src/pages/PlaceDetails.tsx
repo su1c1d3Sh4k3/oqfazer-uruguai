@@ -147,7 +147,6 @@ END:VCALENDAR`
       </button>
 
       <div className="hide-scrollbar flex-1 overflow-y-auto lg:border-r bg-slate-50">
-        {/* Mobile Carousel */}
         <div className="relative bg-slate-900 lg:hidden">
           <Carousel opts={{ loop: true }} className="w-full">
             <CarouselContent>
@@ -174,7 +173,6 @@ END:VCALENDAR`
           </Carousel>
         </div>
 
-        {/* Desktop Dual-Image Layout */}
         <div className="hidden lg:grid grid-cols-2 gap-1 bg-slate-900 p-1 shrink-0">
           {place.galleryImages.slice(0, 2).map((img, index) => (
             <div
@@ -448,7 +446,7 @@ END:VCALENDAR`
             </div>
           )}
 
-          <PrivateReviews placeId={place.id} />
+          <PrivateReviews placeId={place.id} checkInTime={checkInTime} />
         </div>
 
         {!isTour && !checkInTime && (
