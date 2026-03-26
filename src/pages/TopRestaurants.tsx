@@ -1,16 +1,27 @@
 import { usePlaces } from '@/context/PlacesContext'
 import { PlaceCard } from '@/components/PlaceCard'
 import { useState, useMemo } from 'react'
-import { Trophy, CheckCircle2 } from 'lucide-react'
+import { Trophy, CheckCircle2, Search } from 'lucide-react'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { Input } from '@/components/ui/input'
 
 export default function TopRestaurants() {
   const { places } = usePlaces()
   const [filter, setFilter] = useState<'all' | '30d'>('all')
+  const [searchQuery, setSearchQuery] = useState('')
 
   const topPlaces = useMemo(() => {
     return places
       .filter((p) => p.type !== 'tour' && p.category !== 'Passeios')
+      .filter((p) => {
+        if (
+          searchQuery.trim() !== '' &&
+          !p.name.toLowerCase().includes(searchQuery.toLowerCase())
+        ) {
+          return false
+        }
+        return true
+      })
       .map((p) => {
         const baseCheckins = p.checkInCount || 0
         return {
@@ -20,11 +31,11 @@ export default function TopRestaurants() {
       })
       .sort((a, b) => b.displayCheckins - a.displayCheckins)
       .slice(0, 20)
-  }, [places, filter])
+  }, [places, filter, searchQuery])
 
   return (
     <div className="flex flex-col gap-6 px-4 pb-8 pt-6 md:px-8 md:pt-8 w-full max-w-7xl mx-auto animate-fade-in">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
         <div>
           <div className="flex items-center gap-3 mb-2">
             <div className="bg-brand-yellow/20 p-2 rounded-xl text-brand-yellow">
@@ -39,26 +50,37 @@ export default function TopRestaurants() {
           </p>
         </div>
 
-        <div className="bg-white p-1 rounded-xl shadow-sm border border-slate-100 shrink-0 w-full md:w-auto">
-          <ToggleGroup
-            type="single"
-            value={filter}
-            onValueChange={(v) => v && setFilter(v as 'all' | '30d')}
-            className="justify-start md:justify-center"
-          >
-            <ToggleGroupItem
-              value="all"
-              className="rounded-lg font-bold data-[state=on]:bg-secondary data-[state=on]:text-white flex-1 md:flex-none px-4"
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0 w-full lg:w-auto">
+          <div className="relative w-full sm:w-64">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <Input
+              placeholder="Buscar restaurante..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 h-10 w-full rounded-xl border-slate-200 bg-white shadow-sm focus-visible:ring-primary/20"
+            />
+          </div>
+          <div className="bg-white p-1 rounded-xl shadow-sm border border-slate-100 w-full sm:w-auto flex">
+            <ToggleGroup
+              type="single"
+              value={filter}
+              onValueChange={(v) => v && setFilter(v as 'all' | '30d')}
+              className="justify-start md:justify-center w-full"
             >
-              Geral
-            </ToggleGroupItem>
-            <ToggleGroupItem
-              value="30d"
-              className="rounded-lg font-bold data-[state=on]:bg-secondary data-[state=on]:text-white flex-1 md:flex-none px-4"
-            >
-              Últimos 30 Dias
-            </ToggleGroupItem>
-          </ToggleGroup>
+              <ToggleGroupItem
+                value="all"
+                className="rounded-lg font-bold data-[state=on]:bg-secondary data-[state=on]:text-white flex-1 md:flex-none px-4"
+              >
+                Geral
+              </ToggleGroupItem>
+              <ToggleGroupItem
+                value="30d"
+                className="rounded-lg font-bold data-[state=on]:bg-secondary data-[state=on]:text-white flex-1 md:flex-none px-4"
+              >
+                Últimos 30 Dias
+              </ToggleGroupItem>
+            </ToggleGroup>
+          </div>
         </div>
       </div>
 
@@ -92,7 +114,7 @@ export default function TopRestaurants() {
 
       {topPlaces.length === 0 && (
         <div className="py-20 text-center text-slate-500 font-medium">
-          Nenhum estabelecimento encontrado com check-ins neste período.
+          Nenhum estabelecimento encontrado com os filtros atuais.
         </div>
       )}
     </div>

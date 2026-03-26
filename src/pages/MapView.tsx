@@ -347,7 +347,7 @@ export default function MapView() {
                   </span>
                 </div>
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="no-drag">
                 <SelectItem value="Todas">Todas as Cidades</SelectItem>
                 {cities.map((c) => (
                   <SelectItem key={c} value={c}>
@@ -368,7 +368,7 @@ export default function MapView() {
                   </span>
                 </div>
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="no-drag">
                 <SelectItem value="Todas">Todas as Categorias</SelectItem>
                 {categories
                   .filter((c) => c.toLowerCase() !== 'passeios')

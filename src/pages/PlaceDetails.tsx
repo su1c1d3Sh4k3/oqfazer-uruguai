@@ -81,8 +81,23 @@ export default function PlaceDetails() {
   const isOpen = !isTour && isPlaceOpen(place.operatingHours)
   const isFlashOfferActive = place.flashOffer && place.flashOffer.expiresAt > Date.now()
 
-  const handleShare = () => {
-    if (navigator.share) navigator.share({ title: place.name, url: window.location.href })
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: place.name, url: window.location.href })
+      } catch (error) {
+        console.error('Error sharing:', error)
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(window.location.href)
+        toast.success('Link copiado', {
+          description: 'O link do local foi copiado para sua área de transferência.',
+        })
+      } catch (err) {
+        console.error('Failed to copy', err)
+      }
+    }
   }
 
   const handleCouponClick = () => {
