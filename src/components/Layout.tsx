@@ -78,7 +78,7 @@ export function Layout() {
       icon: isCompany ? Store : Award,
       show: true,
     },
-    { name: 'Painel Admin', path: '/admin', icon: ShieldAlert, show: isGranted },
+    { name: 'Painel Admin', path: '/admin', icon: ShieldAlert, show: isGranted && !currentUser },
   ].filter((item) => item.show !== false)
 
   const blockedPaths = ['/', '/map', '/favorites', '/top']
@@ -123,17 +123,25 @@ export function Layout() {
             {navItems.map((item) => {
               const Icon = item.icon
               const isActive = location.pathname === item.path
+              const isAdminBtn = item.name === 'Painel Admin'
+
               return (
                 <Button
                   key={item.path}
-                  variant={isActive ? 'secondary' : 'ghost'}
+                  variant={isActive && !isAdminBtn ? 'secondary' : 'ghost'}
                   size="sm"
                   asChild
                   className={cn(
                     'flex items-center gap-2 rounded-full px-4 transition-all duration-300',
-                    isActive
-                      ? 'bg-secondary text-secondary-foreground shadow-sm'
-                      : 'hover:bg-primary/10 hover:text-primary text-muted-foreground',
+                    isActive && !isAdminBtn && 'bg-secondary text-secondary-foreground shadow-sm',
+                    !isActive &&
+                      !isAdminBtn &&
+                      'hover:bg-primary/10 hover:text-primary text-muted-foreground',
+                    isAdminBtn &&
+                      'bg-green-600 text-white hover:bg-green-700 hover:text-white shadow-sm',
+                    isAdminBtn &&
+                      isActive &&
+                      'ring-2 ring-green-600 ring-offset-2 ring-offset-background',
                   )}
                 >
                   <Link to={item.path}>
@@ -191,15 +199,25 @@ export function Layout() {
                     {navItems.map((item) => {
                       const Icon = item.icon
                       const isActive = location.pathname === item.path
+                      const isAdminBtn = item.name === 'Painel Admin'
+
                       return (
                         <SheetTrigger asChild key={item.path}>
                           <Button
-                            variant={isActive ? 'secondary' : 'ghost'}
+                            variant={isActive && !isAdminBtn ? 'secondary' : 'ghost'}
                             className={cn(
                               'w-full justify-start gap-3 rounded-xl h-12 transition-all',
-                              isActive
-                                ? 'bg-secondary text-secondary-foreground shadow-sm'
-                                : 'hover:bg-primary/10 hover:text-primary text-muted-foreground',
+                              isActive &&
+                                !isAdminBtn &&
+                                'bg-secondary text-secondary-foreground shadow-sm',
+                              !isActive &&
+                                !isAdminBtn &&
+                                'hover:bg-primary/10 hover:text-primary text-muted-foreground',
+                              isAdminBtn &&
+                                'bg-green-600 text-white hover:bg-green-700 hover:text-white shadow-sm',
+                              isAdminBtn &&
+                                isActive &&
+                                'ring-2 ring-green-600 ring-offset-2 ring-offset-background',
                             )}
                             asChild
                           >

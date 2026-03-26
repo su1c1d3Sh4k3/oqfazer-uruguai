@@ -23,8 +23,15 @@ export default function Admin() {
   const [activeTab, setActiveTab] = useState('dashboard')
   const [editingPlace, setEditingPlace] = useState<Place | undefined>(undefined)
 
+  if (currentUser?.role === 'establishment') {
+    return <Navigate to="/profile" replace />
+  }
+
+  if (currentUser?.role === 'user') {
+    return <Navigate to="/" replace />
+  }
+
   if (!isGranted) {
-    if (currentUser) return <Navigate to="/profile" replace />
     return <AdminLogin onLogin={grantAccess} />
   }
 
