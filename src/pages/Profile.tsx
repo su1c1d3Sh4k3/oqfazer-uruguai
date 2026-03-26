@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils'
 import { CompanyDashboard } from '@/components/CompanyDashboard'
 
 export default function Profile() {
-  const { currentUser, logout } = useAuth()
+  const { currentUser } = useAuth()
   const { placeCheckIns } = useAccess()
   const { places } = usePlaces()
 
@@ -102,14 +102,6 @@ export default function Profile() {
           </h1>
           <p className="text-slate-500 font-medium">{currentUser.email}</p>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={logout}
-          className="rounded-xl bg-white shadow-sm"
-        >
-          Sair da Conta
-        </Button>
       </div>
 
       {activeCheckIns.length > 0 && (
