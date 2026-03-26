@@ -22,7 +22,7 @@ export default function Auth() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [regName, setRegName] = useState('')
   const [regCpf, setRegCpf] = useState('')
-  const [regPhone, setRegPhone] = useState('+55 ')
+  const [regPhone, setRegPhone] = useState('')
   const [regTravelPeriod, setRegTravelPeriod] = useState('')
   const [forgotEmail, setForgotEmail] = useState('')
   const [showForgot, setShowForgot] = useState(false)
@@ -61,6 +61,23 @@ export default function Auth() {
     })
     setShowForgot(false)
     setForgotEmail('')
+  }
+
+  const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value.replace(/\D/g, '')
+    if (value.length > 11) value = value.slice(0, 11)
+    value = value.replace(/(\d{3})(\d)/, '$1.$2')
+    value = value.replace(/(\d{3})(\d)/, '$1.$2')
+    value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2')
+    setRegCpf(value)
+  }
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value.replace(/\D/g, '')
+    if (value.length > 11) value = value.slice(0, 11)
+    value = value.replace(/^(\d{2})(\d)/g, '($1) $2')
+    value = value.replace(/(\d)(\d{4})$/, '$1-$2')
+    setRegPhone(value)
   }
 
   return (
@@ -179,7 +196,7 @@ export default function Auth() {
                   <Input
                     required
                     value={regCpf}
-                    onChange={(e) => setRegCpf(e.target.value)}
+                    onChange={handleCpfChange}
                     placeholder="000.000.000-00"
                     className="h-11 rounded-xl"
                   />
@@ -191,7 +208,8 @@ export default function Auth() {
                   <Input
                     required
                     value={regPhone}
-                    onChange={(e) => setRegPhone(e.target.value)}
+                    onChange={handlePhoneChange}
+                    placeholder="(00) 00000-0000"
                     className="h-11 rounded-xl"
                   />
                 </div>

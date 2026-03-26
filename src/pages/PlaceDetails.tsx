@@ -13,6 +13,7 @@ import {
   Globe,
   Zap,
   Timer,
+  Loader2,
 } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
 import { toast } from 'sonner'
@@ -46,6 +47,7 @@ export default function PlaceDetails() {
   const { calculateDistance } = useGeo()
   const { isExpired, getPlaceCheckIn, recordCheckIn } = useAccess()
   const [showCheckInDialog, setShowCheckInDialog] = useState(false)
+  const [isCheckInLoading, setIsCheckInLoading] = useState(true)
   const hasTrackedAccess = useRef(false)
 
   const place = places.find((p) => p.id === id)
@@ -58,6 +60,11 @@ export default function PlaceDetails() {
         recordAccess(place.id)
         hasTrackedAccess.current = true
       }
+      setIsCheckInLoading(true)
+      const timer = setTimeout(() => {
+        setIsCheckInLoading(false)
+      }, 800)
+      return () => clearTimeout(timer)
     }
     return () => {
       document.title = 'O que Fazer no Uruguai by Brasileiros no Uruguai'
@@ -335,7 +342,18 @@ END:VCALENDAR`
             </div>
           )}
 
-          {!isTour && checkInTime && !isCompany && <PlaceCheckInTicket checkInTime={checkInTime} />}
+          {!isTour &&
+            !isCompany &&
+            (isCheckInLoading ? (
+              <div className="mb-8 flex justify-center items-center py-8 rounded-3xl border border-slate-100 bg-slate-50 shadow-inner">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                <span className="ml-3 text-sm font-bold text-slate-500">
+                  Verificando status do check-in...
+                </span>
+              </div>
+            ) : (
+              checkInTime && <PlaceCheckInTicket checkInTime={checkInTime} />
+            ))}
 
           {isFlashOfferActive && (
             <div className="mb-8 rounded-2xl border border-red-200 bg-red-50 p-5 shadow-sm relative overflow-hidden animate-in fade-in zoom-in duration-500">
@@ -485,7 +503,7 @@ END:VCALENDAR`
           {!isCompany && <PrivateReviews placeId={place.id} checkInTime={checkInTime} />}
         </div>
 
-        {!isTour && !checkInTime && (
+        {!isTour && !checkInTime && !isCheckInLoading && (
           <div className="fixed bottom-0 left-0 right-0 z-40 border-t bg-white p-4 pb-safe shadow-[0_-10px_15px_-3px_rgb(0,0,0,0.05)] lg:sticky lg:border-none lg:bg-transparent lg:px-8 lg:pb-8 lg:shadow-none">
             {isCompany ? (
               <Button

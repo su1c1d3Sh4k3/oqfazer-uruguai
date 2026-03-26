@@ -1,4 +1,4 @@
-import { MapPin, Filter, Navigation, Plus, Minus } from 'lucide-react'
+import { MapPin, Filter, Navigation, Plus, Minus, Search, LocateFixed } from 'lucide-react'
 import { useState, useMemo, useRef, useEffect, useLayoutEffect } from 'react'
 import { usePlaces } from '@/context/PlacesContext'
 import { useGeo } from '@/context/GeoContext'
@@ -39,6 +39,7 @@ export default function MapView() {
   const { getPlaceStatus } = useAccess()
   const [selectedPlace, setSelectedPlace] = useState<string | null>(null)
 
+  const [searchQuery, setSearchQuery] = useState('')
   const [cityFilter, setCityFilter] = useState('Todas')
   const [categoryFilter, setCategoryFilter] = useState('Todas')
   const [openNow, setOpenNow] = useState(false)
@@ -82,9 +83,11 @@ export default function MapView() {
       if (cityFilter !== 'Todas' && p.city !== cityFilter) return false
       if (categoryFilter !== 'Todas' && p.category !== categoryFilter) return false
       if (openNow && !isPlaceOpen(p.operatingHours)) return false
+      if (searchQuery.trim() !== '' && !p.name.toLowerCase().includes(searchQuery.toLowerCase()))
+        return false
       return true
     })
-  }, [places, cityFilter, categoryFilter, openNow])
+  }, [places, cityFilter, categoryFilter, openNow, searchQuery])
 
   const selectedPlaceData = useMemo(() => {
     return selectedPlace ? places.find((p) => p.id === selectedPlace) : null
@@ -198,6 +201,20 @@ export default function MapView() {
     setZoom((prev) => Math.max(2, Math.min(prev + (e.deltaY > 0 ? -0.5 : 0.5), 19)))
   }
 
+  const handleRecenter = () => {
+    if (location) {
+      setCenterLat(location.lat)
+      setCenterLng(location.lng)
+      setZoom(15)
+    } else if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition((pos) => {
+        setCenterLat(pos.coords.latitude)
+        setCenterLng(pos.coords.longitude)
+        setZoom(15)
+      })
+    }
+  }
+
   return (
     <div
       className="animate-fade-in relative flex-1 w-full min-h-[calc(100vh-140px)] overflow-hidden bg-[#eef0f2] touch-none cursor-grab active:cursor-grabbing"
@@ -308,81 +325,102 @@ export default function MapView() {
       </div>
 
       {/* Interface overlay: Filters */}
-      <div className="no-drag absolute left-1/2 top-4 z-40 flex w-[94%] max-w-[500px] -translate-x-1/2 flex-row gap-1.5 rounded-2xl border border-white/50 bg-white/95 p-1.5 shadow-lg backdrop-blur-md items-center cursor-auto">
-        <div className="flex-1 min-w-0">
-          <Select value={cityFilter} onValueChange={setCityFilter}>
-            <SelectTrigger className="h-9 w-full min-w-0 bg-white px-2.5 text-xs rounded-xl border-slate-200 shadow-sm">
-              <div className="flex items-center gap-1.5 min-w-0 truncate">
-                <MapPin className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                <span className="truncate font-semibold text-slate-700">
-                  <SelectValue placeholder="Cidades" />
-                </span>
-              </div>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Todas">Todas as Cidades</SelectItem>
-              {cities.map((c) => (
-                <SelectItem key={c} value={c}>
-                  {c}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+      <div className="no-drag absolute left-1/2 top-4 z-40 flex w-[94%] max-w-[500px] -translate-x-1/2 flex-col gap-2">
+        <div className="flex w-full items-center rounded-2xl border border-white/50 bg-white/95 px-3 py-1 shadow-lg backdrop-blur-md cursor-auto">
+          <Search className="h-4 w-4 text-slate-400 mr-2 shrink-0" />
+          <input
+            type="text"
+            placeholder="Buscar estabelecimento..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="flex-1 bg-transparent text-sm outline-none placeholder:text-slate-400 py-1.5 font-medium text-slate-700"
+          />
         </div>
-
-        <div className="flex-1 min-w-0">
-          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-            <SelectTrigger className="h-9 w-full min-w-0 bg-white px-2.5 text-xs rounded-xl border-slate-200 shadow-sm">
-              <div className="flex items-center gap-1.5 min-w-0 truncate">
-                <Filter className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                <span className="truncate font-semibold text-slate-700">
-                  <SelectValue placeholder="Categoria" />
-                </span>
-              </div>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Todas">Todas as Categorias</SelectItem>
-              {categories
-                .filter((c) => c.toLowerCase() !== 'passeios')
-                .map((c) => (
+        <div className="flex w-full flex-row gap-1.5 rounded-2xl border border-white/50 bg-white/95 p-1.5 shadow-lg backdrop-blur-md items-center cursor-auto">
+          <div className="flex-1 min-w-0">
+            <Select value={cityFilter} onValueChange={setCityFilter}>
+              <SelectTrigger className="h-9 w-full min-w-0 bg-white px-2.5 text-xs rounded-xl border-slate-200 shadow-sm">
+                <div className="flex items-center gap-1.5 min-w-0 truncate">
+                  <MapPin className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                  <span className="truncate font-semibold text-slate-700">
+                    <SelectValue placeholder="Cidades" />
+                  </span>
+                </div>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Todas">Todas as Cidades</SelectItem>
+                {cities.map((c) => (
                   <SelectItem key={c} value={c}>
                     {c}
                   </SelectItem>
                 ))}
-            </SelectContent>
-          </Select>
-        </div>
+              </SelectContent>
+            </Select>
+          </div>
 
-        <div className="flex h-9 shrink-0 items-center gap-2 rounded-xl bg-white px-2.5 border border-slate-200 shadow-sm">
-          <Label
-            htmlFor="map-open-now"
-            className="cursor-pointer whitespace-nowrap text-[11px] font-bold text-slate-700"
-          >
-            Aberto
-          </Label>
-          <Switch
-            id="map-open-now"
-            className="scale-75 origin-right"
-            checked={openNow}
-            onCheckedChange={setOpenNow}
-          />
+          <div className="flex-1 min-w-0">
+            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+              <SelectTrigger className="h-9 w-full min-w-0 bg-white px-2.5 text-xs rounded-xl border-slate-200 shadow-sm">
+                <div className="flex items-center gap-1.5 min-w-0 truncate">
+                  <Filter className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                  <span className="truncate font-semibold text-slate-700">
+                    <SelectValue placeholder="Categoria" />
+                  </span>
+                </div>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Todas">Todas as Categorias</SelectItem>
+                {categories
+                  .filter((c) => c.toLowerCase() !== 'passeios')
+                  .map((c) => (
+                    <SelectItem key={c} value={c}>
+                      {c}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex h-9 shrink-0 items-center gap-2 rounded-xl bg-white px-2.5 border border-slate-200 shadow-sm">
+            <Label
+              htmlFor="map-open-now"
+              className="cursor-pointer whitespace-nowrap text-[11px] font-bold text-slate-700"
+            >
+              Aberto
+            </Label>
+            <Switch
+              id="map-open-now"
+              className="scale-75 origin-right"
+              checked={openNow}
+              onCheckedChange={setOpenNow}
+            />
+          </div>
         </div>
       </div>
 
       {/* Interface overlay: Zoom Controls */}
       <div className="no-drag absolute right-4 bottom-24 z-40 flex flex-col gap-2">
         <button
-          onClick={() => setZoom((z) => Math.min(z + 1, 19))}
+          onClick={handleRecenter}
           className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-slate-700 shadow-lg border border-slate-200 hover:bg-slate-50 transition-colors"
         >
-          <Plus className="h-5 w-5" />
+          <LocateFixed className="h-5 w-5 text-primary" />
         </button>
-        <button
-          onClick={() => setZoom((z) => Math.max(2, z - 1))}
-          className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-slate-700 shadow-lg border border-slate-200 hover:bg-slate-50 transition-colors"
-        >
-          <Minus className="h-5 w-5" />
-        </button>
+        <div className="flex flex-col gap-1 rounded-xl bg-white p-1 shadow-lg border border-slate-200">
+          <button
+            onClick={() => setZoom((z) => Math.min(z + 1, 19))}
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-700 hover:bg-slate-100 transition-colors"
+          >
+            <Plus className="h-5 w-5" />
+          </button>
+          <div className="h-px bg-slate-100 w-full" />
+          <button
+            onClick={() => setZoom((z) => Math.max(2, z - 1))}
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-700 hover:bg-slate-100 transition-colors"
+          >
+            <Minus className="h-5 w-5" />
+          </button>
+        </div>
       </div>
 
       {/* Popups rendered over everything else (Z-50) */}
