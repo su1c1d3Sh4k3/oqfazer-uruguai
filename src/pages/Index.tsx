@@ -6,11 +6,16 @@ import Autoplay from 'embla-carousel-autoplay'
 import { useRef, useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { Badge } from '@/components/ui/badge'
-import { Switch } from '@/components/ui/switch'
-import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
-import { isPlaceOpen } from '@/lib/utils'
-import { Zap, Timer, Search } from 'lucide-react'
+import { cn, isPlaceOpen } from '@/lib/utils'
+import { Zap, Timer, Search, ChevronDown } from 'lucide-react'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 
 export default function Index() {
   const { places, categories, cities } = usePlaces()
@@ -149,7 +154,7 @@ export default function Index() {
         </section>
       )}
 
-      <section className="flex flex-col gap-4 px-4 md:px-0">
+      <section className="flex flex-col gap-3 px-4 md:px-0">
         <div className="relative w-full">
           <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
           <Input
@@ -161,78 +166,108 @@ export default function Index() {
         </div>
 
         {searchQuery.trim().length > 0 && searchQuery.trim().length < 3 && (
-          <p className="text-xs font-medium text-slate-500 animate-fade-in px-2 -mt-2">
+          <p className="text-xs font-medium text-slate-500 animate-fade-in px-2 -mt-1">
             Digite pelo menos 3 caracteres para iniciar a busca.
           </p>
         )}
 
-        <div className="hide-scrollbar -mx-4 flex overflow-x-auto px-4 md:mx-0 md:px-0">
-          <div className="flex gap-2">
-            {CATEGORIES.map((category) => (
-              <button
-                key={category}
-                onClick={() => setSelectedCategory(category)}
-                className={`whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
-                  selectedCategory === category
-                    ? 'bg-primary text-primary-foreground shadow-md'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                }`}
-              >
-                {category}
-              </button>
-            ))}
-          </div>
-        </div>
-        <div className="hide-scrollbar -mx-4 flex overflow-x-auto px-4 md:mx-0 md:px-0">
-          <div className="flex gap-2">
-            {CITIES.map((city) => (
-              <button
-                key={city}
-                onClick={() => setSelectedCity(city)}
-                className={`whitespace-nowrap rounded-full px-5 py-2 text-sm font-semibold transition-all ${
-                  selectedCity === city
-                    ? 'bg-secondary text-secondary-foreground shadow-md'
-                    : 'border border-slate-200 bg-white text-slate-600 shadow-sm hover:bg-slate-50'
-                }`}
-              >
-                {city}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-2">
-          <div className="hide-scrollbar -mx-4 flex overflow-x-auto px-4 md:mx-0 md:px-0">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                Tipo:
-              </span>
-              {TYPES.map((type) => (
-                <button
-                  key={type}
-                  onClick={() => setSelectedType(type)}
-                  className={`whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
-                    selectedType === type
-                      ? 'bg-primary text-primary-foreground shadow-md'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  }`}
-                >
-                  {type}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex items-center space-x-2 rounded-full border border-slate-200 bg-white px-4 py-2 shadow-sm shrink-0 w-fit">
-            <Switch
-              id="open-now"
-              checked={openNowOnly}
-              onCheckedChange={setOpenNowOnly}
-              className="data-[state=checked]:bg-secondary"
-            />
-            <Label htmlFor="open-now" className="cursor-pointer font-bold text-slate-700">
+        <div className="hide-scrollbar -mx-4 flex overflow-x-auto px-4 py-1 md:mx-0 md:px-0">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setOpenNowOnly(!openNowOnly)}
+              className={cn(
+                'flex items-center gap-1.5 whitespace-nowrap rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors shadow-sm',
+                openNowOnly
+                  ? 'border-primary bg-primary text-primary-foreground'
+                  : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50',
+              )}
+            >
               Aberto Agora
-            </Label>
+            </button>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className={cn(
+                    'flex items-center gap-1.5 whitespace-nowrap rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors shadow-sm',
+                    selectedCategory !== 'Todas'
+                      ? 'border-primary bg-primary/10 text-primary'
+                      : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50',
+                  )}
+                >
+                  {selectedCategory === 'Todas' ? 'Categorias' : selectedCategory}
+                  <ChevronDown className="h-4 w-4 opacity-50" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="start"
+                className="w-[200px] max-h-[300px] overflow-y-auto"
+              >
+                <DropdownMenuRadioGroup
+                  value={selectedCategory}
+                  onValueChange={setSelectedCategory}
+                >
+                  {CATEGORIES.map((cat) => (
+                    <DropdownMenuRadioItem key={cat} value={cat}>
+                      {cat}
+                    </DropdownMenuRadioItem>
+                  ))}
+                </DropdownMenuRadioGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className={cn(
+                    'flex items-center gap-1.5 whitespace-nowrap rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors shadow-sm',
+                    selectedCity !== 'Todas'
+                      ? 'border-primary bg-primary/10 text-primary'
+                      : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50',
+                  )}
+                >
+                  {selectedCity === 'Todas' ? 'Cidades' : selectedCity}
+                  <ChevronDown className="h-4 w-4 opacity-50" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="start"
+                className="w-[200px] max-h-[300px] overflow-y-auto"
+              >
+                <DropdownMenuRadioGroup value={selectedCity} onValueChange={setSelectedCity}>
+                  {CITIES.map((city) => (
+                    <DropdownMenuRadioItem key={city} value={city}>
+                      {city}
+                    </DropdownMenuRadioItem>
+                  ))}
+                </DropdownMenuRadioGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className={cn(
+                    'flex items-center gap-1.5 whitespace-nowrap rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors shadow-sm',
+                    selectedType !== 'Todos'
+                      ? 'border-primary bg-primary/10 text-primary'
+                      : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50',
+                  )}
+                >
+                  {selectedType === 'Todos' ? 'Tipo' : selectedType}
+                  <ChevronDown className="h-4 w-4 opacity-50" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-[200px]">
+                <DropdownMenuRadioGroup value={selectedType} onValueChange={setSelectedType}>
+                  {TYPES.map((type) => (
+                    <DropdownMenuRadioItem key={type} value={type}>
+                      {type}
+                    </DropdownMenuRadioItem>
+                  ))}
+                </DropdownMenuRadioGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </section>
