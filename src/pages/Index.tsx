@@ -64,8 +64,12 @@ export default function Index() {
     }
 
     return result.sort((a, b) => {
-      const distA = calculateDistance(a.coordinates.lat, a.coordinates.lng) || 9999
-      const distB = calculateDistance(b.coordinates.lat, b.coordinates.lng) || 9999
+      const orderA = a.order ?? 999999
+      const orderB = b.order ?? 999999
+      if (orderA !== orderB) return orderA - orderB
+
+      const distA = calculateDistance(a.coordinates.lat, a.coordinates.lng) ?? 9999
+      const distB = calculateDistance(b.coordinates.lat, b.coordinates.lng) ?? 9999
       return distA - distB
     })
   }, [

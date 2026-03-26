@@ -5,11 +5,12 @@ import { AdminPlacesList } from '@/components/AdminPlacesList'
 import { AdminLogin } from '@/components/AdminLogin'
 import { AdminDashboard } from '@/components/AdminDashboard'
 import { AdminUsersList } from '@/components/AdminUsersList'
+import { AdminDisplayManager } from '@/components/AdminDisplayManager'
 import { Button } from '@/components/ui/button'
 import { usePlaces } from '@/context/PlacesContext'
 import { useAuth } from '@/context/AuthContext'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { LogOut, Plus, Settings, List, LayoutDashboard, Users } from 'lucide-react'
+import { LogOut, Plus, Settings, List, LayoutDashboard, Users, Star } from 'lucide-react'
 import logoUrl from '@/assets/favicon-bnu-9afaa.jpg'
 import { Place } from '@/data/places'
 import { toast } from 'sonner'
@@ -135,6 +136,13 @@ export default function Admin() {
             <span className="hidden sm:inline">Locais Cadastrados</span>
           </TabsTrigger>
           <TabsTrigger
+            value="display"
+            className="gap-2 py-2.5 px-4 rounded-xl data-[state=active]:bg-background data-[state=active]:shadow-sm"
+          >
+            <Star className="h-4 w-4" />
+            <span className="hidden sm:inline">Destaques e Ordem</span>
+          </TabsTrigger>
+          <TabsTrigger
             value="form"
             className="gap-2 py-2.5 px-4 rounded-xl data-[state=active]:bg-background data-[state=active]:shadow-sm"
           >
@@ -171,6 +179,10 @@ export default function Admin() {
             onEdit={handleEdit}
             onDelete={handleDelete}
           />
+        </TabsContent>
+
+        <TabsContent value="display" className="mt-0 outline-none">
+          <AdminDisplayManager />
         </TabsContent>
 
         <TabsContent value="form" className="mt-0 outline-none">

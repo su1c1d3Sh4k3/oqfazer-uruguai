@@ -79,7 +79,7 @@ export function Layout() {
       icon: isCompany ? Store : Award,
       show: true,
     },
-    { name: 'Perfil', path: '/perfil', icon: User, show: !!currentUser },
+    { name: 'Perfil', path: '/perfil', icon: User, show: currentUser?.role === 'user' },
     { name: 'Painel Admin', path: '/admin', icon: ShieldAlert, show: isGranted && !currentUser },
   ].filter((item) => item.show !== false)
 

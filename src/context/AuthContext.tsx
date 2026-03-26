@@ -19,6 +19,7 @@ interface AuthContextType {
   loginEstablishment: (placeId: string, pass: string) => void
   register: (email: string, pass: string, extraData?: Partial<User>) => void
   logout: () => void
+  updateProfile: (data: Partial<User>) => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -100,9 +101,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     })
   }
 
+  const updateProfile = (data: Partial<User>) => {
+    if (!currentUser) return
+    const users = JSON.parse(localStorage.getItem('@uruguai:users_db') || '{}')
+    const updatedUser = { ...currentUser, ...data }
+
+    users[currentUser.email] = updatedUser
+    localStorage.setItem('@uruguai:users_db', JSON.stringify(users))
+    setCurrentUser(updatedUser)
+    toast.success('Perfil atualizado com sucesso!')
+  }
+
   return React.createElement(
     AuthContext.Provider,
-    { value: { currentUser, login, loginEstablishment, register, logout } },
+    { value: { currentUser, login, loginEstablishment, register, logout, updateProfile } },
     children,
   )
 }

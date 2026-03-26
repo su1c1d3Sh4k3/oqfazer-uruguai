@@ -3,6 +3,15 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import logoUrl from '@/assets/favicon-bnu-9afaa.jpg'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import { toast } from 'sonner'
 
 interface Props {
   onLogin: (pwd: string) => boolean
@@ -11,6 +20,8 @@ interface Props {
 export function AdminLogin({ onLogin }: Props) {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [showForgot, setShowForgot] = useState(false)
+  const [forgotEmail, setForgotEmail] = useState('')
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -24,6 +35,16 @@ export function AdminLogin({ onLogin }: Props) {
     } else {
       setError('Erro interno de login. Recarregue a página.')
     }
+  }
+
+  const handleForgot = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!forgotEmail) return
+    toast.success('Solicitação enviada!', {
+      description: 'As instruções foram enviadas para o e-mail do administrador master.',
+    })
+    setShowForgot(false)
+    setForgotEmail('')
   }
 
   return (
@@ -48,7 +69,39 @@ export function AdminLogin({ onLogin }: Props) {
 
         <form onSubmit={handleSubmit} className="space-y-4 mt-8">
           <div className="space-y-2">
-            <Label htmlFor="password">Senha de Administrador</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="password">Senha de Administrador</Label>
+              <Dialog open={showForgot} onOpenChange={setShowForgot}>
+                <DialogTrigger asChild>
+                  <button
+                    type="button"
+                    className="text-xs font-medium text-primary hover:underline"
+                  >
+                    Esqueci a senha
+                  </button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-sm rounded-2xl">
+                  <DialogHeader>
+                    <DialogTitle>Recuperar Senha Admin</DialogTitle>
+                    <DialogDescription>
+                      Informe o e-mail master para receber as instruções de recuperação de acesso.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <form onSubmit={handleForgot} className="mt-2 space-y-3">
+                    <Input
+                      type="email"
+                      required
+                      placeholder="admin@brasileirosnouruguai.com.br"
+                      value={forgotEmail}
+                      onChange={(e) => setForgotEmail(e.target.value)}
+                    />
+                    <Button type="submit" className="w-full">
+                      Enviar instruções
+                    </Button>
+                  </form>
+                </DialogContent>
+              </Dialog>
+            </div>
             <Input
               id="password"
               type="password"

@@ -1,6 +1,5 @@
 import { MapPin } from 'lucide-react'
 import { useState } from 'react'
-import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 
 interface MapSectionProps {
@@ -14,10 +13,6 @@ export function PlaceMapSection({ lat, lng, address, distance }: MapSectionProps
   const [isLoading, setIsLoading] = useState(true)
 
   const hasCoords = typeof lat === 'number' && typeof lng === 'number' && !isNaN(lat) && !isNaN(lng)
-
-  const mapSearchQuery = hasCoords ? `${lat},${lng}` : encodeURIComponent(address)
-  const mapsSearchUrl = `https://www.google.com/maps/search/?api=1&query=${mapSearchQuery}`
-  const mapsDirUrl = `https://www.google.com/maps/dir/?api=1&destination=${mapSearchQuery}`
 
   const embedUrl = hasCoords
     ? `https://maps.google.com/maps?q=${lat},${lng}&hl=pt-BR&z=15&output=embed`
@@ -48,35 +43,13 @@ export function PlaceMapSection({ lat, lng, address, distance }: MapSectionProps
         ></iframe>
       </div>
       <div className="relative z-10 flex flex-col items-start justify-between gap-4 border-t border-slate-100 bg-white p-4 sm:flex-row sm:items-center">
-        <div className="w-full min-w-0 flex-1 pr-4">
+        <div className="w-full min-w-0 flex-1">
           <p className="truncate font-bold text-slate-900">{address}</p>
           <p className="mt-0.5 text-sm font-medium text-slate-500">
             {distance && distance !== 'Calculando...'
               ? `A ${distance} de você`
               : 'Distância indisponível'}
           </p>
-        </div>
-        <div className="flex w-full shrink-0 items-center gap-2 sm:w-auto">
-          <Button
-            asChild
-            variant="outline"
-            size="sm"
-            className="flex-1 rounded-xl font-semibold shadow-sm sm:flex-none"
-          >
-            <a href={mapsSearchUrl} target="_blank" rel="noopener noreferrer">
-              Abrir no Maps
-            </a>
-          </Button>
-          <Button
-            asChild
-            variant="default"
-            size="sm"
-            className="flex-1 rounded-xl bg-secondary font-semibold text-secondary-foreground shadow-sm hover:bg-secondary/90 sm:flex-none"
-          >
-            <a href={mapsDirUrl} target="_blank" rel="noopener noreferrer">
-              Como chegar
-            </a>
-          </Button>
         </div>
       </div>
     </div>
