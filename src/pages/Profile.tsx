@@ -30,7 +30,6 @@ export default function Profile() {
     )
   }
 
-  // Render company dashboard if the user role is establishment
   if (currentUser.role === 'establishment') {
     return (
       <div className="flex h-full flex-col px-4 pb-12 pt-4 md:px-8 md:pt-8 w-full animate-fade-in">
@@ -42,6 +41,16 @@ export default function Profile() {
   const visitedIds = Object.keys(placeCheckIns)
   const visitedPlaces = places.filter((p) => visitedIds.includes(p.id))
   const checkInCount = visitedIds.length
+
+  const activeCheckIns = visitedPlaces.filter((p) => {
+    const time = placeCheckIns[p.id]
+    return time && Date.now() - time < 24 * 60 * 60 * 1000
+  })
+
+  const historyCheckIns = visitedPlaces.filter((p) => {
+    const time = placeCheckIns[p.id]
+    return !time || Date.now() - time >= 24 * 60 * 60 * 1000
+  })
 
   const levels = [
     { threshold: 0, name: 'Recém-chegado', next: 1, color: 'text-slate-500' },
@@ -61,7 +70,6 @@ export default function Profile() {
     ? Math.min(100, (checkInCount / currentLevel.next) * 100)
     : 100
 
-  // Leaderboard logic
   const MOCK_LEADERBOARD = [
     { name: 'João Silva', checkins: 45, isGold: true },
     { name: 'Maria Souza', checkins: 38 },
@@ -103,6 +111,31 @@ export default function Profile() {
           Sair da Conta
         </Button>
       </div>
+
+      {activeCheckIns.length > 0 && (
+        <div className="mb-10">
+          <div className="mb-6 flex items-center justify-between">
+            <h2 className="font-display text-xl font-bold text-slate-900 md:text-2xl flex items-center gap-2">
+              <MapPin className="h-6 w-6 text-green-500" />
+              Check-ins Ativos
+            </h2>
+            <span className="rounded-full bg-green-500/10 px-4 py-1.5 text-sm font-bold text-green-600 border border-green-500/20">
+              {activeCheckIns.length} {activeCheckIns.length === 1 ? 'local' : 'locais'}
+            </span>
+          </div>
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {activeCheckIns.map((place, index) => (
+              <div
+                key={place.id}
+                className="animate-fade-in-up"
+                style={{ animationDelay: `${index * 50}ms` }}
+              >
+                <PlaceCard place={place} activeCheckIn={true} />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
         <div className="lg:col-span-2 rounded-3xl bg-white border border-slate-100 p-6 md:p-8 shadow-sm flex flex-col md:flex-row gap-6 md:gap-8 items-center text-center md:text-left h-full">
@@ -233,48 +266,49 @@ export default function Profile() {
           <MapPin className="h-6 w-6 text-secondary" />
           Histórico de Visitas
         </h2>
-        {visitedPlaces.length > 0 && (
+        {historyCheckIns.length > 0 && (
           <span className="rounded-full bg-secondary/10 px-4 py-1.5 text-sm font-bold text-secondary border border-secondary/20">
-            {visitedPlaces.length} {visitedPlaces.length === 1 ? 'local' : 'locais'}
+            {historyCheckIns.length} {historyCheckIns.length === 1 ? 'local' : 'locais'}
           </span>
         )}
       </div>
 
-      {visitedPlaces.length === 0 ? (
-        <div className="animate-fade-in-up flex flex-1 flex-col items-center justify-center py-16 text-center bg-white rounded-3xl border border-slate-100 shadow-sm">
-          <div className="mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-primary/10 border-4 border-primary/5">
-            <Compass className="h-10 w-10 text-primary" />
+      {historyCheckIns.length === 0 ? (
+        visitedPlaces.length === 0 ? (
+          <div className="animate-fade-in-up flex flex-1 flex-col items-center justify-center py-16 text-center bg-white rounded-3xl border border-slate-100 shadow-sm px-4">
+            <div className="mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-primary/10 border-4 border-primary/5">
+              <Compass className="h-10 w-10 text-primary" />
+            </div>
+            <h3 className="mb-2 font-display text-2xl font-bold text-slate-900">
+              Sua jornada começa aqui!
+            </h3>
+            <p className="mb-8 max-w-md font-medium text-slate-500 leading-relaxed">
+              Faça check-in nos locais que visitar e construa seu histórico de exploração pelo
+              Uruguai para subir no ranking global.
+            </p>
+            <Button size="lg" className="rounded-xl px-8 font-bold shadow-md h-12" asChild>
+              <Link to="/">
+                <MapIcon className="mr-2 h-5 w-5" />
+                Explorar Mapa
+              </Link>
+            </Button>
           </div>
-          <h3 className="mb-2 font-display text-2xl font-bold text-slate-900">
-            Sua jornada começa aqui!
-          </h3>
-          <p className="mb-8 max-w-md font-medium text-slate-500 leading-relaxed">
-            Faça check-in nos locais que visitar e construa seu histórico de exploração pelo Uruguai
-            para subir no ranking global.
-          </p>
-          <Button size="lg" className="rounded-xl px-8 font-bold shadow-md h-12" asChild>
-            <Link to="/">
-              <MapIcon className="mr-2 h-5 w-5" />
-              Explorar Mapa
-            </Link>
-          </Button>
-        </div>
+        ) : (
+          <div className="py-12 text-center text-slate-500 font-medium bg-white rounded-3xl border border-slate-100 shadow-sm px-4">
+            Seus check-ins passados aparecerão aqui após 24 horas da visita.
+          </div>
+        )
       ) : (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {visitedPlaces.map((place, index) => {
-            const checkInTime = placeCheckIns[place.id]
-            const isActive = checkInTime && Date.now() - checkInTime < 24 * 60 * 60 * 1000
-
-            return (
-              <div
-                key={place.id}
-                className="animate-fade-in-up"
-                style={{ animationDelay: `${index * 50}ms` }}
-              >
-                <PlaceCard place={place} activeCheckIn={!!isActive} />
-              </div>
-            )
-          })}
+          {historyCheckIns.map((place, index) => (
+            <div
+              key={place.id}
+              className="animate-fade-in-up"
+              style={{ animationDelay: `${index * 50}ms` }}
+            >
+              <PlaceCard place={place} />
+            </div>
+          ))}
         </div>
       )}
     </div>

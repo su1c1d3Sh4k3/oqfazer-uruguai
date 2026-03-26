@@ -1,21 +1,19 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useAuth } from '@/context/AuthContext'
 import { usePlaces } from '@/context/PlacesContext'
 import { useSearchParams } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { AdminImageFields } from './AdminImageFields'
-import { Place } from '@/data/places'
+import { AdminPlaceForm } from './AdminPlaceForm'
 import { toast } from 'sonner'
 import { Eye, MousePointerClick, CheckCircle2, ShieldCheck, Pencil } from 'lucide-react'
 
 export function CompanyDashboard() {
   const { currentUser, logout } = useAuth()
-  const { places, updatePlace } = usePlaces()
+  const { places, updatePlace, categories } = usePlaces()
   const [searchParams] = useSearchParams()
 
   const defaultTab = searchParams.get('tab') === 'edit' ? 'edit' : 'metrics'
@@ -25,13 +23,6 @@ export function CompanyDashboard() {
   const [confirmPwd, setConfirmPwd] = useState('')
 
   const managedPlace = places.find((p) => p.id === currentUser?.managedPlaceId)
-  const [formData, setFormData] = useState<Partial<Place>>({})
-
-  useEffect(() => {
-    if (managedPlace) {
-      setFormData(managedPlace)
-    }
-  }, [managedPlace])
 
   const handlePasswordChange = (e: React.FormEvent) => {
     e.preventDefault()
@@ -50,14 +41,6 @@ export function CompanyDashboard() {
       setNewPwd('')
       setConfirmPwd('')
     }, 800)
-  }
-
-  const handleSaveProfile = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (managedPlace && formData) {
-      updatePlace(managedPlace.id, formData)
-      toast.success('Perfil atualizado com sucesso!')
-    }
   }
 
   if (!managedPlace) {
@@ -87,12 +70,12 @@ export function CompanyDashboard() {
       </div>
 
       <Tabs defaultValue={defaultTab} className="w-full">
-        <TabsList className="grid grid-cols-2 max-w-sm mb-6 bg-slate-100/50 p-1 rounded-xl h-12">
+        <TabsList className="grid grid-cols-2 max-w-[400px] mb-6 bg-slate-100/50 p-1 rounded-xl h-12">
           <TabsTrigger value="metrics" className="rounded-lg font-bold">
             Métricas e Conta
           </TabsTrigger>
           <TabsTrigger value="edit" className="rounded-lg font-bold">
-            Editar Perfil
+            Editar Estabelecimento
           </TabsTrigger>
         </TabsList>
 
@@ -203,59 +186,22 @@ export function CompanyDashboard() {
         </TabsContent>
 
         <TabsContent value="edit" className="animate-in fade-in duration-500 outline-none">
-          <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-100 shadow-sm max-w-3xl">
+          <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-100 shadow-sm w-full max-w-none">
             <div className="flex items-center gap-3 mb-6">
               <Pencil className="h-6 w-6 text-slate-400" />
               <h2 className="font-display text-xl font-bold text-slate-900">
-                Editar Informações do Local
+                Editar Estabelecimento
               </h2>
             </div>
-            <form onSubmit={handleSaveProfile} className="space-y-6">
-              <div className="space-y-2">
-                <Label>Descrição Curta</Label>
-                <Textarea
-                  value={formData.description || ''}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, description: e.target.value }))
-                  }
-                  placeholder="Descreva seu estabelecimento..."
-                  className="resize-none h-24"
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Endereço Completo</Label>
-                <Input
-                  value={formData.address || ''}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, address: e.target.value }))}
-                  placeholder="Rua, Número, Bairro..."
-                  className="h-12 rounded-xl"
-                  required
-                />
-              </div>
-
-              <div className="pt-4 border-t border-slate-100">
-                <AdminImageFields
-                  coverImage={formData.coverImage || ''}
-                  galleryImages={formData.galleryImages || ['', '', '', '', '']}
-                  onChangeCover={(v) => setFormData((prev) => ({ ...prev, coverImage: v }))}
-                  onChangeGallery={(i, v) => {
-                    const newGal = [...(formData.galleryImages || ['', '', '', '', ''])]
-                    newGal[i] = v
-                    setFormData((prev) => ({ ...prev, galleryImages: newGal }))
-                  }}
-                />
-              </div>
-
-              <div className="pt-6">
-                <Button
-                  type="submit"
-                  className="w-full sm:w-auto h-12 px-8 font-bold rounded-xl shadow-md"
-                >
-                  Salvar Alterações
-                </Button>
-              </div>
-            </form>
+            <AdminPlaceForm
+              initialData={managedPlace}
+              categories={categories}
+              onSave={(data) => {
+                updatePlace(managedPlace.id, data)
+                toast.success('Estabelecimento atualizado com sucesso!')
+              }}
+              isCompanyView
+            />
           </div>
         </TabsContent>
       </Tabs>

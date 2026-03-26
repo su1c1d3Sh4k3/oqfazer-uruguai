@@ -7,6 +7,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import { Edit, Trash2, Search, Filter } from 'lucide-react'
 import { Place } from '@/data/places'
 import { AspectRatio } from '@/components/ui/aspect-ratio'
@@ -72,7 +73,8 @@ export function AdminPlacesList({ places, categories, onEdit, onDelete }: Props)
         </div>
       </div>
 
-      <div className="rounded-2xl border border-border/50 bg-card overflow-hidden shadow-sm">
+      {/* Desktop Table View */}
+      <div className="hidden md:block rounded-2xl border border-border/50 bg-card overflow-hidden shadow-sm">
         <Table>
           <TableHeader className="bg-muted/30">
             <TableRow>
@@ -150,6 +152,69 @@ export function AdminPlacesList({ places, categories, onEdit, onDelete }: Props)
             )}
           </TableBody>
         </Table>
+      </div>
+
+      {/* Mobile Card View */}
+      <div className="grid grid-cols-1 gap-4 md:hidden">
+        {filteredPlaces.map((place) => (
+          <Card key={place.id} className="overflow-hidden shadow-sm">
+            <div className="flex gap-3 p-3">
+              <div className="w-24 shrink-0">
+                <AspectRatio
+                  ratio={4 / 3}
+                  className="bg-muted rounded-md overflow-hidden border border-border/50"
+                >
+                  <img
+                    src={place.coverImage}
+                    alt={place.name}
+                    className="object-cover w-full h-full"
+                  />
+                </AspectRatio>
+              </div>
+              <div className="flex-1 flex flex-col justify-center gap-1 overflow-hidden">
+                <h3 className="font-bold text-sm leading-tight truncate">{place.name}</h3>
+                <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
+                  <Badge variant="outline" className="text-[10px] px-1.5 py-0 bg-background">
+                    {place.category}
+                  </Badge>
+                  <span className="truncate">{place.city}</span>
+                </div>
+              </div>
+            </div>
+            <div className="bg-muted/30 px-3 py-2 border-t border-border/50 flex items-center justify-between">
+              {place.type === 'tour' ? (
+                <Badge className="bg-primary/10 text-primary border-none text-[10px] font-bold">
+                  Passeio
+                </Badge>
+              ) : (
+                <Badge className="bg-secondary/10 text-secondary border-none text-[10px] font-bold">
+                  Local
+                </Badge>
+              )}
+              <div className="flex justify-end gap-1">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => onEdit(place)}
+                  className="h-8 w-8 text-slate-500 hover:text-primary bg-background shadow-sm border border-border/50"
+                >
+                  <Edit className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => onDelete(place.id)}
+                  className="h-8 w-8 text-slate-500 hover:text-destructive bg-background shadow-sm border border-border/50"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </Card>
+        ))}
+        {filteredPlaces.length === 0 && (
+          <div className="text-center text-muted-foreground py-8">Nenhum local encontrado.</div>
+        )}
       </div>
     </div>
   )

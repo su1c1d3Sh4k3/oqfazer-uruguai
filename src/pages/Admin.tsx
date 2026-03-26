@@ -4,11 +4,12 @@ import { AdminCategoryManager } from '@/components/AdminCategoryManager'
 import { AdminPlacesList } from '@/components/AdminPlacesList'
 import { AdminLogin } from '@/components/AdminLogin'
 import { AdminDashboard } from '@/components/AdminDashboard'
+import { AdminUsersList } from '@/components/AdminUsersList'
 import { Button } from '@/components/ui/button'
 import { useAccess } from '@/context/AccessContext'
 import { usePlaces } from '@/context/PlacesContext'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { LogOut, Plus, Tags, List, LayoutDashboard } from 'lucide-react'
+import { LogOut, Plus, Tags, List, LayoutDashboard, Users } from 'lucide-react'
 import logoUrl from '@/assets/favicon-bnu-9afaa.jpg'
 import { Place } from '@/data/places'
 import { toast } from 'sonner'
@@ -92,6 +93,13 @@ export default function Admin() {
             <span className="hidden sm:inline">Dashboard</span>
           </TabsTrigger>
           <TabsTrigger
+            value="users"
+            className="gap-2 py-2.5 px-4 rounded-xl data-[state=active]:bg-background data-[state=active]:shadow-sm"
+          >
+            <Users className="h-4 w-4" />
+            <span className="hidden sm:inline">Usuários</span>
+          </TabsTrigger>
+          <TabsTrigger
             value="list"
             className="gap-2 py-2.5 px-4 rounded-xl data-[state=active]:bg-background data-[state=active]:shadow-sm"
           >
@@ -116,6 +124,10 @@ export default function Admin() {
 
         <TabsContent value="dashboard" className="mt-0 outline-none">
           <AdminDashboard />
+        </TabsContent>
+
+        <TabsContent value="users" className="mt-0 outline-none">
+          <AdminUsersList />
         </TabsContent>
 
         <TabsContent value="list" className="mt-0 outline-none">

@@ -23,9 +23,16 @@ interface Props {
   categories: string[]
   onSave: (data: Place) => void
   onCancel?: () => void
+  isCompanyView?: boolean
 }
 
-export function AdminPlaceForm({ initialData, categories, onSave, onCancel }: Props) {
+export function AdminPlaceForm({
+  initialData,
+  categories,
+  onSave,
+  onCancel,
+  isCompanyView,
+}: Props) {
   const [importUrl, setImportUrl] = useState('')
   const [mapsUrl, setMapsUrl] = useState('')
   const [isFetchingCoords, setIsFetchingCoords] = useState(false)
@@ -121,7 +128,7 @@ export function AdminPlaceForm({ initialData, categories, onSave, onCancel }: Pr
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {!initialData && (
+      {!initialData && !isCompanyView && (
         <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 space-y-3">
           <Label className="text-primary font-bold flex items-center gap-2">
             <LinkIcon className="h-4 w-4" /> Importar Passeio do Site Oficial
@@ -156,7 +163,11 @@ export function AdminPlaceForm({ initialData, categories, onSave, onCancel }: Pr
         </div>
         <div className="space-y-2">
           <Label>Tipo</Label>
-          <Select value={formData.type} onValueChange={(v) => handleChange('type', v as any)}>
+          <Select
+            value={formData.type}
+            onValueChange={(v) => handleChange('type', v as any)}
+            disabled={isCompanyView}
+          >
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
@@ -171,6 +182,7 @@ export function AdminPlaceForm({ initialData, categories, onSave, onCancel }: Pr
           <Select
             value={formData.category || ''}
             onValueChange={(v) => handleChange('category', v)}
+            disabled={isCompanyView && isTour}
           >
             <SelectTrigger>
               <SelectValue placeholder="Selecione..." />
