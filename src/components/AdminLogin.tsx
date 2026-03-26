@@ -14,10 +14,15 @@ export function AdminLogin({ onLogin }: Props) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (onLogin(password)) {
-      setError('')
+
+    if (typeof onLogin === 'function') {
+      if (onLogin(password)) {
+        setError('')
+      } else {
+        setError('Senha incorreta')
+      }
     } else {
-      setError('Senha incorreta')
+      setError('Erro interno de login. Recarregue a página.')
     }
   }
 

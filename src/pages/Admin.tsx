@@ -6,7 +6,6 @@ import { AdminLogin } from '@/components/AdminLogin'
 import { AdminDashboard } from '@/components/AdminDashboard'
 import { AdminUsersList } from '@/components/AdminUsersList'
 import { Button } from '@/components/ui/button'
-import { useAccess } from '@/context/AccessContext'
 import { usePlaces } from '@/context/PlacesContext'
 import { useAuth } from '@/context/AuthContext'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -17,11 +16,29 @@ import { toast } from 'sonner'
 import { Navigate } from 'react-router-dom'
 
 export default function Admin() {
-  const { isGranted, grantAccess, revokeAccess } = useAccess()
   const { currentUser } = useAuth()
   const { places, addPlace, updatePlace, deletePlace, categories } = usePlaces()
   const [activeTab, setActiveTab] = useState('dashboard')
   const [editingPlace, setEditingPlace] = useState<Place | undefined>(undefined)
+
+  const [isAdminGranted, setIsAdminGranted] = useState(() => {
+    return localStorage.getItem('@uruguai:admin_granted') === 'true'
+  })
+
+  const grantAccess = (pwd: string) => {
+    if (pwd === 'admin' || pwd === 'admin123' || pwd === 'bnu2024') {
+      localStorage.setItem('@uruguai:admin_granted', 'true')
+      setIsAdminGranted(true)
+      return true
+    }
+    return false
+  }
+
+  const revokeAccess = () => {
+    localStorage.removeItem('@uruguai:admin_granted')
+    setIsAdminGranted(false)
+    toast.success('Sessão encerrada com sucesso')
+  }
 
   if (currentUser?.role === 'establishment') {
     return <Navigate to="/profile" replace />
@@ -31,7 +48,7 @@ export default function Admin() {
     return <Navigate to="/" replace />
   }
 
-  if (!isGranted) {
+  if (!isAdminGranted) {
     return <AdminLogin onLogin={grantAccess} />
   }
 
