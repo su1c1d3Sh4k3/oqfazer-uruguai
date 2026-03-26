@@ -12,7 +12,7 @@ import { isPlaceOpen } from '@/lib/utils'
 import { Zap, Timer } from 'lucide-react'
 
 export default function Index() {
-  const { places, categories } = usePlaces()
+  const { places, categories, cities } = usePlaces()
   const { calculateDistance } = useGeo()
   const plugin = useRef(Autoplay({ delay: 4000, stopOnInteraction: true }))
 
@@ -21,7 +21,7 @@ export default function Index() {
   const [selectedType, setSelectedType] = useState('Todos')
   const [openNowOnly, setOpenNowOnly] = useState(false)
 
-  const CITIES = ['Todas', 'Montevideo', 'Punta del Este', 'Colonia del Sacramento']
+  const CITIES = ['Todas', ...cities]
   const TYPES = ['Todos', 'Locais', 'Passeio']
   const CATEGORIES = ['Todas', ...categories]
 

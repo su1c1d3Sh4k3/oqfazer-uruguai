@@ -109,7 +109,7 @@ export function AdminUsersList() {
             <TableRow>
               <TableHead>Nome</TableHead>
               <TableHead>Email</TableHead>
-              <TableHead>Telefone / CPF</TableHead>
+              <TableHead>Contato e Viagem</TableHead>
               <TableHead>Perfil</TableHead>
               <TableHead className="text-right">Cadastro</TableHead>
             </TableRow>
@@ -124,7 +124,8 @@ export function AdminUsersList() {
                   <TableCell>
                     <div className="flex flex-col gap-0.5 text-xs">
                       <span>{u.phone || '-'}</span>
-                      <span className="text-muted-foreground">{u.cpf || ''}</span>
+                      <span className="text-muted-foreground">CPF: {u.cpf || '-'}</span>
+                      <span className="text-muted-foreground">Viagem: {u.travelPeriod || '-'}</span>
                     </div>
                   </TableCell>
                   <TableCell>

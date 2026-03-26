@@ -201,7 +201,7 @@ export default function Auth() {
                     required
                     value={regTravelPeriod}
                     onChange={(e) => setRegTravelPeriod(e.target.value)}
-                    placeholder="10/12 a 20/12"
+                    placeholder="Ex: 10/12 a 20/12"
                     className="h-11 rounded-xl"
                   />
                 </div>
@@ -215,6 +215,7 @@ export default function Auth() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="h-11 rounded-xl"
+                    placeholder="Mínimo 6 chars"
                   />
                 </div>
                 <div className="space-y-2">
@@ -225,6 +226,7 @@ export default function Auth() {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     className="h-11 rounded-xl"
+                    placeholder="Repita a senha"
                   />
                 </div>
               </div>

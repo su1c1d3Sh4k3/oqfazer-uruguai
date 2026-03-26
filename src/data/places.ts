@@ -45,10 +45,16 @@ export interface Place {
   // Metrics
   accessCount?: number
   couponClickCount?: number
-  checkInCount?: number // New field for Top 20 ranking
+  checkInCount?: number
 
   // Flash Offer
   flashOffer?: FlashOffer
+
+  // Sensitive Fields (Only for Admin Master and Company Owner)
+  responsibleName?: string
+  ci?: string
+  contactEmail?: string
+  contactPhone?: string
 }
 
 export const DEFAULT_CATEGORIES = [
@@ -58,6 +64,18 @@ export const DEFAULT_CATEGORIES = [
   'Bares',
   'Museus',
   'Vinícolas',
+]
+
+export const DEFAULT_CITIES = ['Montevideo', 'Punta del Este', 'Colonia del Sacramento']
+
+export const DEFAULT_BADGES = [
+  '2x1',
+  'Desconto de 50%',
+  'Desconto de 40%',
+  'Desconto de 30%',
+  'Desconto de 20%',
+  'Desconto de 10%',
+  'Brinde',
 ]
 
 export const createDefaultHours = (): DailyHours[] => [
@@ -168,7 +186,7 @@ const GENERATED_TOURS: Place[] = tourLinks.map((t, i) => {
     city: t.city,
     departureCity: t.city,
     duration: isLunch ? 'Meio dia (4h a 5h)' : '2 a 3 horas',
-    discountBadge: '5% OFF',
+    discountBadge: 'Desconto de 5%',
     coverImage: `https://img.usecurling.com/p/800/600?q=${isWine ? 'vineyard' : 'city'}&seed=${i + 10}&color=blue`,
     galleryImages: Array(5)
       .fill(0)
@@ -191,6 +209,8 @@ const GENERATED_TOURS: Place[] = tourLinks.map((t, i) => {
     accessCount: Math.floor(Math.random() * 500) + 50,
     couponClickCount: Math.floor(Math.random() * 200) + 10,
     checkInCount: Math.floor(Math.random() * 300) + 20,
+    responsibleName: 'Admin Passeios BNU',
+    contactEmail: 'passeios@brasileirosnouruguai.com.br',
   }
 })
 
@@ -204,7 +224,7 @@ const MOCK_RESTAURANTS: Place[] = Array(18)
       name: isCafe ? `Cafeteria del Sur ${i + 1}` : `Restaurante Sabor ${i + 1}`,
       category: isCafe ? 'Cafeterias' : 'Restaurantes',
       city: i % 2 === 0 ? 'Montevideo' : 'Punta del Este',
-      discountBadge: isCafe ? '15% OFF' : 'Sobremesa Grátis',
+      discountBadge: isCafe ? 'Desconto de 10%' : 'Brinde',
       coverImage: `https://img.usecurling.com/p/600/400?q=${isCafe ? 'cafe' : 'food'}&seed=${i + 100}&color=${isCafe ? 'yellow' : 'orange'}`,
       galleryImages: [],
       description: 'Um ótimo estabelecimento para conhecer na sua viagem, super bem avaliado.',
@@ -213,8 +233,11 @@ const MOCK_RESTAURANTS: Place[] = Array(18)
       coordinates: { lat: -34.9 + i * 0.002, lng: -56.15 + i * 0.002 },
       accessCount: 200 + i * 15,
       couponClickCount: 50 + i * 5,
-      checkInCount: Math.floor(Math.random() * 800) + 100, // Generates high check-in numbers for the ranking
+      checkInCount: Math.floor(Math.random() * 800) + 100,
       operatingHours: createDefaultHours(),
+      responsibleName: `Gerente ${i + 1}`,
+      contactEmail: `contato@estabelecimento${i + 1}.com`,
+      contactPhone: '+598 99 123 456',
     }
   })
 
@@ -227,7 +250,7 @@ export const DEFAULT_PLACES: Place[] = [
     name: 'Parrilla del Sur',
     category: 'Restaurantes',
     city: 'Montevideo',
-    discountBadge: '20% OFF',
+    discountBadge: 'Desconto de 20%',
     coverImage: 'https://img.usecurling.com/p/600/400?q=steak&color=orange',
     galleryImages: [
       'https://img.usecurling.com/p/800/600?q=steak&seed=1&color=orange',
@@ -247,7 +270,11 @@ export const DEFAULT_PLACES: Place[] = [
     featured: true,
     accessCount: 1890,
     couponClickCount: 840,
-    checkInCount: 1250, // Top place
+    checkInCount: 1250,
+    responsibleName: 'Carlos Martinez',
+    contactEmail: 'gerencia@parrilladelsur.com.uy',
+    contactPhone: '+598 99 888 777',
+    ci: '1.234.567-8',
   },
   {
     id: '3',
@@ -255,7 +282,7 @@ export const DEFAULT_PLACES: Place[] = [
     name: 'Café de los Pájaros',
     category: 'Cafeterias',
     city: 'Colonia del Sacramento',
-    discountBadge: 'Café + Alfajor 50% OFF',
+    discountBadge: 'Desconto de 50%',
     coverImage: 'https://img.usecurling.com/p/600/400?q=cafe&color=orange',
     galleryImages: [
       'https://img.usecurling.com/p/800/600?q=coffee&seed=1&color=orange',
@@ -274,6 +301,8 @@ export const DEFAULT_PLACES: Place[] = [
     operatingHours: createDefaultHours(),
     accessCount: 1450,
     couponClickCount: 620,
-    checkInCount: 980, // Another top place
+    checkInCount: 980,
+    responsibleName: 'Lucia Fernandez',
+    contactEmail: 'lucia@cafedelospajaros.com',
   },
 ]

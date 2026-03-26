@@ -1,9 +1,36 @@
-import { CheckCircle2, XCircle } from 'lucide-react'
+import { CheckCircle2, XCircle, AlertTriangle } from 'lucide-react'
 import { format } from 'date-fns'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogDescription,
+} from '@/components/ui/dialog'
+import { Textarea } from '@/components/ui/textarea'
+import { Button } from '@/components/ui/button'
+import { useState } from 'react'
+import { toast } from 'sonner'
 
 export function PlaceCheckInTicket({ checkInTime }: { checkInTime: number }) {
+  const [reportOpen, setReportOpen] = useState(false)
+  const [issue, setIssue] = useState('')
+
   const expirationTime = checkInTime + 86400000
   const isExpired = Date.now() > expirationTime
+
+  const handleReport = () => {
+    if (!issue.trim()) {
+      toast.error('Descreva o problema antes de enviar.')
+      return
+    }
+    toast.success('Problema reportado com sucesso', {
+      description: 'Nossa equipe de suporte entrará em contato via WhatsApp.',
+    })
+    setReportOpen(false)
+    setIssue('')
+  }
 
   if (isExpired) {
     return (
@@ -45,6 +72,36 @@ export function PlaceCheckInTicket({ checkInTime }: { checkInTime: number }) {
             {format(new Date(expirationTime), 'HH:mm')}
           </span>
         </p>
+      </div>
+
+      <div className="mt-4 text-center">
+        <Dialog open={reportOpen} onOpenChange={setReportOpen}>
+          <DialogTrigger asChild>
+            <button className="text-xs text-white/80 hover:text-white underline flex items-center justify-center gap-1 mx-auto transition-colors">
+              <AlertTriangle className="h-3 w-3" /> Reportar problema com o cupom
+            </button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-md text-slate-900 rounded-2xl">
+            <DialogHeader>
+              <DialogTitle className="font-display text-xl text-primary flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5" /> Reportar Problema
+              </DialogTitle>
+              <DialogDescription>
+                Teve algum problema com o reconhecimento do desconto no estabelecimento? Descreva
+                abaixo para a nossa equipe.
+              </DialogDescription>
+            </DialogHeader>
+            <Textarea
+              value={issue}
+              onChange={(e) => setIssue(e.target.value)}
+              placeholder="Ex: O gerente não reconheceu a oferta..."
+              className="mt-2 min-h-[120px] resize-none"
+            />
+            <Button onClick={handleReport} className="mt-4 w-full h-11 font-bold">
+              Enviar Reporte
+            </Button>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   )

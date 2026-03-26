@@ -1,14 +1,27 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { Place, FlashOffer, DEFAULT_PLACES, DEFAULT_CATEGORIES } from '@/data/places'
+import {
+  Place,
+  FlashOffer,
+  DEFAULT_PLACES,
+  DEFAULT_CATEGORIES,
+  DEFAULT_CITIES,
+  DEFAULT_BADGES,
+} from '@/data/places'
 
 interface PlacesContextType {
   places: Place[]
   categories: string[]
+  cities: string[]
+  badges: string[]
   addPlace: (p: Place) => void
   updatePlace: (id: string, p: Partial<Place>) => void
   deletePlace: (id: string) => void
   addCategory: (c: string) => void
   deleteCategory: (c: string) => void
+  addCity: (c: string) => void
+  deleteCity: (c: string) => void
+  addBadge: (b: string) => void
+  deleteBadge: (b: string) => void
   recordAccess: (id: string) => void
   recordCouponClick: (id: string) => void
   createFlashOffer: (id: string, offer: FlashOffer | undefined) => void
@@ -54,6 +67,24 @@ export function PlacesProvider({ children }: { children: React.ReactNode }) {
     }
   })
 
+  const [cities, setCities] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem('@uruguai:cities')
+      return saved ? JSON.parse(saved) : DEFAULT_CITIES
+    } catch {
+      return DEFAULT_CITIES
+    }
+  })
+
+  const [badges, setBadges] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem('@uruguai:badges')
+      return saved ? JSON.parse(saved) : DEFAULT_BADGES
+    } catch {
+      return DEFAULT_BADGES
+    }
+  })
+
   useEffect(() => {
     localStorage.setItem('@uruguai:places', JSON.stringify(places))
   }, [places])
@@ -61,6 +92,14 @@ export function PlacesProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     localStorage.setItem('@uruguai:categories', JSON.stringify(categories))
   }, [categories])
+
+  useEffect(() => {
+    localStorage.setItem('@uruguai:cities', JSON.stringify(cities))
+  }, [cities])
+
+  useEffect(() => {
+    localStorage.setItem('@uruguai:badges', JSON.stringify(badges))
+  }, [badges])
 
   const addPlace = (p: Place) => setPlaces((prev) => [...prev, p])
   const updatePlace = (id: string, data: Partial<Place>) =>
@@ -71,6 +110,16 @@ export function PlacesProvider({ children }: { children: React.ReactNode }) {
     if (!categories.includes(c)) setCategories((prev) => [...prev, c])
   }
   const deleteCategory = (c: string) => setCategories((prev) => prev.filter((cat) => cat !== c))
+
+  const addCity = (c: string) => {
+    if (!cities.includes(c)) setCities((prev) => [...prev, c])
+  }
+  const deleteCity = (c: string) => setCities((prev) => prev.filter((city) => city !== c))
+
+  const addBadge = (b: string) => {
+    if (!badges.includes(b)) setBadges((prev) => [...prev, b])
+  }
+  const deleteBadge = (b: string) => setBadges((prev) => prev.filter((badge) => badge !== b))
 
   const recordAccess = (id: string) => {
     setPlaces((prev) =>
@@ -96,11 +145,17 @@ export function PlacesProvider({ children }: { children: React.ReactNode }) {
       value: {
         places,
         categories,
+        cities,
+        badges,
         addPlace,
         updatePlace,
         deletePlace,
         addCategory,
         deleteCategory,
+        addCity,
+        deleteCity,
+        addBadge,
+        deleteBadge,
         recordAccess,
         recordCouponClick,
         createFlashOffer,

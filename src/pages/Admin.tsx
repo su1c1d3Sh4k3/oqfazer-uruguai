@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { useAccess } from '@/context/AccessContext'
 import { usePlaces } from '@/context/PlacesContext'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { LogOut, Plus, Tags, List, LayoutDashboard, Users } from 'lucide-react'
+import { LogOut, Plus, Settings, List, LayoutDashboard, Users } from 'lucide-react'
 import logoUrl from '@/assets/favicon-bnu-9afaa.jpg'
 import { Place } from '@/data/places'
 import { toast } from 'sonner'
@@ -114,11 +114,11 @@ export default function Admin() {
             <span>{editingPlace ? 'Editar Local' : 'Novo Local'}</span>
           </TabsTrigger>
           <TabsTrigger
-            value="categories"
+            value="settings"
             className="gap-2 py-2.5 px-4 rounded-xl data-[state=active]:bg-background data-[state=active]:shadow-sm"
           >
-            <Tags className="h-4 w-4" />
-            <span>Categorias</span>
+            <Settings className="h-4 w-4" />
+            <span>Configurações</span>
           </TabsTrigger>
         </TabsList>
 
@@ -165,10 +165,8 @@ export default function Admin() {
           </div>
         </TabsContent>
 
-        <TabsContent value="categories" className="mt-0 outline-none">
-          <div className="bg-card rounded-2xl border border-border/50 shadow-sm overflow-hidden p-6">
-            <AdminCategoryManager />
-          </div>
+        <TabsContent value="settings" className="mt-0 outline-none">
+          <AdminCategoryManager />
         </TabsContent>
       </Tabs>
     </div>
