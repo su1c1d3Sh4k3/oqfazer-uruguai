@@ -25,7 +25,7 @@ import logoUrl from '@/assets/favicon-bnu-9afaa.jpg'
 import { useAccess } from '@/context/AccessContext'
 import { useAuth } from '@/context/AuthContext'
 import { AccessExpired } from '@/pages/AccessExpired'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 export function Layout() {
@@ -33,6 +33,22 @@ export function Layout() {
   const navigate = useNavigate()
   const { isExpired, isGranted } = useAccess()
   const { currentUser, logout } = useAuth()
+
+  const [isAdminMaster, setIsAdminMaster] = useState(
+    () => localStorage.getItem('@uruguai:admin_granted') === 'true',
+  )
+
+  useEffect(() => {
+    const handleAuthChange = () => {
+      setIsAdminMaster(localStorage.getItem('@uruguai:admin_granted') === 'true')
+    }
+    window.addEventListener('storage', handleAuthChange)
+    window.addEventListener('admin-auth-changed', handleAuthChange)
+    return () => {
+      window.removeEventListener('storage', handleAuthChange)
+      window.removeEventListener('admin-auth-changed', handleAuthChange)
+    }
+  }, [])
 
   const handleLogout = () => {
     logout()
@@ -68,7 +84,6 @@ export function Layout() {
 
   const isCompany = currentUser?.role === 'establishment'
   const isUser = currentUser?.role === 'user'
-  const isAdminMaster = isGranted && !currentUser
 
   const headerTitle = isAdminMaster ? 'Painel Admin' : 'O que Fazer no Uruguai?'
 
@@ -76,7 +91,7 @@ export function Layout() {
     { name: 'Explorar', path: '/', icon: Compass, show: true },
     { name: 'Mapa', path: '/map', icon: MapIcon, show: true },
     { name: 'Top 20', path: '/top', icon: Trophy, show: true },
-    { name: 'Favoritos', path: '/favorites', icon: Heart, show: !isCompany },
+    { name: 'Favoritos', path: '/favorites', icon: Heart, show: !isCompany && !isAdminMaster },
     {
       name: 'Meu Negócio',
       path: '/empresa',
@@ -102,7 +117,7 @@ export function Layout() {
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col font-sans relative">
-      {!isCompany && !isGranted && (
+      {!isCompany && !isAdminMaster && (
         <div className="w-full bg-slate-900 text-slate-400 py-1.5 px-4 flex justify-end text-[10px] font-bold uppercase tracking-widest z-50 relative">
           <Link to="/empresa" className="hover:text-white transition-colors">
             Acesso Empresa

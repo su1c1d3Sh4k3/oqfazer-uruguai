@@ -30,6 +30,7 @@ export default function Admin() {
     if (pwd === '1234') {
       localStorage.setItem('@uruguai:admin_granted', 'true')
       setIsAdminGranted(true)
+      window.dispatchEvent(new Event('admin-auth-changed'))
       return true
     }
     return false
@@ -38,6 +39,7 @@ export default function Admin() {
   const revokeAccess = () => {
     localStorage.removeItem('@uruguai:admin_granted')
     setIsAdminGranted(false)
+    window.dispatchEvent(new Event('admin-auth-changed'))
     toast.success('Sessão encerrada com sucesso')
   }
 

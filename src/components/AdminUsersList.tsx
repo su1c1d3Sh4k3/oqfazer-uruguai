@@ -329,7 +329,9 @@ export function AdminUsersList() {
                 <TableRow key={i}>
                   <TableCell className="font-medium">
                     <p>{u.name || u.responsibleName || '-'}</p>
-                    <p className="text-xs text-muted-foreground">Doc: {u.cpf || u.ci || '-'}</p>
+                    <p className="text-xs text-muted-foreground">
+                      Doc: {u.cpf || u.ci || '-'} | Tel: {u.phone || '-'}
+                    </p>
                   </TableCell>
                   <TableCell>
                     <p>{u.email}</p>
