@@ -5,9 +5,8 @@ import { PlaceCard } from '@/components/PlaceCard'
 import { Award, Compass, MapPin, Map as MapIcon, ShieldCheck, Trophy, Medal } from 'lucide-react'
 import { Progress } from '@/components/ui/progress'
 import { Button } from '@/components/ui/button'
-import { Link } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 import { cn } from '@/lib/utils'
-import { CompanyDashboard } from '@/components/CompanyDashboard'
 
 export default function Profile() {
   const { currentUser } = useAuth()
@@ -31,11 +30,7 @@ export default function Profile() {
   }
 
   if (currentUser.role === 'establishment') {
-    return (
-      <div className="flex h-full flex-col px-4 pb-12 pt-4 md:px-8 md:pt-8 w-full animate-fade-in">
-        <CompanyDashboard />
-      </div>
-    )
+    return <Navigate to="/empresa" replace />
   }
 
   const placeCheckIns =

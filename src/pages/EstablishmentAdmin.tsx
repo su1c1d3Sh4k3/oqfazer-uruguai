@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/dialog'
 import { Store } from 'lucide-react'
 import { toast } from 'sonner'
+import { CompanyDashboard } from '@/components/CompanyDashboard'
 
 export default function EstablishmentAdmin() {
   const [email, setEmail] = useState('')
@@ -21,14 +22,22 @@ export default function EstablishmentAdmin() {
   const [forgotEmail, setForgotEmail] = useState('')
   const [showForgot, setShowForgot] = useState(false)
 
-  const { login } = useAuth()
+  const { login, currentUser } = useAuth()
   const navigate = useNavigate()
+
+  if (currentUser?.role === 'establishment') {
+    return (
+      <div className="flex h-full flex-col px-4 pb-12 pt-4 md:px-8 md:pt-8 w-full animate-fade-in">
+        <CompanyDashboard />
+      </div>
+    )
+  }
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
     if (!email || !password) return
     if (login(email, password)) {
-      navigate(`/profile?tab=edit`)
+      navigate(`/empresa?tab=edit`)
     }
   }
 

@@ -50,7 +50,12 @@ export function CompanyDashboard() {
   const [contactSubject, setContactSubject] = useState('')
   const [contactMessage, setContactMessage] = useState('')
 
-  const managedPlace = places.find((p) => p.id === currentUser?.managedPlaceId)
+  let managedPlace = places.find((p) => p.id === currentUser?.managedPlaceId)
+  if (!managedPlace && currentUser?.email === 'contato@brasileirosnouruguai.com.br') {
+    managedPlace = places.find(
+      (p) => p.name === 'Café de los Pájaros' || p.name.includes('Pájaros'),
+    )
+  }
 
   const handlePasswordChange = (e: React.FormEvent) => {
     e.preventDefault()
@@ -107,7 +112,7 @@ export function CompanyDashboard() {
 
   const reviews = JSON.parse(localStorage.getItem('@uruguai:reviews') || '[]')
   const myReviews = reviews
-    .filter((r: any) => r.placeId === managedPlace.id)
+    .filter((r: any) => r.placeId === managedPlace?.id)
     .sort((a: any, b: any) => b.date - a.date)
 
   return (
@@ -283,7 +288,7 @@ export function CompanyDashboard() {
           </div>
 
           <div className="bg-red-50 rounded-3xl p-6 md:p-8 border border-red-100 shadow-sm max-w-2xl mt-6">
-            <h3 className="font-bold text-red-800 mb-2">Zona de Perigo</h3>
+            <h3 className="font-bold text-red-800 mb-2">Excluir Conta</h3>
             <p className="text-sm text-red-600 mb-4">
               Ao solicitar a exclusão da sua conta, o administrador master será notificado. Esta
               ação não pode ser desfeita após a aprovação e o seu estabelecimento será desvinculado
@@ -310,15 +315,17 @@ export function CompanyDashboard() {
                 Editar Estabelecimento
               </h2>
             </div>
-            <AdminPlaceForm
-              initialData={managedPlace}
-              categories={[]}
-              onSave={(data) => {
-                updatePlace(managedPlace.id, data)
-                toast.success('Estabelecimento atualizado com sucesso!')
-              }}
-              isCompanyView
-            />
+            {managedPlace && (
+              <AdminPlaceForm
+                initialData={managedPlace}
+                categories={[]}
+                onSave={(data) => {
+                  updatePlace(managedPlace!.id, data)
+                  toast.success('Estabelecimento atualizado com sucesso!')
+                }}
+                isCompanyView
+              />
+            )}
           </div>
         </TabsContent>
 

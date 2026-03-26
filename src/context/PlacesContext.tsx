@@ -33,9 +33,10 @@ export function PlacesProvider({ children }: { children: React.ReactNode }) {
   const [places, setPlaces] = useState<Place[]>(() => {
     try {
       const saved = localStorage.getItem('@uruguai:places')
-      if (saved) {
-        let parsed = JSON.parse(saved)
+      let parsed: Place[] = []
 
+      if (saved) {
+        parsed = JSON.parse(saved)
         parsed = parsed.map((p: Place) => {
           if (p.id === '1' && p.address && p.address.includes('Rambla')) {
             return {
@@ -50,9 +51,34 @@ export function PlacesProvider({ children }: { children: React.ReactNode }) {
         const missingDefaults = DEFAULT_PLACES.filter(
           (dp) => !parsed.some((p: Place) => p.id === dp.id),
         )
-        return [...parsed, ...missingDefaults]
+        parsed = [...parsed, ...missingDefaults]
+      } else {
+        parsed = [...DEFAULT_PLACES]
       }
-      return DEFAULT_PLACES
+
+      const missingPajaros = !parsed.some(
+        (p: Place) => p.id === 'cafe-pajaros' || p.name === 'Café de los Pájaros',
+      )
+      if (missingPajaros) {
+        parsed.push({
+          id: 'cafe-pajaros',
+          name: 'Café de los Pájaros',
+          description: 'Um charmoso café para aproveitar o melhor do Uruguai.',
+          category: 'Cafeterias',
+          city: 'Montevideo',
+          address: 'Montevideo',
+          coordinates: { lat: -34.9063, lng: -56.1905 },
+          galleryImages: ['https://img.usecurling.com/p/800/600?q=cafe'],
+          coverImage: 'https://img.usecurling.com/p/800/600?q=coffee',
+          discountBadge: '10% OFF',
+          discountDescription: '10% de desconto no total da conta.',
+          operatingHours: [],
+          accessCount: 0,
+          couponClickCount: 0,
+        })
+      }
+
+      return parsed
     } catch {
       return DEFAULT_PLACES
     }

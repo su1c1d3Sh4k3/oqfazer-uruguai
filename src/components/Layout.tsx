@@ -67,6 +67,10 @@ export function Layout() {
   }, [])
 
   const isCompany = currentUser?.role === 'establishment'
+  const isUser = currentUser?.role === 'user'
+  const isAdminMaster = isGranted && !currentUser
+
+  const headerTitle = isAdminMaster ? 'Painel Admin' : 'O que Fazer no Uruguai?'
 
   const navItems = [
     { name: 'Explorar', path: '/', icon: Compass, show: true },
@@ -74,13 +78,19 @@ export function Layout() {
     { name: 'Top 20', path: '/top', icon: Trophy, show: true },
     { name: 'Favoritos', path: '/favorites', icon: Heart, show: !isCompany },
     {
-      name: isCompany ? 'Meu Negócio' : 'Progresso',
-      path: '/profile',
-      icon: isCompany ? Store : Award,
-      show: true,
+      name: 'Meu Negócio',
+      path: '/empresa',
+      icon: Store,
+      show: isCompany,
     },
-    { name: 'Perfil', path: '/perfil', icon: User, show: currentUser?.role === 'user' },
-    { name: 'Painel Admin', path: '/admin', icon: ShieldAlert, show: isGranted && !currentUser },
+    {
+      name: 'Progresso',
+      path: '/profile',
+      icon: Award,
+      show: isUser || (!currentUser && !isAdminMaster),
+    },
+    { name: 'Perfil', path: '/perfil', icon: User, show: isUser },
+    { name: 'Painel Admin', path: '/admin', icon: ShieldAlert, show: isAdminMaster },
   ].filter((item) => item.show !== false)
 
   const blockedPaths = ['/', '/map', '/favorites', '/top']
@@ -112,7 +122,7 @@ export function Layout() {
             </div>
             <div className="flex flex-col">
               <span className="font-bold text-lg leading-none text-primary sm:text-xl tracking-tight">
-                O que Fazer no Uruguai?
+                {headerTitle}
               </span>
               <span className="text-[0.65rem] sm:text-[0.7rem] font-semibold text-muted-foreground uppercase tracking-wider mt-1">
                 por Brasileiros no Uruguai
@@ -190,7 +200,7 @@ export function Layout() {
                     </div>
                     <div className="flex flex-col">
                       <span className="font-bold text-lg leading-tight text-primary tracking-tight">
-                        O que Fazer no Uruguai?
+                        {headerTitle}
                       </span>
                       <span className="text-[0.65rem] font-semibold text-muted-foreground uppercase tracking-wider mt-1">
                         por Brasileiros no Uruguai

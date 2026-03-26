@@ -47,6 +47,14 @@ const initDb = () => {
         phone: '999999999',
         firstLoginAt: Date.now(),
       },
+      'contato@brasileirosnouruguai.com.br': {
+        email: 'contato@brasileirosnouruguai.com.br',
+        password: '1234',
+        role: 'establishment',
+        managedPlaceId: 'cafe-pajaros',
+        responsibleName: 'Admin BNU',
+        firstLoginAt: Date.now(),
+      },
     }
     localStorage.setItem('@uruguai:users_db', JSON.stringify(defaultDb))
     return defaultDb

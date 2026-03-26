@@ -42,7 +42,7 @@ export default function Admin() {
   }
 
   if (currentUser?.role === 'establishment') {
-    return <Navigate to="/profile" replace />
+    return <Navigate to="/empresa" replace />
   }
 
   if (currentUser?.role === 'user') {

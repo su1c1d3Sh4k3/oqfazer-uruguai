@@ -27,7 +27,13 @@ export default function Auth() {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
     if (login(email, password)) {
-      navigate('/profile')
+      const users = JSON.parse(localStorage.getItem('@uruguai:users_db') || '{}')
+      const user = users[email]
+      if (user?.role === 'establishment') {
+        navigate('/empresa')
+      } else {
+        navigate('/profile')
+      }
     }
   }
 
