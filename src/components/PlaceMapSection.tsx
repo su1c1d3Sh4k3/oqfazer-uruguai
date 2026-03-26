@@ -1,4 +1,4 @@
-import { MapPin, MapOff } from 'lucide-react'
+import { MapPin, MapPinOff } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -16,7 +16,7 @@ export function PlaceMapSection({ lat, lng, address, distance }: MapSectionProps
   if (typeof lat !== 'number' || typeof lng !== 'number' || isNaN(lat) || isNaN(lng)) {
     return (
       <div className="flex flex-col items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 p-8 text-center shadow-sm">
-        <MapOff className="mb-3 h-10 w-10 text-slate-400" />
+        <MapPinOff className="mb-3 h-10 w-10 text-slate-400" />
         <p className="font-medium text-slate-600">Localização no mapa indisponível</p>
         <p className="mt-1 text-sm text-slate-500">{address}</p>
       </div>
