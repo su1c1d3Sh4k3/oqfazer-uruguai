@@ -1,27 +1,16 @@
 import { usePlaces } from '@/context/PlacesContext'
 import { PlaceCard } from '@/components/PlaceCard'
 import { useState, useMemo } from 'react'
-import { Trophy, CheckCircle2, Search } from 'lucide-react'
+import { Trophy, CheckCircle2 } from 'lucide-react'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
-import { Input } from '@/components/ui/input'
 
 export default function TopRestaurants() {
   const { places } = usePlaces()
   const [filter, setFilter] = useState<'all' | '30d'>('all')
-  const [searchQuery, setSearchQuery] = useState('')
 
   const topPlaces = useMemo(() => {
     return places
       .filter((p) => p.type !== 'tour' && p.category !== 'Passeios')
-      .filter((p) => {
-        if (
-          searchQuery.trim() !== '' &&
-          !p.name.toLowerCase().includes(searchQuery.toLowerCase())
-        ) {
-          return false
-        }
-        return true
-      })
       .map((p) => {
         const baseCheckins = p.checkInCount || 0
         return {
@@ -31,7 +20,7 @@ export default function TopRestaurants() {
       })
       .sort((a, b) => b.displayCheckins - a.displayCheckins)
       .slice(0, 20)
-  }, [places, filter, searchQuery])
+  }, [places, filter])
 
   return (
     <div className="flex flex-col gap-6 px-4 pb-8 pt-6 md:px-8 md:pt-8 w-full max-w-7xl mx-auto animate-fade-in">
@@ -51,15 +40,6 @@ export default function TopRestaurants() {
         </div>
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0 w-full lg:w-auto">
-          <div className="relative w-full sm:w-64">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-            <Input
-              placeholder="Buscar restaurante..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 h-10 w-full rounded-xl border-slate-200 bg-white shadow-sm focus-visible:ring-primary/20"
-            />
-          </div>
           <div className="bg-white p-1 rounded-xl shadow-sm border border-slate-100 w-full sm:w-auto flex">
             <ToggleGroup
               type="single"

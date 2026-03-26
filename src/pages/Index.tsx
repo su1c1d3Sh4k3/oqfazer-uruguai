@@ -8,14 +8,16 @@ import { Link } from 'react-router-dom'
 import { Badge } from '@/components/ui/badge'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
+import { Input } from '@/components/ui/input'
 import { isPlaceOpen } from '@/lib/utils'
-import { Zap, Timer } from 'lucide-react'
+import { Zap, Timer, Search } from 'lucide-react'
 
 export default function Index() {
   const { places, categories, cities } = usePlaces()
   const { calculateDistance } = useGeo()
   const plugin = useRef(Autoplay({ delay: 4000, stopOnInteraction: true }))
 
+  const [searchQuery, setSearchQuery] = useState('')
   const [selectedCity, setSelectedCity] = useState('Todas')
   const [selectedCategory, setSelectedCategory] = useState('Todas')
   const [selectedType, setSelectedType] = useState('Todos')
@@ -31,6 +33,17 @@ export default function Index() {
 
   const filteredPlaces = useMemo(() => {
     let result = places
+
+    if (searchQuery.trim().length >= 3) {
+      const query = searchQuery.toLowerCase()
+      result = result.filter(
+        (p) =>
+          p.name.toLowerCase().includes(query) ||
+          p.city.toLowerCase().includes(query) ||
+          p.category.toLowerCase().includes(query),
+      )
+    }
+
     if (selectedCity !== 'Todas') result = result.filter((p) => p.city === selectedCity)
     if (selectedCategory !== 'Todas') result = result.filter((p) => p.category === selectedCategory)
 
@@ -49,7 +62,15 @@ export default function Index() {
       const distB = calculateDistance(b.coordinates.lat, b.coordinates.lng) || 9999
       return distA - distB
     })
-  }, [places, selectedCity, selectedCategory, selectedType, openNowOnly, calculateDistance])
+  }, [
+    places,
+    searchQuery,
+    selectedCity,
+    selectedCategory,
+    selectedType,
+    openNowOnly,
+    calculateDistance,
+  ])
 
   const featured = places.filter((p) => p.featured)
 
@@ -134,6 +155,16 @@ export default function Index() {
       )}
 
       <section className="flex flex-col gap-4 px-4 md:px-0">
+        <div className="relative w-full">
+          <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+          <Input
+            placeholder="Buscar estabelecimentos..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-11 h-12 w-full rounded-2xl border-slate-200 bg-white shadow-sm focus-visible:ring-primary/20 text-base"
+          />
+        </div>
+
         <div className="hide-scrollbar -mx-4 flex overflow-x-auto px-4 md:mx-0 md:px-0">
           <div className="flex gap-2">
             {CATEGORIES.map((category) => (

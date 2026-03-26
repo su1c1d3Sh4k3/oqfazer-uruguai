@@ -39,7 +39,6 @@ export default function MapView() {
   const { getPlaceStatus } = useAccess()
   const [selectedPlace, setSelectedPlace] = useState<string | null>(null)
 
-  const [searchQuery, setSearchQuery] = useState('')
   const [cityFilter, setCityFilter] = useState('Todas')
   const [categoryFilter, setCategoryFilter] = useState('Todas')
   const [openNow, setOpenNow] = useState(false)
@@ -83,11 +82,9 @@ export default function MapView() {
       if (cityFilter !== 'Todas' && p.city !== cityFilter) return false
       if (categoryFilter !== 'Todas' && p.category !== categoryFilter) return false
       if (openNow && !isPlaceOpen(p.operatingHours)) return false
-      if (searchQuery.trim() !== '' && !p.name.toLowerCase().includes(searchQuery.toLowerCase()))
-        return false
       return true
     })
-  }, [places, cityFilter, categoryFilter, openNow, searchQuery])
+  }, [places, cityFilter, categoryFilter, openNow])
 
   const selectedPlaceData = useMemo(() => {
     return selectedPlace ? places.find((p) => p.id === selectedPlace) : null
@@ -326,16 +323,6 @@ export default function MapView() {
 
       {/* Interface overlay: Filters */}
       <div className="no-drag absolute left-1/2 top-4 z-40 flex w-[94%] max-w-[500px] -translate-x-1/2 flex-col gap-2">
-        <div className="flex w-full items-center rounded-2xl border border-white/50 bg-white/95 px-3 py-1 shadow-lg backdrop-blur-md cursor-auto">
-          <Search className="h-4 w-4 text-slate-400 mr-2 shrink-0" />
-          <input
-            type="text"
-            placeholder="Buscar estabelecimento..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="flex-1 bg-transparent text-sm outline-none placeholder:text-slate-400 py-1.5 font-medium text-slate-700"
-          />
-        </div>
         <div className="flex w-full flex-row gap-1.5 rounded-2xl border border-white/50 bg-white/95 p-1.5 shadow-lg backdrop-blur-md items-center cursor-auto">
           <div className="flex-1 min-w-0">
             <Select value={cityFilter} onValueChange={setCityFilter}>

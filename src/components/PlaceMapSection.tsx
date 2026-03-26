@@ -44,47 +44,63 @@ export function PlaceMapSection({ lat, lng, address, distance }: MapSectionProps
           onLoad={() => setIsLoading(false)}
         ></iframe>
       </div>
-      <div className="relative z-10 flex items-center justify-between border-t border-slate-100 bg-white p-4">
-        <div className="min-w-0 flex-1 pr-4">
+      <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-t border-slate-100 bg-white p-4">
+        <div className="min-w-0 flex-1 w-full pr-4">
           <p className="truncate font-bold text-slate-900">{address}</p>
           <p className="mt-0.5 text-sm font-medium text-slate-500">A {distance} de você</p>
         </div>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button
-              variant="default"
-              size="sm"
-              className="shrink-0 rounded-xl bg-secondary font-semibold text-secondary-foreground shadow-sm hover:bg-secondary/90"
+        <div className="flex w-full sm:w-auto items-center gap-2 shrink-0">
+          <Button
+            asChild
+            variant="outline"
+            size="sm"
+            className="flex-1 sm:flex-none rounded-xl font-semibold shadow-sm"
+          >
+            <a
+              href={`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`}
+              target="_blank"
+              rel="noreferrer"
             >
-              Como chegar
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-xs">
-            <DialogHeader>
-              <DialogTitle className="font-display text-center">Abrir navegação com</DialogTitle>
-            </DialogHeader>
-            <div className="mt-4 flex flex-col gap-3">
-              <Button asChild className="h-12 text-lg font-medium">
-                <a
-                  href={`https://waze.com/ul?ll=${lat},${lng}&navigate=yes`}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Waze
-                </a>
+              Abrir no Maps
+            </a>
+          </Button>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button
+                variant="default"
+                size="sm"
+                className="flex-1 sm:flex-none rounded-xl bg-secondary font-semibold text-secondary-foreground shadow-sm hover:bg-secondary/90"
+              >
+                Como chegar
               </Button>
-              <Button asChild className="h-12 text-lg font-medium">
-                <a
-                  href={`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Google Maps
-                </a>
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-xs">
+              <DialogHeader>
+                <DialogTitle className="font-display text-center">Abrir navegação com</DialogTitle>
+              </DialogHeader>
+              <div className="mt-4 flex flex-col gap-3">
+                <Button asChild className="h-12 text-lg font-medium">
+                  <a
+                    href={`https://waze.com/ul?ll=${lat},${lng}&navigate=yes`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Waze
+                  </a>
+                </Button>
+                <Button asChild className="h-12 text-lg font-medium">
+                  <a
+                    href={`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Google Maps
+                  </a>
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
     </div>
   )
