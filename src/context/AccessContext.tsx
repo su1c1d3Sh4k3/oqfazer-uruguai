@@ -21,7 +21,13 @@ interface AccessContextType {
 const AccessContext = createContext<AccessContextType | undefined>(undefined)
 
 export function AccessProvider({ children }: { children: React.ReactNode }) {
-  const { currentUser } = useAuth()
+  const { currentUser, updateProfile } = useAuth()
+  const [now, setNow] = useState(Date.now())
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 60000)
+    return () => clearInterval(timer)
+  }, [])
 
   const [accesses, setAccesses] = useState<AccessRecord[]>(() => {
     try {
@@ -55,6 +61,11 @@ export function AccessProvider({ children }: { children: React.ReactNode }) {
         },
       ]
     })
+
+    if (currentUser?.role === 'user' && !currentUser.firstCheckInAt) {
+      updateProfile({ firstCheckInAt: Date.now() }, true)
+    }
+
     toast.success('Check-in realizado com sucesso!', {
       description: 'Aproveite seus benefícios no estabelecimento.',
     })
@@ -75,7 +86,11 @@ export function AccessProvider({ children }: { children: React.ReactNode }) {
     checkIn(placeId)
   }
 
-  const isExpired = false
+  const isExpired =
+    currentUser?.role === 'user' && currentUser.firstCheckInAt
+      ? now > currentUser.firstCheckInAt + 20 * 24 * 60 * 60 * 1000
+      : false
+
   const isGranted = currentUser?.role === 'establishment'
 
   return React.createElement(

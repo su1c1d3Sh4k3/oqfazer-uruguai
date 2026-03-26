@@ -14,6 +14,7 @@ import {
   LogOut,
   ShieldCheck,
   Calendar as CalendarIcon,
+  Clock,
 } from 'lucide-react'
 import {
   Dialog,
@@ -25,7 +26,7 @@ import {
 } from '@/components/ui/dialog'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Calendar } from '@/components/ui/calendar'
-import { format, parse } from 'date-fns'
+import { format, parse, addDays } from 'date-fns'
 import { DateRange } from 'react-day-picker'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
@@ -111,6 +112,44 @@ export default function UserProfile() {
           <LogOut className="h-4 w-4 mr-2" /> Sair
         </Button>
       </div>
+
+      <Card className="shadow-sm border-slate-200 rounded-2xl overflow-hidden mb-6">
+        <CardHeader className="bg-slate-50/50 border-b border-slate-100 pb-6 flex flex-row items-center justify-between space-y-0">
+          <div>
+            <CardTitle className="text-xl text-slate-800">Status da Conta</CardTitle>
+            <CardDescription className="mt-1">
+              Acompanhe o período de validade dos seus benefícios.
+            </CardDescription>
+          </div>
+        </CardHeader>
+        <CardContent className="p-6">
+          {currentUser.firstCheckInAt ? (
+            <div className="flex items-center gap-4">
+              <div className="h-12 w-12 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 shrink-0">
+                <Clock className="h-6 w-6" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-slate-500">Sua conta expira em:</p>
+                <p className="text-lg font-bold text-slate-900">
+                  {format(addDays(new Date(currentUser.firstCheckInAt), 20), 'dd/MM/yyyy')}
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center gap-4">
+              <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 shrink-0">
+                <Clock className="h-6 w-6" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-slate-500">Status do Acesso:</p>
+                <p className="text-lg font-bold text-slate-900">
+                  O período de 20 dias iniciará no seu primeiro check-in.
+                </p>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       <Card className="shadow-sm border-slate-200 rounded-2xl overflow-hidden mb-6">
         <CardHeader className="bg-slate-50/50 border-b border-slate-100 pb-6 flex flex-row items-center justify-between space-y-0">

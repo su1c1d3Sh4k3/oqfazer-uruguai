@@ -15,13 +15,14 @@ export interface User {
   ci?: string
   responsibleName?: string
   deletionRequested?: boolean
+  firstCheckInAt?: number
 }
 
 interface AuthContextType {
   currentUser: User | null
   login: (email: string, pass: string) => boolean
   logout: () => void
-  updateProfile: (data: Partial<User>) => void
+  updateProfile: (data: Partial<User>, silent?: boolean) => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -121,7 +122,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     })
   }
 
-  const updateProfile = (data: Partial<User>) => {
+  const updateProfile = (data: Partial<User>, silent = false) => {
     if (!currentUser) return
     const users = JSON.parse(localStorage.getItem('@uruguai:users_db') || '{}')
     const oldEmail = currentUser.email
@@ -138,7 +139,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     localStorage.setItem('@uruguai:users_db', JSON.stringify(users))
     setCurrentUser(updatedUser)
-    toast.success('Perfil atualizado com sucesso!')
+
+    if (!silent) {
+      toast.success('Perfil atualizado com sucesso!')
+    }
   }
 
   return React.createElement(
