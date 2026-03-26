@@ -14,15 +14,14 @@ import { Place, createDefaultHours } from '@/data/places'
 import { AdminHoursForm } from './AdminHoursForm'
 import { AdminTourFields } from './AdminTourFields'
 import { AdminImageFields } from './AdminImageFields'
-import { Download, Link as LinkIcon, MapPin, Search, Lock } from 'lucide-react'
+import { Download, Link as LinkIcon, MapPin, Search } from 'lucide-react'
 import { toast } from 'sonner'
 import { parseImportUrl } from '@/lib/importUrl'
 import { usePlaces } from '@/context/PlacesContext'
-import { useAccess } from '@/context/AccessContext'
 
 interface Props {
   initialData?: Place
-  categories: string[] // Kept for backward compatibility, but we use context below
+  categories: string[]
   onSave: (data: Place) => void
   onCancel?: () => void
   isCompanyView?: boolean
@@ -30,7 +29,6 @@ interface Props {
 
 export function AdminPlaceForm({ initialData, onSave, onCancel, isCompanyView }: Props) {
   const { categories, cities, badges } = usePlaces()
-  const { isGranted } = useAccess()
   const [importUrl, setImportUrl] = useState('')
   const [mapsUrl, setMapsUrl] = useState('')
   const [isFetchingCoords, setIsFetchingCoords] = useState(false)
@@ -329,52 +327,6 @@ export function AdminPlaceForm({ initialData, onSave, onCancel, isCompanyView }:
           />
         </div>
       </div>
-
-      {(isGranted || isCompanyView) && (
-        <div className="col-span-1 sm:col-span-2 space-y-4 p-5 bg-amber-50/50 rounded-2xl border border-amber-200 mt-4">
-          <Label className="flex items-center gap-2 text-slate-800 font-bold text-base">
-            <Lock className="h-5 w-5 text-amber-600" /> Dados Sensíveis (Privados)
-          </Label>
-          <p className="text-xs text-amber-800 font-medium pb-2">
-            Estas informações são confidenciais e visíveis apenas para a empresa e administração.
-          </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Nome do Responsável</Label>
-              <Input
-                value={formData.responsibleName || ''}
-                onChange={(e) => handleChange('responsibleName', e.target.value)}
-                className="bg-white"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>CI (Documento de Identidade)</Label>
-              <Input
-                value={formData.ci || ''}
-                onChange={(e) => handleChange('ci', e.target.value)}
-                className="bg-white"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>E-mail de Contato</Label>
-              <Input
-                type="email"
-                value={formData.contactEmail || ''}
-                onChange={(e) => handleChange('contactEmail', e.target.value)}
-                className="bg-white"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Telefone de Contato</Label>
-              <Input
-                value={formData.contactPhone || ''}
-                onChange={(e) => handleChange('contactPhone', e.target.value)}
-                className="bg-white"
-              />
-            </div>
-          </div>
-        </div>
-      )}
 
       <div className="space-y-2">
         <Label>Descrição Curta do Local</Label>

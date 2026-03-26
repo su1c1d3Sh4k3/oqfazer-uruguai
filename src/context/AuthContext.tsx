@@ -4,6 +4,7 @@ import { toast } from 'sonner'
 export interface User {
   id: string
   email: string
+  password?: string
   firstLoginAt: number
   role?: 'user' | 'establishment'
   managedPlaceId?: string
@@ -11,18 +12,47 @@ export interface User {
   cpf?: string
   phone?: string
   travelPeriod?: string
+  ci?: string
+  responsibleName?: string
+  deletionRequested?: boolean
 }
 
 interface AuthContextType {
   currentUser: User | null
-  login: (email: string, pass: string) => void
-  loginEstablishment: (placeId: string, pass: string) => void
-  register: (email: string, pass: string, extraData?: Partial<User>) => void
+  login: (email: string, pass: string) => boolean
   logout: () => void
   updateProfile: (data: Partial<User>) => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
+
+const initDb = () => {
+  const saved = localStorage.getItem('@uruguai:users_db')
+  if (!saved) {
+    const defaultDb = {
+      'user@bnu.com': {
+        email: 'user@bnu.com',
+        password: '123',
+        role: 'user',
+        name: 'Usuário Teste',
+        firstLoginAt: Date.now(),
+      },
+      'empresa@bnu.com': {
+        email: 'empresa@bnu.com',
+        password: '123',
+        role: 'establishment',
+        managedPlaceId: '1',
+        responsibleName: 'Admin',
+        ci: '123456',
+        phone: '999999999',
+        firstLoginAt: Date.now(),
+      },
+    }
+    localStorage.setItem('@uruguai:users_db', JSON.stringify(defaultDb))
+    return defaultDb
+  }
+  return JSON.parse(saved)
+}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [currentUser, setCurrentUser] = useState<User | null>(() => {
@@ -35,6 +65,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   })
 
   useEffect(() => {
+    initDb()
+  }, [])
+
+  useEffect(() => {
     if (currentUser) {
       localStorage.setItem('@uruguai:user', JSON.stringify(currentUser))
     } else {
@@ -42,56 +76,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [currentUser])
 
-  const login = (email: string, _: string) => {
+  const login = (email: string, pass: string) => {
     const users = JSON.parse(localStorage.getItem('@uruguai:users_db') || '{}')
     const existing = users[email]
-    const firstLoginAt = existing ? existing.firstLoginAt : Date.now()
 
     if (!existing) {
-      users[email] = { email, firstLoginAt, role: 'user' }
+      toast.error('Conta não encontrada', {
+        description: 'Entre em contato com a administração para obter seu acesso.',
+      })
+      return false
+    }
+
+    if (existing.password && existing.password !== pass) {
+      toast.error('Senha incorreta')
+      return false
+    }
+
+    if (!existing.firstLoginAt) {
+      existing.firstLoginAt = Date.now()
+      users[email] = existing
       localStorage.setItem('@uruguai:users_db', JSON.stringify(users))
     }
 
-    setCurrentUser({ id: email, email, firstLoginAt, role: 'user', ...existing })
+    setCurrentUser({ id: email, ...existing })
     toast.success('Login realizado com sucesso!', {
-      description: 'Bem-vindo(a) de volta ao Uruguai.',
+      description:
+        existing.role === 'establishment' ? 'Bem-vindo ao painel.' : 'Bem-vindo(a) de volta.',
     })
-  }
-
-  const loginEstablishment = (placeId: string, _: string) => {
-    const users = JSON.parse(localStorage.getItem('@uruguai:users_db') || '{}')
-    const email = `empresa_${placeId}@bnu.com`
-    const existing = users[email]
-    const firstLoginAt = existing ? existing.firstLoginAt : Date.now()
-
-    if (!existing) {
-      users[email] = { email, firstLoginAt, role: 'establishment', managedPlaceId: placeId }
-      localStorage.setItem('@uruguai:users_db', JSON.stringify(users))
-    }
-
-    setCurrentUser({
-      id: email,
-      email,
-      firstLoginAt,
-      role: 'establishment',
-      managedPlaceId: placeId,
-    })
-    toast.success('Login empresarial realizado com sucesso!', {
-      description: 'Bem-vindo ao seu painel de gestão.',
-    })
-  }
-
-  const register = (email: string, _: string, extraData?: Partial<User>) => {
-    const users = JSON.parse(localStorage.getItem('@uruguai:users_db') || '{}')
-    const firstLoginAt = Date.now()
-
-    users[email] = { email, firstLoginAt, role: 'user', ...extraData }
-    localStorage.setItem('@uruguai:users_db', JSON.stringify(users))
-
-    setCurrentUser({ id: email, email, firstLoginAt, role: 'user', ...extraData })
-    toast.success('Conta criada com sucesso!', {
-      description: 'Sua jornada de descontos começa agora.',
-    })
+    return true
   }
 
   const logout = () => {
@@ -104,9 +116,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const updateProfile = (data: Partial<User>) => {
     if (!currentUser) return
     const users = JSON.parse(localStorage.getItem('@uruguai:users_db') || '{}')
-    const updatedUser = { ...currentUser, ...data }
+    const oldEmail = currentUser.email
+    const newEmail = data.email || oldEmail
 
-    users[currentUser.email] = updatedUser
+    const updatedUser = { ...currentUser, ...data, id: newEmail }
+
+    if (newEmail !== oldEmail) {
+      users[newEmail] = updatedUser
+      delete users[oldEmail]
+    } else {
+      users[oldEmail] = updatedUser
+    }
+
     localStorage.setItem('@uruguai:users_db', JSON.stringify(users))
     setCurrentUser(updatedUser)
     toast.success('Perfil atualizado com sucesso!')
@@ -114,7 +135,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return React.createElement(
     AuthContext.Provider,
-    { value: { currentUser, login, loginEstablishment, register, logout, updateProfile } },
+    { value: { currentUser, login, logout, updateProfile } },
     children,
   )
 }

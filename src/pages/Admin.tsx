@@ -27,7 +27,7 @@ export default function Admin() {
   })
 
   const grantAccess = (pwd: string) => {
-    if (pwd === 'admin' || pwd === 'admin123' || pwd === 'bnu2024') {
+    if (pwd === '1234') {
       localStorage.setItem('@uruguai:admin_granted', 'true')
       setIsAdminGranted(true)
       return true

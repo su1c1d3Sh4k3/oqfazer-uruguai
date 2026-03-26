@@ -26,10 +26,11 @@ import {
   MessageSquare,
   Star,
   Send,
+  Building,
 } from 'lucide-react'
 
 export function CompanyDashboard() {
-  const { currentUser } = useAuth()
+  const { currentUser, updateProfile } = useAuth()
   const { places, updatePlace } = usePlaces()
   const [searchParams] = useSearchParams()
 
@@ -38,6 +39,13 @@ export function CompanyDashboard() {
   const [currentPwd, setCurrentPwd] = useState('')
   const [newPwd, setNewPwd] = useState('')
   const [confirmPwd, setConfirmPwd] = useState('')
+
+  const [regInfo, setRegInfo] = useState({
+    responsibleName: currentUser?.responsibleName || '',
+    ci: currentUser?.ci || '',
+    phone: currentUser?.phone || '',
+    email: currentUser?.email || '',
+  })
 
   const [contactSubject, setContactSubject] = useState('')
   const [contactMessage, setContactMessage] = useState('')
@@ -54,12 +62,26 @@ export function CompanyDashboard() {
       toast.error('A nova senha deve ter no mínimo 6 caracteres.')
       return
     }
-    setTimeout(() => {
-      toast.success('Senha atualizada com sucesso!')
-      setCurrentPwd('')
-      setNewPwd('')
-      setConfirmPwd('')
-    }, 800)
+    updateProfile({ password: newPwd })
+    toast.success('Senha atualizada com sucesso!')
+    setCurrentPwd('')
+    setNewPwd('')
+    setConfirmPwd('')
+  }
+
+  const handleSaveRegInfo = (e: React.FormEvent) => {
+    e.preventDefault()
+    updateProfile(regInfo)
+  }
+
+  const handleRequestDeletion = () => {
+    if (
+      confirm(
+        'Tem certeza que deseja solicitar a exclusão da sua conta? Isso será analisado pela administração.',
+      )
+    ) {
+      updateProfile({ deletionRequested: true })
+    }
   }
 
   const handleContactSubmit = (e: React.FormEvent) => {
@@ -169,24 +191,65 @@ export function CompanyDashboard() {
             </Card>
           </div>
 
+          <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-100 shadow-sm max-w-2xl mb-6">
+            <div className="flex items-center gap-3 mb-6">
+              <Building className="h-6 w-6 text-slate-400" />
+              <h2 className="font-display text-xl font-bold text-slate-900">
+                Informações de Registro
+              </h2>
+            </div>
+            <form onSubmit={handleSaveRegInfo} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Nome do Responsável</Label>
+                  <Input
+                    required
+                    value={regInfo.responsibleName}
+                    onChange={(e) => setRegInfo({ ...regInfo, responsibleName: e.target.value })}
+                    className="h-11"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Cédula de Identidade (CI)</Label>
+                  <Input
+                    required
+                    value={regInfo.ci}
+                    onChange={(e) => setRegInfo({ ...regInfo, ci: e.target.value })}
+                    className="h-11"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Telefone / WhatsApp</Label>
+                  <Input
+                    required
+                    value={regInfo.phone}
+                    onChange={(e) => setRegInfo({ ...regInfo, phone: e.target.value })}
+                    className="h-11"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>E-mail de Acesso</Label>
+                  <Input
+                    type="email"
+                    required
+                    value={regInfo.email}
+                    onChange={(e) => setRegInfo({ ...regInfo, email: e.target.value })}
+                    className="h-11"
+                  />
+                </div>
+              </div>
+              <Button type="submit" className="h-11 px-8 font-bold mt-2">
+                Salvar Informações
+              </Button>
+            </form>
+          </div>
+
           <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-100 shadow-sm max-w-2xl">
             <div className="flex items-center gap-3 mb-6">
               <ShieldCheck className="h-6 w-6 text-slate-400" />
               <h2 className="font-display text-xl font-bold text-slate-900">Segurança da Conta</h2>
             </div>
             <form onSubmit={handlePasswordChange} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="current-pwd">Senha Atual</Label>
-                <Input
-                  id="current-pwd"
-                  type="password"
-                  required
-                  value={currentPwd}
-                  onChange={(e) => setCurrentPwd(e.target.value)}
-                  className="h-12 rounded-xl"
-                  placeholder="Digite sua senha atual"
-                />
-              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="new-pwd">Nova Senha</Label>
@@ -196,7 +259,7 @@ export function CompanyDashboard() {
                     required
                     value={newPwd}
                     onChange={(e) => setNewPwd(e.target.value)}
-                    className="h-12 rounded-xl"
+                    className="h-11 rounded-xl"
                     placeholder="Mínimo 6 caracteres"
                   />
                 </div>
@@ -208,18 +271,34 @@ export function CompanyDashboard() {
                     required
                     value={confirmPwd}
                     onChange={(e) => setConfirmPwd(e.target.value)}
-                    className="h-12 rounded-xl"
+                    className="h-11 rounded-xl"
                     placeholder="Repita a nova senha"
                   />
                 </div>
               </div>
-              <Button
-                type="submit"
-                className="w-full sm:w-auto h-12 px-8 font-bold rounded-xl shadow-md mt-2"
-              >
+              <Button type="submit" className="h-11 px-8 font-bold shadow-md mt-2">
                 Atualizar Senha
               </Button>
             </form>
+          </div>
+
+          <div className="bg-red-50 rounded-3xl p-6 md:p-8 border border-red-100 shadow-sm max-w-2xl mt-6">
+            <h3 className="font-bold text-red-800 mb-2">Zona de Perigo</h3>
+            <p className="text-sm text-red-600 mb-4">
+              Ao solicitar a exclusão da sua conta, o administrador master será notificado. Esta
+              ação não pode ser desfeita após a aprovação e o seu estabelecimento será desvinculado
+              do sistema.
+            </p>
+            <Button
+              variant="destructive"
+              onClick={handleRequestDeletion}
+              disabled={currentUser?.deletionRequested}
+              className="font-bold"
+            >
+              {currentUser?.deletionRequested
+                ? 'Exclusão Solicitada'
+                : 'Solicitar Exclusão de Conta'}
+            </Button>
           </div>
         </TabsContent>
 
@@ -233,6 +312,7 @@ export function CompanyDashboard() {
             </div>
             <AdminPlaceForm
               initialData={managedPlace}
+              categories={[]}
               onSave={(data) => {
                 updatePlace(managedPlace.id, data)
                 toast.success('Estabelecimento atualizado com sucesso!')

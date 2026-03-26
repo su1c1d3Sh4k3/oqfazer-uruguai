@@ -5,7 +5,16 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { UserCircle, Mail, Phone, MapPin, CalendarDays, LogOut, ShieldCheck } from 'lucide-react'
+import {
+  UserCircle,
+  Mail,
+  Phone,
+  MapPin,
+  CalendarDays,
+  LogOut,
+  ShieldCheck,
+  Calendar as CalendarIcon,
+} from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -14,7 +23,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Calendar } from '@/components/ui/calendar'
+import { format, parse } from 'date-fns'
+import { DateRange } from 'react-day-picker'
 import { toast } from 'sonner'
+import { cn } from '@/lib/utils'
 
 export default function UserProfile() {
   const { currentUser, logout, updateProfile } = useAuth()
@@ -22,8 +36,8 @@ export default function UserProfile() {
     name: '',
     cpf: '',
     phone: '',
-    travelPeriod: '',
   })
+  const [date, setDate] = useState<DateRange | undefined>()
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false)
   const [pwdForm, setPwdForm] = useState({ oldPwd: '', newPwd: '', confirmPwd: '' })
 
@@ -33,8 +47,20 @@ export default function UserProfile() {
         name: currentUser.name || '',
         cpf: currentUser.cpf || '',
         phone: currentUser.phone || '',
-        travelPeriod: currentUser.travelPeriod || '',
       })
+      if (currentUser.travelPeriod) {
+        const parts = currentUser.travelPeriod.split(' a ')
+        if (parts.length === 2) {
+          const from = parse(parts[0], 'dd/MM/yyyy', new Date())
+          const to = parse(parts[1], 'dd/MM/yyyy', new Date())
+          if (!isNaN(from.getTime()) && !isNaN(to.getTime())) {
+            setDate({ from, to })
+          }
+        } else if (parts.length === 1) {
+          const from = parse(parts[0], 'dd/MM/yyyy', new Date())
+          if (!isNaN(from.getTime())) setDate({ from, to: undefined })
+        }
+      }
     }
   }, [currentUser])
 
@@ -44,7 +70,12 @@ export default function UserProfile() {
 
   const handleSaveProfile = (e: React.FormEvent) => {
     e.preventDefault()
-    updateProfile(formData)
+    const periodStr = date?.from
+      ? date.to
+        ? `${format(date.from, 'dd/MM/yyyy')} a ${format(date.to, 'dd/MM/yyyy')}`
+        : format(date.from, 'dd/MM/yyyy')
+      : ''
+    updateProfile({ ...formData, travelPeriod: periodStr })
   }
 
   const handleSavePassword = (e: React.FormEvent) => {
@@ -57,6 +88,7 @@ export default function UserProfile() {
       toast.error('A nova senha deve ter no mínimo 6 caracteres.')
       return
     }
+    updateProfile({ password: pwdForm.newPwd })
     toast.success('Senha atualizada com sucesso!')
     setIsPasswordModalOpen(false)
     setPwdForm({ oldPwd: '', newPwd: '', confirmPwd: '' })
@@ -184,16 +216,45 @@ export default function UserProfile() {
                 />
               </div>
 
-              <div className="space-y-2 md:col-span-2">
-                <Label className="text-slate-500 flex items-center gap-2">
+              <div className="space-y-2 md:col-span-2 flex flex-col">
+                <Label className="text-slate-500 flex items-center gap-2 mb-2">
                   <CalendarDays className="h-4 w-4" /> Período da Viagem
                 </Label>
-                <Input
-                  value={formData.travelPeriod}
-                  onChange={(e) => setFormData({ ...formData, travelPeriod: e.target.value })}
-                  className="bg-white border-slate-200 font-medium h-11"
-                  placeholder="Ex: 10/12 a 20/12"
-                />
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      id="date"
+                      variant={'outline'}
+                      className={cn(
+                        'w-full justify-start text-left font-medium h-11 bg-white border-slate-200',
+                        !date && 'text-muted-foreground',
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {date?.from ? (
+                        date.to ? (
+                          <>
+                            {format(date.from, 'dd/MM/yyyy')} a {format(date.to, 'dd/MM/yyyy')}
+                          </>
+                        ) : (
+                          format(date.from, 'dd/MM/yyyy')
+                        )
+                      ) : (
+                        <span>Selecione a data de início e fim</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      initialFocus
+                      mode="range"
+                      defaultMonth={date?.from}
+                      selected={date}
+                      onSelect={setDate}
+                      numberOfMonths={2}
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
             </div>
 
