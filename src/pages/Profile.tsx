@@ -11,7 +11,7 @@ import { CompanyDashboard } from '@/components/CompanyDashboard'
 
 export default function Profile() {
   const { currentUser } = useAuth()
-  const { placeCheckIns } = useAccess()
+  const { accesses } = useAccess()
   const { places } = usePlaces()
 
   if (!currentUser) {
@@ -37,6 +37,15 @@ export default function Profile() {
       </div>
     )
   }
+
+  const placeCheckIns =
+    accesses?.reduce(
+      (acc, curr) => {
+        acc[curr.placeId] = curr.timestamp
+        return acc
+      },
+      {} as Record<string, number>,
+    ) || {}
 
   const visitedIds = Object.keys(placeCheckIns)
   const visitedPlaces = places.filter((p) => visitedIds.includes(p.id))
