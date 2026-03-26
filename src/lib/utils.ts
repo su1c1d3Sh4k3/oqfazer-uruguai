@@ -22,41 +22,50 @@ export const DAYS_OF_WEEK = [
   { value: 6, label: 'Sábado' },
 ]
 
+/**
+ * Returns a Date object initialized with the current date and time in Brasília (America/Sao_Paulo).
+ * This ensures consistency in operations regardless of the user's local timezone settings.
+ */
+export function getSpDate(): Date {
+  return new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }))
+}
+
 export function isPlaceOpen(operatingHours?: DailyHours[]): boolean {
   if (!operatingHours || operatingHours.length === 0) return false
 
-  const now = new Date()
-  const currentDay = now.getDay()
-  const currentHour = now.getHours()
-  const currentMinute = now.getMinutes()
+  const spDate = getSpDate()
+  const currentDay = spDate.getDay()
+  const currentHour = spDate.getHours()
+  const currentMinute = spDate.getMinutes()
   const currentTimeStr = `${currentHour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}`
 
   const todayHours = operatingHours.find((h) => h.day === currentDay)
-  let isOpenToday = false
-
-  if (todayHours?.isOpen) {
-    if (todayHours.closeTime < todayHours.openTime) {
-      if (currentTimeStr >= todayHours.openTime) {
-        isOpenToday = true
-      }
-    } else {
-      if (currentTimeStr >= todayHours.openTime && currentTimeStr <= todayHours.closeTime) {
-        isOpenToday = true
-      }
-    }
-  }
-
   const yesterdayDay = currentDay === 0 ? 6 : currentDay - 1
   const yesterdayHours = operatingHours.find((h) => h.day === yesterdayDay)
+
+  // 1. Check if we are still within yesterday's shift that crossed midnight
   if (
-    !isOpenToday &&
     yesterdayHours?.isOpen &&
-    yesterdayHours.closeTime < yesterdayHours.openTime
+    yesterdayHours.closeTime < yesterdayHours.openTime &&
+    currentTimeStr <= yesterdayHours.closeTime
   ) {
-    if (currentTimeStr <= yesterdayHours.closeTime) {
-      return true
+    return true
+  }
+
+  // 2. Check today's shift
+  if (todayHours?.isOpen) {
+    if (todayHours.closeTime < todayHours.openTime) {
+      // Shift crosses midnight into tomorrow. We are open if we are past today's open time.
+      if (currentTimeStr >= todayHours.openTime) {
+        return true
+      }
+    } else {
+      // Standard daytime shift
+      if (currentTimeStr >= todayHours.openTime && currentTimeStr <= todayHours.closeTime) {
+        return true
+      }
     }
   }
 
-  return isOpenToday
+  return false
 }

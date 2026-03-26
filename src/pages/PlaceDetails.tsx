@@ -33,7 +33,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel'
-import { cn, DAYS_OF_WEEK, isPlaceOpen } from '@/lib/utils'
+import { cn, DAYS_OF_WEEK, isPlaceOpen, getSpDate } from '@/lib/utils'
 import { PlaceMapSection } from '@/components/PlaceMapSection'
 import { PlaceCheckInTicket } from '@/components/PlaceCheckInTicket'
 import { PrivateReviews } from '@/components/PrivateReviews'
@@ -455,7 +455,7 @@ END:VCALENDAR`
               <div className="space-y-2 rounded-xl border border-slate-100 bg-slate-50 p-4">
                 {DAYS_OF_WEEK.map((day) => {
                   const hours = place.operatingHours?.find((h) => h.day === day.value)
-                  const isToday = new Date().getDay() === day.value
+                  const isToday = getSpDate().getDay() === day.value
                   return (
                     <div
                       key={day.value}
