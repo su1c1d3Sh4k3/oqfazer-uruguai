@@ -1,5 +1,6 @@
 import { Heart, MapPin } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 import { Place } from '@/data/places'
 import { useFavorites } from '@/context/FavoritesContext'
 import { useGeo } from '@/context/GeoContext'
@@ -16,8 +17,14 @@ export function PlaceCard({ place, activeCheckIn }: PlaceCardProps) {
   const { isFavorite, toggleFavorite } = useFavorites()
   const { calculateDistance } = useGeo()
   const { currentUser } = useAuth()
-  const favorite = isFavorite(place.id)
+  const [now, setNow] = useState(Date.now())
 
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 60000)
+    return () => clearInterval(timer)
+  }, [])
+
+  const favorite = isFavorite(place.id)
   const dist = calculateDistance(place.coordinates.lat, place.coordinates.lng)
   const displayDistance = dist ? `${dist.toFixed(1)} km` : 'Calculando...'
   const isTour = place.type === 'tour'

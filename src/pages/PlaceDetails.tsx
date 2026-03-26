@@ -48,7 +48,13 @@ export default function PlaceDetails() {
   const { isExpired, getPlaceCheckIn, recordCheckIn } = useAccess()
   const [showCheckInDialog, setShowCheckInDialog] = useState(false)
   const [isCheckInLoading, setIsCheckInLoading] = useState(true)
+  const [now, setNow] = useState(Date.now())
   const hasTrackedAccess = useRef(false)
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 60000)
+    return () => clearInterval(timer)
+  }, [])
 
   const place = places.find((p) => p.id === id)
   const isCompany = currentUser?.role === 'establishment'
@@ -455,7 +461,7 @@ END:VCALENDAR`
               <div className="space-y-2 rounded-xl border border-slate-100 bg-slate-50 p-4">
                 {DAYS_OF_WEEK.map((day) => {
                   const hours = place.operatingHours?.find((h) => h.day === day.value)
-                  const isToday = getSpDate().getDay() === day.value
+                  const isToday = getSpDate().getUTCDay() === day.value
                   return (
                     <div
                       key={day.value}

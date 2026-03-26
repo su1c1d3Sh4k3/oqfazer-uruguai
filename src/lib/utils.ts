@@ -1,4 +1,3 @@
-/* General utility functions (exposes cn) */
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 import { DailyHours } from '@/data/places'
@@ -23,20 +22,47 @@ export const DAYS_OF_WEEK = [
 ]
 
 /**
- * Returns a Date object initialized with the current date and time in Brasília (America/Sao_Paulo).
- * This ensures consistency in operations regardless of the user's local timezone settings.
+ * Returns a Date object representing the current date and time in Brasília (America/Sao_Paulo).
+ * Use UTC methods (getUTCDay, getUTCHours, etc.) on the returned Date to get the correct SP time values.
+ * This avoids any local timezone DST gaps or string parsing inconsistencies.
  */
 export function getSpDate(): Date {
-  return new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }))
+  const date = new Date()
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/Sao_Paulo',
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
+    hour12: false,
+  })
+
+  const parts = formatter.formatToParts(date)
+  const getPart = (type: string) => {
+    const part = parts.find((p) => p.type === type)
+    return part ? parseInt(part.value, 10) : 0
+  }
+
+  const year = getPart('year')
+  const month = getPart('month') - 1
+  const day = getPart('day')
+  let hour = getPart('hour')
+  if (hour === 24) hour = 0
+  const minute = getPart('minute')
+  const second = getPart('second')
+
+  return new Date(Date.UTC(year, month, day, hour, minute, second))
 }
 
 export function isPlaceOpen(operatingHours?: DailyHours[]): boolean {
   if (!operatingHours || operatingHours.length === 0) return false
 
   const spDate = getSpDate()
-  const currentDay = spDate.getDay()
-  const currentHour = spDate.getHours()
-  const currentMinute = spDate.getMinutes()
+  const currentDay = spDate.getUTCDay()
+  const currentHour = spDate.getUTCHours()
+  const currentMinute = spDate.getUTCMinutes()
   const currentTimeStr = `${currentHour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}`
 
   const todayHours = operatingHours.find((h) => h.day === currentDay)
@@ -47,7 +73,7 @@ export function isPlaceOpen(operatingHours?: DailyHours[]): boolean {
   if (
     yesterdayHours?.isOpen &&
     yesterdayHours.closeTime < yesterdayHours.openTime &&
-    currentTimeStr <= yesterdayHours.closeTime
+    currentTimeStr < yesterdayHours.closeTime
   ) {
     return true
   }
@@ -61,7 +87,7 @@ export function isPlaceOpen(operatingHours?: DailyHours[]): boolean {
       }
     } else {
       // Standard daytime shift
-      if (currentTimeStr >= todayHours.openTime && currentTimeStr <= todayHours.closeTime) {
+      if (currentTimeStr >= todayHours.openTime && currentTimeStr < todayHours.closeTime) {
         return true
       }
     }

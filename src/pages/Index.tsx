@@ -3,7 +3,7 @@ import { useGeo } from '@/context/GeoContext'
 import { PlaceCard } from '@/components/PlaceCard'
 import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel'
 import Autoplay from 'embla-carousel-autoplay'
-import { useRef, useState, useMemo } from 'react'
+import { useRef, useState, useMemo, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
@@ -27,6 +27,12 @@ export default function Index() {
   const [selectedCategory, setSelectedCategory] = useState('Todas')
   const [selectedType, setSelectedType] = useState('Todos')
   const [openNowOnly, setOpenNowOnly] = useState(false)
+  const [now, setNow] = useState(Date.now())
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 60000)
+    return () => clearInterval(timer)
+  }, [])
 
   const CITIES = ['Todas', ...cities]
   const TYPES = ['Todos', 'Locais', 'Passeio']
@@ -70,6 +76,7 @@ export default function Index() {
     selectedType,
     openNowOnly,
     calculateDistance,
+    now,
   ])
 
   const featured = places.filter((p) => p.featured)
