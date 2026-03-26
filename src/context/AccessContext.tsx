@@ -82,7 +82,7 @@ export function AccessProvider({ children }: { children: React.ReactNode }) {
   }, [currentUser, isExpired, placeCheckIns])
 
   const grantAccess = (pwd: string) => {
-    if (pwd === 'admin123') {
+    if (pwd === '1234') {
       setIsGranted(true)
       localStorage.setItem('@uruguai:admin', 'true')
       return true

@@ -14,14 +14,25 @@ import {
   CommandList,
 } from '@/components/ui/command'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
 import { Check, ChevronsUpDown, Store } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { toast } from 'sonner'
 
 export default function EstablishmentAdmin() {
   const [open, setOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedPlaceId, setSelectedPlaceId] = useState('')
   const [password, setPassword] = useState('')
+  const [forgotEmail, setForgotEmail] = useState('')
+  const [showForgot, setShowForgot] = useState(false)
 
   const { places } = usePlaces()
   const { loginEstablishment } = useAuth()
@@ -37,7 +48,17 @@ export default function EstablishmentAdmin() {
     e.preventDefault()
     if (!selectedPlaceId || !password) return
     loginEstablishment(selectedPlaceId, password)
-    navigate(`/place/${selectedPlaceId}`)
+    navigate(`/profile?tab=edit`)
+  }
+
+  const handleForgot = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!forgotEmail) return
+    toast.success('Link enviado!', {
+      description: 'Verifique a caixa de entrada da sua empresa.',
+    })
+    setShowForgot(false)
+    setForgotEmail('')
   }
 
   const selectedPlace = places.find((p) => p.id === selectedPlaceId)
@@ -121,7 +142,39 @@ export default function EstablishmentAdmin() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="company-pwd">Senha</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="company-pwd">Senha</Label>
+              <Dialog open={showForgot} onOpenChange={setShowForgot}>
+                <DialogTrigger asChild>
+                  <button
+                    type="button"
+                    className="text-xs font-medium text-primary hover:underline"
+                  >
+                    Esqueci minha senha
+                  </button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-sm rounded-2xl">
+                  <DialogHeader>
+                    <DialogTitle>Recuperar Senha Empresarial</DialogTitle>
+                    <DialogDescription>
+                      Informe o e-mail de acesso para receber o link de redefinição.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <form onSubmit={handleForgot} className="mt-2 space-y-3">
+                    <Input
+                      type="email"
+                      placeholder="contato@empresa.com"
+                      required
+                      value={forgotEmail}
+                      onChange={(e) => setForgotEmail(e.target.value)}
+                    />
+                    <Button type="submit" className="w-full">
+                      Enviar link de recuperação
+                    </Button>
+                  </form>
+                </DialogContent>
+              </Dialog>
+            </div>
             <Input
               id="company-pwd"
               type="password"

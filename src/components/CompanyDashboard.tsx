@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/context/AuthContext'
 import { usePlaces } from '@/context/PlacesContext'
+import { useSearchParams } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -15,6 +16,10 @@ import { Eye, MousePointerClick, CheckCircle2, ShieldCheck, Pencil } from 'lucid
 export function CompanyDashboard() {
   const { currentUser, logout } = useAuth()
   const { places, updatePlace } = usePlaces()
+  const [searchParams] = useSearchParams()
+
+  const defaultTab = searchParams.get('tab') === 'edit' ? 'edit' : 'metrics'
+
   const [currentPwd, setCurrentPwd] = useState('')
   const [newPwd, setNewPwd] = useState('')
   const [confirmPwd, setConfirmPwd] = useState('')
@@ -81,7 +86,7 @@ export function CompanyDashboard() {
         </Button>
       </div>
 
-      <Tabs defaultValue="metrics" className="w-full">
+      <Tabs defaultValue={defaultTab} className="w-full">
         <TabsList className="grid grid-cols-2 max-w-sm mb-6 bg-slate-100/50 p-1 rounded-xl h-12">
           <TabsTrigger value="metrics" className="rounded-lg font-bold">
             Métricas e Conta

@@ -9,9 +9,10 @@ import { Badge } from '@/components/ui/badge'
 
 interface PlaceCardProps {
   place: Place
+  activeCheckIn?: boolean
 }
 
-export function PlaceCard({ place }: PlaceCardProps) {
+export function PlaceCard({ place, activeCheckIn }: PlaceCardProps) {
   const { isFavorite, toggleFavorite } = useFavorites()
   const { calculateDistance } = useGeo()
   const { currentUser } = useAuth()
@@ -40,6 +41,11 @@ export function PlaceCard({ place }: PlaceCardProps) {
             loading="lazy"
           />
           <div className="absolute left-3 top-3 flex flex-col gap-1.5 items-start">
+            {activeCheckIn && (
+              <Badge className="border-none bg-green-500 font-bold text-white shadow-md hover:bg-green-600">
+                Check-in Ativo
+              </Badge>
+            )}
             <Badge className="border-none bg-brand-yellow font-bold text-brand-yellow-foreground shadow-md hover:bg-brand-yellow/90">
               {place.discountBadge}
             </Badge>

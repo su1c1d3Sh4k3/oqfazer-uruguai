@@ -261,15 +261,20 @@ export default function Profile() {
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {visitedPlaces.map((place, index) => (
-            <div
-              key={place.id}
-              className="animate-fade-in-up"
-              style={{ animationDelay: `${index * 50}ms` }}
-            >
-              <PlaceCard place={place} />
-            </div>
-          ))}
+          {visitedPlaces.map((place, index) => {
+            const checkInTime = placeCheckIns[place.id]
+            const isActive = checkInTime && Date.now() - checkInTime < 24 * 60 * 60 * 1000
+
+            return (
+              <div
+                key={place.id}
+                className="animate-fade-in-up"
+                style={{ animationDelay: `${index * 50}ms` }}
+              >
+                <PlaceCard place={place} activeCheckIn={!!isActive} />
+              </div>
+            )
+          })}
         </div>
       )}
     </div>
