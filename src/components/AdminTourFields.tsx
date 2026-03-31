@@ -69,7 +69,7 @@ export function AdminTourFields({ formData, onChange }: Props) {
           />
         </div>
         <div className="space-y-2">
-          <Label>Código do Cupom de Desconto</Label>
+          <Label>Nome Cupom</Label>
           <Input
             value={formData.couponCode || ''}
             onChange={(e) => onChange('couponCode', e.target.value)}

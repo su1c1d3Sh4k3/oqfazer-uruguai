@@ -70,11 +70,13 @@ export default function PlaceDetails() {
   const [showCheckInDialog, setShowCheckInDialog] = useState(false)
   const [isCheckInLoading, setIsCheckInLoading] = useState(true)
   const [now, setNow] = useState(Date.now())
+  const [couponGenerated, setCouponGenerated] = useState(false)
   const hasTrackedAccess = useRef(false)
 
   useEffect(() => {
     // Force immediate sync to get fresh Date status on mount and place change
     setNow(Date.now())
+    setCouponGenerated(false)
     const timer = setInterval(() => setNow(Date.now()), 10000)
     return () => clearInterval(timer)
   }, [id])
@@ -139,8 +141,9 @@ export default function PlaceDetails() {
     }
   }
 
-  const handleCouponClick = () => {
+  const handleGenerateCoupon = () => {
     recordCouponClick(place.id)
+    setCouponGenerated(true)
   }
 
   const handleCheckInConfirm = () => {
@@ -448,14 +451,25 @@ END:VCALENDAR`
                 {place.discountDescription}
               </p>
               {getMappedCouponCode(place.name, place.couponCode) && (
-                <div className="mb-4 rounded-xl border-2 border-dashed border-primary/30 bg-white p-4 text-center">
-                  <span className="mb-1 block text-xs font-bold uppercase tracking-widest text-slate-500">
-                    Código do Cupom
-                  </span>
-                  <span className="font-mono text-2xl font-black text-slate-900">
-                    {getMappedCouponCode(place.name, place.couponCode)}
-                  </span>
-                </div>
+                <>
+                  {!couponGenerated ? (
+                    <Button
+                      onClick={handleGenerateCoupon}
+                      className="mb-4 h-12 w-full text-base font-bold"
+                    >
+                      gerar cupom de desconto
+                    </Button>
+                  ) : (
+                    <div className="mb-4 rounded-xl border-2 border-dashed border-primary/30 bg-white p-4 text-center">
+                      <span className="mb-1 block text-xs font-bold uppercase tracking-widest text-slate-500">
+                        Código do Cupom
+                      </span>
+                      <span className="font-mono text-2xl font-black text-slate-900">
+                        {getMappedCouponCode(place.name, place.couponCode)}
+                      </span>
+                    </div>
+                  )}
+                </>
               )}
               {isCompany ? (
                 <Button
@@ -465,11 +479,7 @@ END:VCALENDAR`
                   Resgate restrito para Conta Empresa
                 </Button>
               ) : (
-                <Button
-                  asChild
-                  className="h-12 w-full text-base font-bold shadow-md"
-                  onClick={handleCouponClick}
-                >
+                <Button asChild className="h-12 w-full text-base font-bold shadow-md">
                   <a href={place.bookingUrl} target="_blank" rel="noreferrer">
                     Acessar Site e Reservar <ExternalLink className="ml-2 h-4 w-4" />
                   </a>
