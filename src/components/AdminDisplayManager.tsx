@@ -249,7 +249,7 @@ export function AdminDisplayManager() {
                     </TableCell>
                     {isAdminMaster && (
                       <TableCell className="text-center font-medium text-slate-600">
-                        {p.highlightClickCount || 0}
+                        {(p.highlightClickCount || 0).toLocaleString('pt-BR')}
                       </TableCell>
                     )}
                     <TableCell className="text-right">
