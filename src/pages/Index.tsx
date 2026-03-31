@@ -64,9 +64,41 @@ export default function Index() {
     }
 
     return result.sort((a, b) => {
-      const orderA = a.order ?? 999999
-      const orderB = b.order ?? 999999
-      if (orderA !== orderB) return orderA - orderB
+      const orderA = a.order
+      const orderB = b.order
+      const isCuratedA = typeof orderA === 'number' && orderA <= 20
+      const isCuratedB = typeof orderB === 'number' && orderB <= 20
+
+      if (isCuratedA && isCuratedB) {
+        if (orderA !== orderB) return orderA - orderB
+      } else if (isCuratedA) {
+        return -1
+      } else if (isCuratedB) {
+        return 1
+      }
+
+      const getScore = (place: any) => {
+        const rating = place.rating || 0
+        const checkIns = place.accessCount || 0
+        const baseScore = rating * 0.7 + Math.log10(checkIns + 1) * 0.3
+
+        let bonus = 0
+        if (place.createdAt) {
+          const daysSinceCreation = (now - place.createdAt) / (1000 * 60 * 60 * 24)
+          if (daysSinceCreation >= 0 && daysSinceCreation <= 30) {
+            bonus = Math.max(0, (30 - daysSinceCreation) / 30) * 0.2
+          }
+        }
+
+        return baseScore * (1 + bonus)
+      }
+
+      const scoreA = getScore(a)
+      const scoreB = getScore(b)
+
+      if (Math.abs(scoreA - scoreB) > 0.0001) {
+        return scoreB - scoreA
+      }
 
       const distA = calculateDistance(a.coordinates.lat, a.coordinates.lng) ?? 9999
       const distB = calculateDistance(b.coordinates.lat, b.coordinates.lng) ?? 9999
