@@ -32,8 +32,10 @@ screenshot.png
 .eslintcache
 .oxlintcache
 
-# Environment variables
-.env*
+# Environment variables (keep .env.production for deploy)
+.env
+.env.local
+.env.*.local
 
 # Supabase local
 supabase/.temp/
