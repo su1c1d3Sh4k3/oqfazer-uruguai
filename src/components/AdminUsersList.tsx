@@ -18,7 +18,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog'
 import {
   Select,
@@ -29,6 +28,7 @@ import {
 } from '@/components/ui/select'
 import { toast } from 'sonner'
 import { PlaceSearchCombobox } from './PlaceSearchCombobox'
+import { supabase } from '@/lib/supabase'
 
 export function AdminUsersList() {
   const [users, setUsers] = useState<any[]>([])
@@ -37,11 +37,11 @@ export function AdminUsersList() {
   const [editingUser, setEditingUser] = useState<any>(null)
   const [formData, setFormData] = useState<any>({})
 
-  const loadUsers = () => {
-    try {
-      const db = JSON.parse(localStorage.getItem('@uruguai:users_db') || '{}')
-      setUsers(Object.values(db))
-    } catch {
+  const loadUsers = async () => {
+    const { data, error } = await supabase.from('profiles').select('*')
+    if (!error && data) {
+      setUsers(data)
+    } else {
       setUsers([])
     }
   }
@@ -56,8 +56,8 @@ export function AdminUsersList() {
   const { total, newThisMonth } = useMemo(() => {
     let newUsers = 0
     users.forEach((u) => {
-      if (u.firstLoginAt) {
-        const d = new Date(u.firstLoginAt)
+      if (u.first_login_at) {
+        const d = new Date(u.first_login_at)
         if (d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
           newUsers++
         }
@@ -69,7 +69,18 @@ export function AdminUsersList() {
   const handleOpenDialog = (user?: any) => {
     if (user) {
       setEditingUser(user)
-      setFormData({ ...user })
+      setFormData({
+        email: user.email,
+        role: user.role,
+        name: user.name || '',
+        phone: user.phone || '',
+        cpf: user.cpf || '',
+        ci: user.ci || '',
+        responsibleName: user.responsible_name || '',
+        managedPlaceId: user.managed_place_id || '',
+        travelPeriod: user.travel_period || '',
+        password: '',
+      })
     } else {
       setEditingUser(null)
       setFormData({ role: 'user', email: '', password: '', name: '', phone: '' })
@@ -77,33 +88,88 @@ export function AdminUsersList() {
     setIsDialogOpen(true)
   }
 
-  const handleSaveUser = (e: React.FormEvent) => {
+  const handleSaveUser = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!formData.email || !formData.password) {
-      toast.error('Email e senha são obrigatórios.')
+    if (!formData.email) {
+      toast.error('Email é obrigatório.')
       return
     }
 
-    const db = JSON.parse(localStorage.getItem('@uruguai:users_db') || '{}')
+    if (editingUser) {
+      // Update existing profile
+      const updateData: Record<string, any> = {
+        role: formData.role,
+        name: formData.name || null,
+        phone: formData.phone || null,
+        cpf: formData.cpf || null,
+        ci: formData.ci || null,
+        responsible_name: formData.responsibleName || null,
+        managed_place_id: formData.managedPlaceId || null,
+        travel_period: formData.travelPeriod || null,
+        updated_at: new Date().toISOString(),
+      }
 
-    if (editingUser && editingUser.email !== formData.email) {
-      delete db[editingUser.email]
+      const { error } = await supabase
+        .from('profiles')
+        .update(updateData)
+        .eq('id', editingUser.id)
+
+      if (error) {
+        toast.error('Erro ao atualizar usuário')
+        console.error(error)
+        return
+      }
+      toast.success('Usuário atualizado!')
+    } else {
+      // Create new user via Supabase Auth
+      if (!formData.password) {
+        toast.error('Senha é obrigatória para novos usuários.')
+        return
+      }
+
+      // Use signUp to create user (will trigger the profile creation trigger)
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+      })
+
+      if (authError || !authData.user) {
+        toast.error('Erro ao criar usuário: ' + (authError?.message || 'Erro desconhecido'))
+        return
+      }
+
+      // Update the auto-created profile with additional data
+      const { error: profileError } = await supabase.from('profiles').update({
+        role: formData.role,
+        name: formData.name || null,
+        phone: formData.phone || null,
+        cpf: formData.cpf || null,
+        ci: formData.ci || null,
+        responsible_name: formData.responsibleName || null,
+        managed_place_id: formData.managedPlaceId || null,
+        travel_period: formData.travelPeriod || null,
+      }).eq('id', authData.user.id)
+
+      if (profileError) {
+        console.error('Error updating profile:', profileError)
+      }
+
+      toast.success('Usuário criado com sucesso!')
     }
 
-    const userToSave = { ...formData, firstLoginAt: formData.firstLoginAt || Date.now() }
-    db[userToSave.email] = userToSave
-
-    localStorage.setItem('@uruguai:users_db', JSON.stringify(db))
-    toast.success(editingUser ? 'Usuário atualizado!' : 'Usuário criado com sucesso!')
     loadUsers()
     setIsDialogOpen(false)
   }
 
-  const handleDelete = (email: string) => {
+  const handleDelete = async (userId: string) => {
     if (confirm('Confirmar exclusão permanente deste usuário?')) {
-      const db = JSON.parse(localStorage.getItem('@uruguai:users_db') || '{}')
-      delete db[email]
-      localStorage.setItem('@uruguai:users_db', JSON.stringify(db))
+      // Delete profile (cascade will handle)
+      const { error } = await supabase.from('profiles').delete().eq('id', userId)
+      if (error) {
+        toast.error('Erro ao remover usuário')
+        console.error(error)
+        return
+      }
       toast.success('Usuário removido.')
       loadUsers()
     }
@@ -113,14 +179,14 @@ export function AdminUsersList() {
     let csvContent = 'Nome/Responsavel,Email,Telefone,CPF/CI,Tipo,Data de Cadastro,Status\n'
 
     users.forEach((u) => {
-      const name = u.name || u.responsibleName || ''
+      const name = u.name || u.responsible_name || ''
       const cleanName = name.replace(/"/g, '""')
       const email = u.email || ''
       const phone = u.phone || ''
       const doc = u.cpf || u.ci || ''
-      const role = u.role === 'establishment' ? 'Empresa' : 'Usuário'
-      const date = u.firstLoginAt ? new Date(u.firstLoginAt).toLocaleDateString() : ''
-      const status = u.deletionRequested ? 'Exclusão Solicitada' : 'Ativo'
+      const role = u.role === 'establishment' ? 'Empresa' : u.role === 'admin' ? 'Admin' : 'Usuário'
+      const date = u.first_login_at ? new Date(u.first_login_at).toLocaleDateString() : ''
+      const status = u.deletion_requested ? 'Exclusão Solicitada' : 'Ativo'
 
       csvContent += `"${cleanName}","${email}","${phone}","${doc}","${role}","${date}","${status}"\n`
     })
@@ -172,6 +238,7 @@ export function AdminUsersList() {
                 <SelectContent>
                   <SelectItem value="user">Usuário Comum</SelectItem>
                   <SelectItem value="establishment">Empresa / Estabelecimento</SelectItem>
+                  <SelectItem value="admin">Administrador</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -184,14 +251,16 @@ export function AdminUsersList() {
                   required
                   value={formData.email || ''}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  disabled={!!editingUser}
                 />
               </div>
               <div className="space-y-2">
-                <Label>Senha</Label>
+                <Label>{editingUser ? 'Nova Senha (opcional)' : 'Senha'}</Label>
                 <Input
-                  required
+                  required={!editingUser}
                   value={formData.password || ''}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  placeholder={editingUser ? 'Deixe vazio para manter' : ''}
                 />
               </div>
             </div>
@@ -304,7 +373,7 @@ export function AdminUsersList() {
           <TableHeader className="bg-muted/30">
             <TableRow>
               <TableHead>Identificação</TableHead>
-              <TableHead>Email e Senha</TableHead>
+              <TableHead>Email</TableHead>
               <TableHead>Perfil</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Ações</TableHead>
@@ -312,23 +381,26 @@ export function AdminUsersList() {
           </TableHeader>
           <TableBody>
             {users
-              .sort((a, b) => (b.firstLoginAt || 0) - (a.firstLoginAt || 0))
-              .map((u, i) => (
-                <TableRow key={i}>
+              .sort((a, b) => (b.first_login_at || 0) - (a.first_login_at || 0))
+              .map((u) => (
+                <TableRow key={u.id}>
                   <TableCell className="font-medium">
-                    <p>{u.name || u.responsibleName || '-'}</p>
+                    <p>{u.name || u.responsible_name || '-'}</p>
                     <p className="text-xs text-muted-foreground">
                       Doc: {u.cpf || u.ci || '-'} | Tel: {u.phone || '-'}
                     </p>
                   </TableCell>
                   <TableCell>
                     <p>{u.email}</p>
-                    <p className="text-xs text-muted-foreground">Senha: {u.password}</p>
                   </TableCell>
                   <TableCell>
                     {u.role === 'establishment' ? (
                       <Badge variant="outline" className="bg-blue-50 text-blue-600 border-blue-200">
                         Empresa
+                      </Badge>
+                    ) : u.role === 'admin' ? (
+                      <Badge variant="outline" className="bg-purple-50 text-purple-600 border-purple-200">
+                        Admin
                       </Badge>
                     ) : (
                       <Badge variant="outline" className="bg-slate-50 text-slate-600">
@@ -337,7 +409,7 @@ export function AdminUsersList() {
                     )}
                   </TableCell>
                   <TableCell>
-                    {u.deletionRequested ? (
+                    {u.deletion_requested ? (
                       <Badge variant="destructive" className="animate-pulse">
                         Exclusão Solicitada
                       </Badge>
@@ -352,11 +424,11 @@ export function AdminUsersList() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2 items-center">
-                      {u.deletionRequested && (
+                      {u.deletion_requested && (
                         <Button
                           size="sm"
                           variant="destructive"
-                          onClick={() => handleDelete(u.email)}
+                          onClick={() => handleDelete(u.id)}
                           className="h-8 text-xs"
                         >
                           <Check className="h-3 w-3 mr-1" /> Aprovar
@@ -373,7 +445,7 @@ export function AdminUsersList() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => handleDelete(u.email)}
+                        onClick={() => handleDelete(u.id)}
                         className="h-8 w-8 text-red-500 hover:bg-red-50"
                       >
                         <Trash2 className="h-4 w-4" />

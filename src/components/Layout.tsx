@@ -25,7 +25,7 @@ import logoUrl from '@/assets/favicon-bnu-9afaa.jpg'
 import { useAccess } from '@/context/AccessContext'
 import { useAuth } from '@/context/AuthContext'
 import { AccessExpired } from '@/pages/AccessExpired'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { toast } from 'sonner'
 
 export function Layout() {
@@ -34,24 +34,10 @@ export function Layout() {
   const { isExpired, isGranted } = useAccess()
   const { currentUser, logout } = useAuth()
 
-  const [isAdminMaster, setIsAdminMaster] = useState(
-    () => localStorage.getItem('@uruguai:admin_granted') === 'true',
-  )
+  const isAdminMaster = currentUser?.role === 'admin'
 
-  useEffect(() => {
-    const handleAuthChange = () => {
-      setIsAdminMaster(localStorage.getItem('@uruguai:admin_granted') === 'true')
-    }
-    window.addEventListener('storage', handleAuthChange)
-    window.addEventListener('admin-auth-changed', handleAuthChange)
-    return () => {
-      window.removeEventListener('storage', handleAuthChange)
-      window.removeEventListener('admin-auth-changed', handleAuthChange)
-    }
-  }, [])
-
-  const handleLogout = () => {
-    logout()
+  const handleLogout = async () => {
+    await logout()
     navigate('/')
   }
 

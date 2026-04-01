@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Star, MessageSquare } from 'lucide-react'
+import { supabase } from '@/lib/supabase'
 
 export interface Review {
   id: string
@@ -19,16 +20,29 @@ export function AdminPlaceReviews({ placeId }: Props) {
   const [reviews, setReviews] = useState<Review[]>([])
 
   useEffect(() => {
-    try {
-      const stored = JSON.parse(localStorage.getItem('@uruguai:reviews') || '[]')
-      setReviews(
-        stored
-          .filter((r: Review) => r.placeId === placeId)
-          .sort((a: Review, b: Review) => b.date - a.date),
-      )
-    } catch {
-      setReviews([])
+    const fetchReviews = async () => {
+      const { data, error } = await supabase
+        .from('reviews')
+        .select('*')
+        .eq('place_id', placeId)
+        .order('date', { ascending: false })
+
+      if (!error && data) {
+        setReviews(
+          data.map((r: any) => ({
+            id: r.id,
+            placeId: r.place_id,
+            userId: r.user_id,
+            userEmail: r.user_email,
+            rating: r.rating,
+            comment: r.comment || '',
+            date: r.date,
+          })),
+        )
+      }
     }
+
+    fetchReviews()
   }, [placeId])
 
   if (reviews.length === 0) return null

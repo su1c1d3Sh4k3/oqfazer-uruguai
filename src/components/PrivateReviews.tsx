@@ -5,6 +5,7 @@ import { Star, Lock, Info, Clock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from 'sonner'
+import { supabase } from '@/lib/supabase'
 
 export interface Review {
   id: string
@@ -31,22 +32,38 @@ export function PrivateReviews({ placeId, checkInTime }: Props) {
   const [timeMessage, setTimeMessage] = useState('')
 
   useEffect(() => {
-    try {
-      const stored = JSON.parse(localStorage.getItem('@uruguai:reviews') || '[]')
-      setReviews(stored)
+    const fetchReviews = async () => {
+      const { data, error } = await supabase
+        .from('reviews')
+        .select('*')
+        .eq('place_id', placeId)
+        .order('date', { ascending: false })
 
-      if (currentUser) {
-        const myPrevReview = stored.find(
-          (r: Review) => r.placeId === placeId && r.userId === currentUser.id,
-        )
-        if (myPrevReview) {
-          setRating(myPrevReview.rating)
-          setComment(myPrevReview.comment)
+      if (!error && data) {
+        const mapped = data.map((r: any) => ({
+          id: r.id,
+          placeId: r.place_id,
+          userId: r.user_id,
+          userEmail: r.user_email,
+          rating: r.rating,
+          comment: r.comment || '',
+          date: r.date,
+        }))
+        setReviews(mapped)
+
+        if (currentUser) {
+          const myPrevReview = mapped.find(
+            (r: Review) => r.userId === currentUser.id,
+          )
+          if (myPrevReview) {
+            setRating(myPrevReview.rating)
+            setComment(myPrevReview.comment)
+          }
         }
       }
-    } catch {
-      setReviews([])
     }
+
+    fetchReviews()
   }, [placeId, currentUser])
 
   useEffect(() => {
@@ -72,26 +89,46 @@ export function PrivateReviews({ placeId, checkInTime }: Props) {
     return () => clearInterval(interval)
   }, [checkInTime])
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!rating) return toast.error('Selecione uma nota com as estrelas.')
     if (!currentUser) return toast.error('Faça login para avaliar.')
 
-    const newReview: Review = {
-      id: Math.random().toString(36).substr(2, 9),
-      placeId,
-      userId: currentUser.id,
-      userEmail: currentUser.email,
+    const reviewData = {
+      place_id: placeId,
+      user_id: currentUser.id,
+      user_email: currentUser.email,
       rating,
       comment,
       date: Date.now(),
     }
 
-    const updated = [
+    const { data, error } = await supabase
+      .from('reviews')
+      .upsert(reviewData, { onConflict: 'user_id,place_id' })
+      .select()
+      .single()
+
+    if (error) {
+      toast.error('Erro ao salvar avaliação')
+      console.error(error)
+      return
+    }
+
+    const newReview: Review = {
+      id: data.id,
+      placeId: data.place_id,
+      userId: data.user_id,
+      userEmail: data.user_email,
+      rating: data.rating,
+      comment: data.comment || '',
+      date: data.date,
+    }
+
+    setReviews((prev) => [
       newReview,
-      ...reviews.filter((r) => r.userId !== currentUser.id || r.placeId !== placeId),
-    ]
-    setReviews(updated)
-    localStorage.setItem('@uruguai:reviews', JSON.stringify(updated))
+      ...prev.filter((r) => r.userId !== currentUser.id || r.placeId !== placeId),
+    ])
+
     toast.success('Avaliação salva!', {
       description: 'Seu feedback é muito importante para nossa curadoria.',
     })

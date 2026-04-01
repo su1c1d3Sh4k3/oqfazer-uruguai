@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '@/context/AuthContext'
 import { usePlaces } from '@/context/PlacesContext'
 import { useSearchParams } from 'react-router-dom'
+import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -57,7 +58,7 @@ export function CompanyDashboard() {
     )
   }
 
-  const handlePasswordChange = (e: React.FormEvent) => {
+  const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault()
     if (newPwd !== confirmPwd) {
       toast.error('As senhas não coincidem.')
@@ -67,25 +68,25 @@ export function CompanyDashboard() {
       toast.error('A nova senha deve ter no mínimo 6 caracteres.')
       return
     }
-    updateProfile({ password: newPwd })
+    await updateProfile({ password: newPwd })
     toast.success('Senha atualizada com sucesso!')
     setCurrentPwd('')
     setNewPwd('')
     setConfirmPwd('')
   }
 
-  const handleSaveRegInfo = (e: React.FormEvent) => {
+  const handleSaveRegInfo = async (e: React.FormEvent) => {
     e.preventDefault()
-    updateProfile(regInfo)
+    await updateProfile(regInfo)
   }
 
-  const handleRequestDeletion = () => {
+  const handleRequestDeletion = async () => {
     if (
       confirm(
         'Tem certeza que deseja solicitar a exclusão da sua conta? Isso será analisado pela administração.',
       )
     ) {
-      updateProfile({ deletionRequested: true })
+      await updateProfile({ deletionRequested: true })
     }
   }
 
@@ -110,10 +111,28 @@ export function CompanyDashboard() {
     )
   }
 
-  const reviews = JSON.parse(localStorage.getItem('@uruguai:reviews') || '[]')
-  const myReviews = reviews
-    .filter((r: any) => r.placeId === managedPlace?.id)
-    .sort((a: any, b: any) => b.date - a.date)
+  const [myReviews, setMyReviews] = useState<any[]>([])
+
+  useEffect(() => {
+    if (!managedPlace?.id) return
+    const fetchReviews = async () => {
+      const { data } = await supabase
+        .from('reviews')
+        .select('*')
+        .eq('place_id', managedPlace.id)
+        .order('date', { ascending: false })
+      if (data) setMyReviews(data.map((r: any) => ({
+        id: r.id,
+        placeId: r.place_id,
+        userId: r.user_id,
+        userEmail: r.user_email,
+        rating: r.rating,
+        comment: r.comment || '',
+        date: r.date,
+      })))
+    }
+    fetchReviews()
+  }, [managedPlace?.id])
 
   return (
     <div className="flex flex-col gap-8 max-w-5xl mx-auto w-full">

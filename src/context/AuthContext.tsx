@@ -1,12 +1,13 @@
-import React, { createContext, useContext, useState, useEffect } from 'react'
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import { toast } from 'sonner'
+import { supabase, rowToUser } from '@/lib/supabase'
 
 export interface User {
   id: string
   email: string
   password?: string
   firstLoginAt: number
-  role?: 'user' | 'establishment'
+  role?: 'user' | 'establishment' | 'admin'
   managedPlaceId?: string
   name?: string
   cpf?: string
@@ -20,125 +21,147 @@ export interface User {
 
 interface AuthContextType {
   currentUser: User | null
-  login: (email: string, pass: string) => boolean
-  logout: () => void
-  updateProfile: (data: Partial<User>, silent?: boolean) => void
+  loading: boolean
+  login: (email: string, pass: string) => Promise<boolean>
+  logout: () => Promise<void>
+  updateProfile: (data: Partial<User>, silent?: boolean) => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-const initDb = () => {
-  const saved = localStorage.getItem('@uruguai:users_db')
-  if (!saved) {
-    const defaultDb = {
-      'user@bnu.com': {
-        email: 'user@bnu.com',
-        password: '123',
-        role: 'user',
-        name: 'Usuário Teste',
-        firstLoginAt: Date.now(),
-      },
-      'empresa@bnu.com': {
-        email: 'empresa@bnu.com',
-        password: '123',
-        role: 'establishment',
-        managedPlaceId: '1',
-        responsibleName: 'Admin',
-        ci: '123456',
-        phone: '999999999',
-        firstLoginAt: Date.now(),
-      },
-      'contato@brasileirosnouruguai.com.br': {
-        email: 'contato@brasileirosnouruguai.com.br',
-        password: '1234',
-        role: 'establishment',
-        managedPlaceId: 'cafe-pajaros',
-        responsibleName: 'Admin BNU',
-        firstLoginAt: Date.now(),
-      },
-    }
-    localStorage.setItem('@uruguai:users_db', JSON.stringify(defaultDb))
-    return defaultDb
-  }
-  return JSON.parse(saved)
-}
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [currentUser, setCurrentUser] = useState<User | null>(() => {
-    try {
-      const saved = localStorage.getItem('@uruguai:user')
-      return saved ? JSON.parse(saved) : null
-    } catch {
-      return null
-    }
-  })
+  const [currentUser, setCurrentUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    initDb()
+  const fetchProfile = useCallback(async (userId: string, email: string): Promise<User | null> => {
+    const { data: profile, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single()
+
+    if (error || !profile) return null
+    return rowToUser(profile, email) as User
   }, [])
 
+  // Listen for auth state changes
   useEffect(() => {
-    if (currentUser) {
-      localStorage.setItem('@uruguai:user', JSON.stringify(currentUser))
-    } else {
-      localStorage.removeItem('@uruguai:user')
-    }
-  }, [currentUser])
-
-  const login = (email: string, pass: string) => {
-    const users = JSON.parse(localStorage.getItem('@uruguai:users_db') || '{}')
-    const existing = users[email]
-
-    if (!existing) {
-      toast.error('Conta não encontrada', {
-        description: 'Entre em contato com a administração para obter seu acesso.',
-      })
-      return false
-    }
-
-    if (existing.password && existing.password !== pass) {
-      toast.error('Senha incorreta')
-      return false
-    }
-
-    if (!existing.firstLoginAt) {
-      existing.firstLoginAt = Date.now()
-      users[email] = existing
-      localStorage.setItem('@uruguai:users_db', JSON.stringify(users))
-    }
-
-    setCurrentUser({ id: email, ...existing })
-    toast.success('Login realizado com sucesso!', {
-      description:
-        existing.role === 'establishment' ? 'Bem-vindo ao painel.' : 'Bem-vindo(a) de volta.',
+    // Get initial session
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (session?.user) {
+        const user = await fetchProfile(session.user.id, session.user.email || '')
+        setCurrentUser(user)
+      }
+      setLoading(false)
     })
-    return true
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session?.user) {
+        const user = await fetchProfile(session.user.id, session.user.email || '')
+        setCurrentUser(user)
+      } else if (event === 'SIGNED_OUT') {
+        setCurrentUser(null)
+      }
+    })
+
+    return () => subscription.unsubscribe()
+  }, [fetchProfile])
+
+  const login = async (email: string, pass: string): Promise<boolean> => {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password: pass,
+    })
+
+    if (error) {
+      if (error.message.includes('Invalid login credentials')) {
+        toast.error('Credenciais inválidas', {
+          description: 'Verifique seu e-mail e senha.',
+        })
+      } else {
+        toast.error('Erro ao fazer login', {
+          description: error.message,
+        })
+      }
+      return false
+    }
+
+    if (data.user) {
+      const user = await fetchProfile(data.user.id, data.user.email || '')
+      if (user) {
+        setCurrentUser(user)
+        toast.success('Login realizado com sucesso!', {
+          description:
+            user.role === 'establishment' ? 'Bem-vindo ao painel.' : 'Bem-vindo(a) de volta.',
+        })
+        return true
+      }
+    }
+
+    return false
   }
 
-  const logout = () => {
+  const logout = async () => {
+    await supabase.auth.signOut()
     setCurrentUser(null)
     toast.success('Você saiu da conta.', {
       description: 'Sessão encerrada com segurança.',
     })
   }
 
-  const updateProfile = (data: Partial<User>, silent = false) => {
+  const updateProfile = async (data: Partial<User>, silent = false) => {
     if (!currentUser) return
-    const users = JSON.parse(localStorage.getItem('@uruguai:users_db') || '{}')
-    const oldEmail = currentUser.email
-    const newEmail = data.email || oldEmail
 
-    const updatedUser = { ...currentUser, ...data, id: newEmail }
+    // Map camelCase to snake_case for DB
+    const dbData: Record<string, any> = {}
+    if (data.name !== undefined) dbData.name = data.name
+    if (data.cpf !== undefined) dbData.cpf = data.cpf
+    if (data.phone !== undefined) dbData.phone = data.phone
+    if (data.travelPeriod !== undefined) dbData.travel_period = data.travelPeriod
+    if (data.ci !== undefined) dbData.ci = data.ci
+    if (data.responsibleName !== undefined) dbData.responsible_name = data.responsibleName
+    if (data.deletionRequested !== undefined) dbData.deletion_requested = data.deletionRequested
+    if (data.firstCheckInAt !== undefined) dbData.first_check_in_at = data.firstCheckInAt
+    if (data.managedPlaceId !== undefined) dbData.managed_place_id = data.managedPlaceId
+    if (data.role !== undefined) dbData.role = data.role
+    if (data.email !== undefined) dbData.email = data.email
 
-    if (newEmail !== oldEmail) {
-      users[newEmail] = updatedUser
-      delete users[oldEmail]
-    } else {
-      users[oldEmail] = updatedUser
+    dbData.updated_at = new Date().toISOString()
+
+    const { error } = await supabase
+      .from('profiles')
+      .update(dbData)
+      .eq('id', currentUser.id)
+
+    if (error) {
+      toast.error('Erro ao atualizar perfil')
+      return
     }
 
-    localStorage.setItem('@uruguai:users_db', JSON.stringify(users))
-    setCurrentUser(updatedUser)
+    // Update password via Supabase Auth if provided
+    if (data.password) {
+      const { error: pwdError } = await supabase.auth.updateUser({
+        password: data.password,
+      })
+      if (pwdError) {
+        toast.error('Erro ao atualizar senha')
+        return
+      }
+    }
+
+    // Update email via Supabase Auth if changed
+    if (data.email && data.email !== currentUser.email) {
+      const { error: emailError } = await supabase.auth.updateUser({
+        email: data.email,
+      })
+      if (emailError) {
+        toast.error('Erro ao atualizar e-mail')
+        return
+      }
+    }
+
+    // Update local state
+    setCurrentUser((prev) => (prev ? { ...prev, ...data } : null))
 
     if (!silent) {
       toast.success('Perfil atualizado com sucesso!')
@@ -147,7 +170,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return React.createElement(
     AuthContext.Provider,
-    { value: { currentUser, login, logout, updateProfile } },
+    { value: { currentUser, loading, login, logout, updateProfile } },
     children,
   )
 }

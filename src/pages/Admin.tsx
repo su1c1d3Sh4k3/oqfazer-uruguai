@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { AdminPlaceForm } from '@/components/AdminPlaceForm'
 import { AdminCategoryManager } from '@/components/AdminCategoryManager'
 import { AdminPlacesList } from '@/components/AdminPlacesList'
-import { AdminLogin } from '@/components/AdminLogin'
 import { AdminDashboard } from '@/components/AdminDashboard'
 import { AdminUsersList } from '@/components/AdminUsersList'
 import { AdminDisplayManager } from '@/components/AdminDisplayManager'
@@ -15,33 +14,16 @@ import logoUrl from '@/assets/favicon-bnu-9afaa.jpg'
 import { Place } from '@/data/places'
 import { toast } from 'sonner'
 import { Navigate } from 'react-router-dom'
+import { AdminLogin } from '@/components/AdminLogin'
 
 export default function Admin() {
-  const { currentUser } = useAuth()
+  const { currentUser, logout } = useAuth()
   const { places, addPlace, updatePlace, deletePlace, categories } = usePlaces()
   const [activeTab, setActiveTab] = useState('dashboard')
   const [editingPlace, setEditingPlace] = useState<Place | undefined>(undefined)
 
-  const [isAdminGranted, setIsAdminGranted] = useState(() => {
-    return localStorage.getItem('@uruguai:admin_granted') === 'true'
-  })
-
-  const grantAccess = (pwd: string) => {
-    if (pwd === '1234') {
-      localStorage.setItem('@uruguai:admin_granted', 'true')
-      setIsAdminGranted(true)
-      window.dispatchEvent(new Event('admin-auth-changed'))
-      return true
-    }
-    return false
-  }
-
-  const revokeAccess = () => {
-    localStorage.removeItem('@uruguai:admin_granted')
-    setIsAdminGranted(false)
-    window.dispatchEvent(new Event('admin-auth-changed'))
-    toast.success('Sessão encerrada com sucesso')
-  }
+  // Admin access: check if user has admin role
+  const isAdmin = currentUser?.role === 'admin'
 
   if (currentUser?.role === 'establishment') {
     return <Navigate to="/empresa" replace />
@@ -51,8 +33,9 @@ export default function Admin() {
     return <Navigate to="/" replace />
   }
 
-  if (!isAdminGranted) {
-    return <AdminLogin onLogin={grantAccess} />
+  // If not logged in or not admin, show login
+  if (!isAdmin) {
+    return <AdminLogin onLogin={() => {}} />
   }
 
   const handleEdit = (place: Place) => {
@@ -86,6 +69,11 @@ export default function Admin() {
     setActiveTab(val)
   }
 
+  const handleLogout = async () => {
+    await logout()
+    toast.success('Sessão encerrada com sucesso')
+  }
+
   return (
     <div className="container max-w-6xl mx-auto py-8 px-4 space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-card p-6 rounded-2xl shadow-sm border border-border/50">
@@ -108,7 +96,7 @@ export default function Admin() {
             </div>
           </div>
         </div>
-        <Button variant="outline" onClick={revokeAccess} className="gap-2 shrink-0 h-10">
+        <Button variant="outline" onClick={handleLogout} className="gap-2 shrink-0 h-10">
           <LogOut className="h-4 w-4" />
           <span className="hidden sm:inline">Sair do Painel</span>
         </Button>

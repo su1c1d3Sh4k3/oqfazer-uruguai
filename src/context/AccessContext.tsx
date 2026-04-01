@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { useAuth } from './AuthContext'
+import { supabase } from '@/lib/supabase'
 
 export interface AccessRecord {
   placeId: string
@@ -23,46 +24,75 @@ const AccessContext = createContext<AccessContextType | undefined>(undefined)
 export function AccessProvider({ children }: { children: React.ReactNode }) {
   const { currentUser, updateProfile } = useAuth()
   const [now, setNow] = useState(Date.now())
+  const [accesses, setAccesses] = useState<AccessRecord[]>([])
 
   useEffect(() => {
     const timer = setInterval(() => setNow(Date.now()), 60000)
     return () => clearInterval(timer)
   }, [])
 
-  const [accesses, setAccesses] = useState<AccessRecord[]>(() => {
-    try {
-      const saved = localStorage.getItem('@uruguai:accesses')
-      if (!saved) {
-        // Mock data to demonstrate dynamic coloring system
-        return [
-          { placeId: '1', timestamp: Date.now() - 1000, expiresAt: Date.now() + 3600000 }, // Active
-          { placeId: '3', timestamp: Date.now() - 86400000, expiresAt: Date.now() - 80000000 }, // Expired
-        ]
-      }
-      return JSON.parse(saved)
-    } catch {
-      return []
-    }
-  })
-
+  // Fetch access records when user changes
   useEffect(() => {
-    localStorage.setItem('@uruguai:accesses', JSON.stringify(accesses))
-  }, [accesses])
+    if (!currentUser?.id) {
+      setAccesses([])
+      return
+    }
 
-  const checkIn = (placeId: string) => {
+    const fetchAccesses = async () => {
+      const { data, error } = await supabase
+        .from('access_records')
+        .select('*')
+        .eq('user_id', currentUser.id)
+
+      if (!error && data) {
+        setAccesses(
+          data.map((row: any) => ({
+            placeId: row.place_id,
+            timestamp: row.timestamp,
+            expiresAt: row.expires_at,
+          })),
+        )
+      }
+    }
+
+    fetchAccesses()
+  }, [currentUser?.id])
+
+  const checkIn = async (placeId: string) => {
+    if (!currentUser) return
+
+    const newRecord: AccessRecord = {
+      placeId,
+      timestamp: Date.now(),
+      expiresAt: Date.now() + 2 * 60 * 60 * 1000, // 2 hours
+    }
+
+    // Optimistic update
     setAccesses((prev) => {
       const filtered = prev.filter((a) => a.placeId !== placeId)
-      return [
-        ...filtered,
-        {
-          placeId,
-          timestamp: Date.now(),
-          expiresAt: Date.now() + 2 * 60 * 60 * 1000, // 2 hours duration
-        },
-      ]
+      return [...filtered, newRecord]
     })
 
-    if (currentUser?.role === 'user' && !currentUser.firstCheckInAt) {
+    // Upsert to Supabase
+    const { error } = await supabase.from('access_records').upsert(
+      {
+        user_id: currentUser.id,
+        place_id: placeId,
+        timestamp: newRecord.timestamp,
+        expires_at: newRecord.expiresAt,
+      },
+      { onConflict: 'user_id,place_id' },
+    )
+
+    if (error) {
+      console.error('Error recording check-in:', error)
+    }
+
+    // Increment check-in count on place
+    supabase.rpc('increment_place_metric', { p_place_id: placeId, p_metric: 'check_in_count' })
+
+    // Set firstCheckInAt if first time
+    if (currentUser.role === 'user' && !currentUser.firstCheckInAt) {
       updateProfile({ firstCheckInAt: Date.now() }, true)
     }
 
@@ -91,7 +121,7 @@ export function AccessProvider({ children }: { children: React.ReactNode }) {
       ? now > currentUser.firstCheckInAt + 20 * 24 * 60 * 60 * 1000
       : false
 
-  const isGranted = currentUser?.role === 'establishment'
+  const isGranted = currentUser?.role === 'establishment' || currentUser?.role === 'admin'
 
   return React.createElement(
     AccessContext.Provider,

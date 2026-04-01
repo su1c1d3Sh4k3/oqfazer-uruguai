@@ -14,35 +14,60 @@ import {
 } from '@/components/ui/dialog'
 import { Compass } from 'lucide-react'
 import { toast } from 'sonner'
+import { supabase } from '@/lib/supabase'
 
 export default function Auth() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [forgotEmail, setForgotEmail] = useState('')
   const [showForgot, setShowForgot] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
   const { login } = useAuth()
   const navigate = useNavigate()
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (login(email, password)) {
-      const users = JSON.parse(localStorage.getItem('@uruguai:users_db') || '{}')
-      const user = users[email]
-      if (user?.role === 'establishment') {
-        navigate('/empresa')
-      } else {
-        navigate('/profile')
+    setIsLoading(true)
+    try {
+      const success = await login(email, password)
+      if (success) {
+        // Fetch profile to determine role
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', session.user.id)
+            .single()
+
+          if (profile?.role === 'establishment') {
+            navigate('/empresa')
+          } else {
+            navigate('/profile')
+          }
+        }
       }
+    } finally {
+      setIsLoading(false)
     }
   }
 
-  const handleForgot = (e: React.FormEvent) => {
+  const handleForgot = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!forgotEmail) return
-    toast.success('Link enviado!', {
-      description: 'Verifique sua caixa de entrada para redefinir a senha.',
+
+    const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
+      redirectTo: window.location.origin + '/auth',
     })
+
+    if (error) {
+      toast.error('Erro ao enviar link', { description: error.message })
+    } else {
+      toast.success('Link enviado!', {
+        description: 'Verifique sua caixa de entrada para redefinir a senha.',
+      })
+    }
     setShowForgot(false)
     setForgotEmail('')
   }
@@ -117,8 +142,12 @@ export default function Auth() {
               placeholder="••••••••"
             />
           </div>
-          <Button type="submit" className="w-full h-12 text-base font-bold rounded-xl mt-2">
-            Entrar
+          <Button
+            type="submit"
+            disabled={isLoading}
+            className="w-full h-12 text-base font-bold rounded-xl mt-2"
+          >
+            {isLoading ? 'Entrando...' : 'Entrar'}
           </Button>
         </form>
       </div>

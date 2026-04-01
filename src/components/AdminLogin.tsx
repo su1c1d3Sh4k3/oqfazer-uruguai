@@ -1,50 +1,38 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import logoUrl from '@/assets/favicon-bnu-9afaa.jpg'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog'
-import { toast } from 'sonner'
+import { useAuth } from '@/context/AuthContext'
 
 interface Props {
-  onLogin: (pwd: string) => boolean
+  onLogin: (pwd: string) => void
 }
 
 export function AdminLogin({ onLogin }: Props) {
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
-  const [showForgot, setShowForgot] = useState(false)
-  const [forgotEmail, setForgotEmail] = useState('')
+  const { login } = useAuth()
+  const navigate = useNavigate()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setIsLoading(true)
+    setError('')
 
-    if (typeof onLogin === 'function') {
-      if (onLogin(password)) {
-        setError('')
+    try {
+      const success = await login(email, password)
+      if (success) {
+        navigate('/admin')
       } else {
-        setError('Senha incorreta')
+        setError('Credenciais inválidas ou sem permissão de administrador.')
       }
-    } else {
-      setError('Erro interno de login. Recarregue a página.')
+    } finally {
+      setIsLoading(false)
     }
-  }
-
-  const handleForgot = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!forgotEmail) return
-    toast.success('Solicitação enviada!', {
-      description: 'As instruções foram enviadas para o e-mail do administrador master.',
-    })
-    setShowForgot(false)
-    setForgotEmail('')
   }
 
   return (
@@ -69,42 +57,23 @@ export function AdminLogin({ onLogin }: Props) {
 
         <form onSubmit={handleSubmit} className="space-y-4 mt-8">
           <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="password">Senha de Administrador</Label>
-              <Dialog open={showForgot} onOpenChange={setShowForgot}>
-                <DialogTrigger asChild>
-                  <button
-                    type="button"
-                    className="text-xs font-medium text-primary hover:underline"
-                  >
-                    Esqueci a senha
-                  </button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-sm rounded-2xl">
-                  <DialogHeader>
-                    <DialogTitle>Recuperar Senha Admin</DialogTitle>
-                    <DialogDescription>
-                      Informe o e-mail master para receber as instruções de recuperação de acesso.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <form onSubmit={handleForgot} className="mt-2 space-y-3">
-                    <Input
-                      type="email"
-                      required
-                      placeholder="admin@brasileirosnouruguai.com.br"
-                      value={forgotEmail}
-                      onChange={(e) => setForgotEmail(e.target.value)}
-                    />
-                    <Button type="submit" className="w-full">
-                      Enviar instruções
-                    </Button>
-                  </form>
-                </DialogContent>
-              </Dialog>
-            </div>
+            <Label htmlFor="admin-email">E-mail do Administrador</Label>
             <Input
-              id="password"
+              id="admin-email"
+              type="email"
+              required
+              placeholder="admin@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="h-11"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="admin-password">Senha</Label>
+            <Input
+              id="admin-password"
               type="password"
+              required
               placeholder="Digite a senha..."
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -112,8 +81,8 @@ export function AdminLogin({ onLogin }: Props) {
             />
           </div>
           {error && <p className="text-sm text-destructive font-medium">{error}</p>}
-          <Button type="submit" className="w-full h-11 text-base font-medium">
-            Acessar Painel
+          <Button type="submit" disabled={isLoading} className="w-full h-11 text-base font-medium">
+            {isLoading ? 'Autenticando...' : 'Acessar Painel'}
           </Button>
         </form>
       </div>

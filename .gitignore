@@ -34,3 +34,7 @@ screenshot.png
 
 # Environment variables
 .env*
+
+# Supabase local
+supabase/.temp/
+setup-supabase.mjs

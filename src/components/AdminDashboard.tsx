@@ -1,5 +1,6 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { usePlaces } from '@/context/PlacesContext'
+import { supabase } from '@/lib/supabase'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   BarChart3,
@@ -109,8 +110,9 @@ export function AdminDashboard() {
     .slice(0, 10)
     .map((p) => ({ ...p, couponClickCount: Math.floor((p.couponClickCount || 0) * multiplier) }))
 
-  const exportExcel = () => {
-    const reviews = JSON.parse(localStorage.getItem('@uruguai:reviews') || '[]')
+  const exportExcel = useCallback(async () => {
+    const { data: reviews } = await supabase.from('reviews').select('*')
+
     let csvContent = 'Estabelecimento,Visualizacoes,Cliques\n'
 
     places
@@ -122,15 +124,15 @@ export function AdminDashboard() {
     csvContent += '\nComentarios e Feedbacks Privados\n'
     csvContent += 'Data,Usuario,Estabelecimento,Nota,Comentario\n'
 
-    reviews.forEach((r: any) => {
+    ;(reviews || []).forEach((r: any) => {
       const rDate = new Date(r.date)
       const inRange =
         dateRange?.from && dateRange?.to ? rDate >= dateRange.from && rDate <= dateRange.to : true
 
       if (inRange) {
-        const pName = places.find((p) => p.id === r.placeId)?.name || 'Desconhecido'
+        const pName = places.find((p) => p.id === r.place_id)?.name || 'Desconhecido'
         const cleanComment = r.comment ? r.comment.replace(/"/g, '""') : ''
-        csvContent += `"${rDate.toLocaleDateString()}","${r.userEmail}","${pName}",${r.rating},"${cleanComment}"\n`
+        csvContent += `"${rDate.toLocaleDateString()}","${r.user_email}","${pName}",${r.rating},"${cleanComment}"\n`
       }
     })
 
@@ -142,7 +144,7 @@ export function AdminDashboard() {
     link.click()
     document.body.removeChild(link)
     toast.success('Relatório CSV/Excel gerado com sucesso!')
-  }
+  }, [places, multiplier, dateRange])
 
   const exportPDF = () => {
     window.print()

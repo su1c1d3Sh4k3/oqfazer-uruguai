@@ -15,12 +15,14 @@ import {
 import { Store } from 'lucide-react'
 import { toast } from 'sonner'
 import { CompanyDashboard } from '@/components/CompanyDashboard'
+import { supabase } from '@/lib/supabase'
 
 export default function EstablishmentAdmin() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [forgotEmail, setForgotEmail] = useState('')
   const [showForgot, setShowForgot] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
   const { login, currentUser } = useAuth()
   const navigate = useNavigate()
@@ -33,20 +35,35 @@ export default function EstablishmentAdmin() {
     )
   }
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!email || !password) return
-    if (login(email, password)) {
-      navigate(`/empresa?tab=edit`)
+    setIsLoading(true)
+    try {
+      const success = await login(email, password)
+      if (success) {
+        navigate(`/empresa?tab=edit`)
+      }
+    } finally {
+      setIsLoading(false)
     }
   }
 
-  const handleForgot = (e: React.FormEvent) => {
+  const handleForgot = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!forgotEmail) return
-    toast.success('Link enviado!', {
-      description: 'Verifique a caixa de entrada da sua empresa.',
+
+    const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
+      redirectTo: window.location.origin + '/empresa',
     })
+
+    if (error) {
+      toast.error('Erro ao enviar link', { description: error.message })
+    } else {
+      toast.success('Link enviado!', {
+        description: 'Verifique a caixa de entrada da sua empresa.',
+      })
+    }
     setShowForgot(false)
     setForgotEmail('')
   }
@@ -125,10 +142,10 @@ export default function EstablishmentAdmin() {
 
           <Button
             type="submit"
-            disabled={!email || !password}
+            disabled={!email || !password || isLoading}
             className="mt-2 h-12 w-full rounded-xl text-base font-bold"
           >
-            Acessar Painel
+            {isLoading ? 'Acessando...' : 'Acessar Painel'}
           </Button>
         </form>
       </div>
