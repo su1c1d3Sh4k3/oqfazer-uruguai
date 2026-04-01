@@ -48,19 +48,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Get initial session
     supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (session?.user) {
-        const user = await fetchProfile(session.user.id, session.user.email || '')
-        setCurrentUser(user)
+      try {
+        if (session?.user) {
+          const user = await fetchProfile(session.user.id, session.user.email || '')
+          setCurrentUser(user)
+        }
+      } catch (err) {
+        console.error('Error fetching session profile:', err)
+      } finally {
+        setLoading(false)
       }
+    }).catch((err) => {
+      console.error('Error getting session:', err)
       setLoading(false)
     })
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' && session?.user) {
-        const user = await fetchProfile(session.user.id, session.user.email || '')
-        setCurrentUser(user)
-      } else if (event === 'SIGNED_OUT') {
-        setCurrentUser(null)
+      try {
+        if (event === 'SIGNED_IN' && session?.user) {
+          const user = await fetchProfile(session.user.id, session.user.email || '')
+          setCurrentUser(user)
+        } else if (event === 'SIGNED_OUT') {
+          setCurrentUser(null)
+        }
+      } catch (err) {
+        console.error('Error on auth state change:', err)
       }
     })
 
