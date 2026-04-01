@@ -13,16 +13,23 @@ FROM nginx:alpine
 
 COPY --from=build /app/dist /usr/share/nginx/html
 
-# SPA fallback: redireciona todas as rotas para index.html
+# Nginx config: SPA fallback + cache control
 RUN printf 'server {\n\
     listen 80;\n\
     server_name _;\n\
     root /usr/share/nginx/html;\n\
     index index.html;\n\
+\n\
+    # HTML never cached (prevents stale asset references)\n\
     location / {\n\
         try_files $uri $uri/ /index.html;\n\
+        add_header Cache-Control "no-cache, no-store, must-revalidate";\n\
+        add_header Pragma "no-cache";\n\
+        add_header Expires "0";\n\
     }\n\
-    location ~* \\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {\n\
+\n\
+    # Static assets cached forever (hashed filenames)\n\
+    location /assets/ {\n\
         expires 1y;\n\
         add_header Cache-Control "public, immutable";\n\
     }\n\
