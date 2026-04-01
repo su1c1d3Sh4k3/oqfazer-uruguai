@@ -39,6 +39,7 @@ class ErrorBoundary extends React.Component<
         },
         React.createElement('h1', { style: { fontSize: '1.5rem', marginBottom: '1rem' } }, 'Ops! Algo deu errado.'),
         React.createElement('p', { style: { color: '#666', marginBottom: '1rem' } }, 'Tente recarregar a página.'),
+        React.createElement('pre', { style: { color: '#c00', fontSize: '0.75rem', maxWidth: '90vw', overflow: 'auto', background: '#f5f5f5', padding: '1rem', borderRadius: '0.5rem', textAlign: 'left', marginBottom: '1rem' } }, String(this.state.error?.message || '') + '\n' + String(this.state.error?.stack || '').slice(0, 500)),
         React.createElement(
           'button',
           {
