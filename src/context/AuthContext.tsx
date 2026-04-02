@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import { toast } from 'sonner'
-import { supabase, rowToUser } from '@/lib/supabase'
+import { supabase, rowToUser, clearStaleSession } from '@/lib/supabase'
 
 export interface User {
   id: string
@@ -46,8 +46,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Listen for auth state changes
   useEffect(() => {
-    // Get initial session
+    // Get initial session with timeout to prevent stale token hanging
+    const sessionTimeout = setTimeout(() => {
+      console.warn('getSession timeout — clearing stale token')
+      clearStaleSession()
+      setLoading(false)
+    }, 5000)
+
     supabase.auth.getSession().then(async ({ data: { session } }) => {
+      clearTimeout(sessionTimeout)
       try {
         if (session?.user) {
           const user = await fetchProfile(session.user.id, session.user.email || '')
@@ -59,7 +66,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setLoading(false)
       }
     }).catch((err) => {
+      clearTimeout(sessionTimeout)
       console.error('Error getting session:', err)
+      clearStaleSession()
       setLoading(false)
     })
 
