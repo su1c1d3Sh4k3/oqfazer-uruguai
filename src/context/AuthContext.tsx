@@ -121,8 +121,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const logout = async () => {
-    await supabase.auth.signOut()
     setCurrentUser(null)
+    supabase.auth.signOut().catch(() => {})
+    try {
+      Object.keys(localStorage)
+        .filter((k) => k.startsWith('sb-'))
+        .forEach((k) => localStorage.removeItem(k))
+    } catch {}
     toast.success('Você saiu da conta.', {
       description: 'Sessão encerrada com segurança.',
     })
