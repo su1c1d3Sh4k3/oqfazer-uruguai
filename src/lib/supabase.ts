@@ -3,16 +3,27 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+// Limpa sessões expiradas/corrompidas ANTES de criar o client
+// para evitar que o Supabase trave tentando refresh de token morto
+try {
+  Object.keys(localStorage)
+    .filter((k) => k.startsWith('sb-') && k.endsWith('-auth-token'))
+    .forEach((k) => {
+      try {
+        const raw = localStorage.getItem(k)
+        if (!raw) return
+        const session = JSON.parse(raw)
+        const expiresAt = session?.expires_at || session?.expiresAt
+        if (expiresAt && expiresAt < Math.floor(Date.now() / 1000)) {
+          localStorage.removeItem(k)
+        }
+      } catch {
+        localStorage.removeItem(k)
+      }
+    })
+} catch {}
 
-// Limpa token corrompido do localStorage que trava o getSession/signIn
-export function clearStaleSession() {
-  try {
-    Object.keys(localStorage)
-      .filter((k) => k.startsWith('sb-') && k.endsWith('-auth-token'))
-      .forEach((k) => localStorage.removeItem(k))
-  } catch {}
-}
+export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 // Helper: convert camelCase Place object to snake_case DB row
 export function placeToRow(place: Record<string, any>) {
