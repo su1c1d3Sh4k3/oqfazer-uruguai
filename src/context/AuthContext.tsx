@@ -22,8 +22,8 @@ export interface User {
 interface AuthContextType {
   currentUser: User | null
   loading: boolean
-  login: (email: string, pass: string) => Promise<User | null>
-  logout: () => Promise<void>
+  login: (email: string, pass: string) => Promise<boolean>
+  logout: () => void
   updateProfile: (data: Partial<User>, silent?: boolean) => Promise<void>
 }
 
@@ -33,54 +33,46 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [currentUser, setCurrentUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
 
-  const fetchProfile = useCallback(async (userId: string, email: string): Promise<User | null> => {
-    const { data: profile, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single()
+  const fetchAndSetProfile = useCallback(async (userId: string, email: string) => {
+    try {
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single()
 
-    if (error || !profile) return null
-    return rowToUser(profile, email) as User
+      if (!error && profile) {
+        setCurrentUser(rowToUser(profile, email) as User)
+      }
+    } catch (err) {
+      console.error('Error fetching profile:', err)
+    }
   }, [])
 
-  // Listen for auth state changes
   useEffect(() => {
     // Get initial session
     supabase.auth.getSession().then(async ({ data: { session } }) => {
-      try {
-        if (session?.user) {
-          const user = await fetchProfile(session.user.id, session.user.email || '')
-          setCurrentUser(user)
-        }
-      } catch (err) {
-        console.error('Error fetching session profile:', err)
-      } finally {
-        setLoading(false)
+      if (session?.user) {
+        await fetchAndSetProfile(session.user.id, session.user.email || '')
       }
-    }).catch((err) => {
-      console.error('Error getting session:', err)
+      setLoading(false)
+    }).catch(() => {
       setLoading(false)
     })
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      try {
-        if (event === 'SIGNED_IN' && session?.user) {
-          const user = await fetchProfile(session.user.id, session.user.email || '')
-          setCurrentUser(user)
-        } else if (event === 'SIGNED_OUT') {
-          setCurrentUser(null)
-        }
-      } catch (err) {
-        console.error('Error on auth state change:', err)
+      if (event === 'SIGNED_IN' && session?.user) {
+        await fetchAndSetProfile(session.user.id, session.user.email || '')
+      } else if (event === 'SIGNED_OUT') {
+        setCurrentUser(null)
       }
     })
 
     return () => subscription.unsubscribe()
-  }, [fetchProfile])
+  }, [fetchAndSetProfile])
 
-  const login = async (email: string, pass: string): Promise<User | null> => {
-    const { data, error } = await supabase.auth.signInWithPassword({
+  const login = async (email: string, pass: string): Promise<boolean> => {
+    const { error } = await supabase.auth.signInWithPassword({
       email,
       password: pass,
     })
@@ -95,51 +87,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           description: error.message,
         })
       }
-      return null
+      return false
     }
 
-    if (data.user) {
-      // onAuthStateChange will handle setCurrentUser, but we need the profile for redirect logic
-      const user = await fetchProfile(data.user.id, data.user.email || '')
-      if (user) {
-        setCurrentUser(user)
-        toast.success('Login realizado com sucesso!', {
-          description:
-            user.role === 'establishment' ? 'Bem-vindo ao painel.' : 'Bem-vindo(a) de volta.',
-        })
-        return user
-      }
-    }
-
-    return null
+    // onAuthStateChange handles setCurrentUser — just return success
+    toast.success('Login realizado com sucesso!')
+    return true
   }
 
-  const logout = async () => {
-    // 1. Clear local state immediately
+  const logout = () => {
     setCurrentUser(null)
 
-    // 2. Try Supabase signOut
-    const { error } = await supabase.auth.signOut().catch(() => ({ error: { message: 'network' } }))
-
-    // 3. If signOut failed, force-clear session from storage
-    if (error) {
-      console.error('signOut error, clearing session manually:', error)
+    // Clear session from storage immediately
+    try {
       const storageKey = Object.keys(localStorage).find((k) => k.startsWith('sb-') && k.endsWith('-auth-token'))
       if (storageKey) localStorage.removeItem(storageKey)
-    }
+    } catch {}
+
+    // Fire and forget signOut
+    supabase.auth.signOut().catch(() => {})
 
     toast.success('Você saiu da conta.', {
       description: 'Sessão encerrada com segurança.',
     })
 
-    // 4. Force full reload to clear all in-memory state
+    // Force full reload to clear all in-memory state
     window.location.href = '/'
   }
 
   const updateProfile = async (data: Partial<User>, silent = false) => {
     if (!currentUser) return
 
-    // Map camelCase to snake_case for DB
     const dbData: Record<string, any> = {}
     if (data.name !== undefined) dbData.name = data.name
     if (data.cpf !== undefined) dbData.cpf = data.cpf
@@ -155,45 +133,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     dbData.updated_at = new Date().toISOString()
 
-    const { error, count } = await supabase
+    const { error } = await supabase
       .from('profiles')
       .update(dbData)
       .eq('id', currentUser.id)
-      .select('id', { count: 'exact', head: true })
 
     if (error) {
       toast.error('Erro ao atualizar perfil')
       return
     }
 
-    if (count === 0) {
-      toast.error('Erro ao atualizar perfil', { description: 'Nenhum registro foi atualizado. Verifique suas permissões.' })
-      return
-    }
-
-    // Update password via Supabase Auth if provided
     if (data.password) {
-      const { error: pwdError } = await supabase.auth.updateUser({
-        password: data.password,
-      })
+      const { error: pwdError } = await supabase.auth.updateUser({ password: data.password })
       if (pwdError) {
         toast.error('Erro ao atualizar senha')
         return
       }
     }
 
-    // Update email via Supabase Auth if changed
     if (data.email && data.email !== currentUser.email) {
-      const { error: emailError } = await supabase.auth.updateUser({
-        email: data.email,
-      })
+      const { error: emailError } = await supabase.auth.updateUser({ email: data.email })
       if (emailError) {
         toast.error('Erro ao atualizar e-mail')
         return
       }
     }
 
-    // Update local state only after DB success
     setCurrentUser((prev) => (prev ? { ...prev, ...data } : null))
 
     if (!silent) {

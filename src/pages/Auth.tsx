@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '@/context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/dialog'
 import { Compass } from 'lucide-react'
 import { toast } from 'sonner'
-import { supabase } from '@/lib/supabase' // used for password reset
+import { supabase } from '@/lib/supabase'
 
 export default function Auth() {
   const [email, setEmail] = useState('')
@@ -23,26 +23,30 @@ export default function Auth() {
   const [showForgot, setShowForgot] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
-  const { login } = useAuth()
+  const { login, currentUser } = useAuth()
   const navigate = useNavigate()
+
+  // Redirect when user is set by onAuthStateChange
+  useEffect(() => {
+    if (currentUser) {
+      if (currentUser.role === 'admin') {
+        navigate('/admin')
+      } else if (currentUser.role === 'establishment') {
+        navigate('/empresa')
+      } else {
+        navigate('/profile')
+      }
+    }
+  }, [currentUser, navigate])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
-    try {
-      const user = await login(email, password)
-      if (user) {
-        if (user.role === 'admin') {
-          navigate('/admin')
-        } else if (user.role === 'establishment') {
-          navigate('/empresa')
-        } else {
-          navigate('/profile')
-        }
-      }
-    } finally {
+    const success = await login(email, password)
+    if (!success) {
       setIsLoading(false)
     }
+    // If success, onAuthStateChange sets currentUser → useEffect handles redirect
   }
 
   const handleForgot = async (e: React.FormEvent) => {
