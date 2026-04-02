@@ -58,6 +58,12 @@ export function getSpDate(timestamp?: number): Date {
   return new Date(Date.UTC(year, month, day, hour, minute, second))
 }
 
+/** Converts "HH:MM" to minutes since midnight for reliable numeric comparison. */
+function timeToMinutes(time: string): number {
+  const [h, m] = time.split(':').map(Number)
+  return (h || 0) * 60 + (m || 0)
+}
+
 export function isPlaceOpen(operatingHours?: DailyHours[], timestamp?: number): boolean {
   if (!operatingHours || operatingHours.length === 0) return false
 
@@ -65,31 +71,33 @@ export function isPlaceOpen(operatingHours?: DailyHours[], timestamp?: number): 
   const currentDay = spDate.getUTCDay()
   const currentHour = spDate.getUTCHours()
   const currentMinute = spDate.getUTCMinutes()
-  const currentTimeStr = `${currentHour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}`
+  const nowMinutes = currentHour * 60 + currentMinute
 
   const todayHours = operatingHours.find((h) => h.day === currentDay)
   const yesterdayDay = currentDay === 0 ? 6 : currentDay - 1
   const yesterdayHours = operatingHours.find((h) => h.day === yesterdayDay)
 
   // 1. Check if we are still within yesterday's shift that crossed midnight
-  if (
-    yesterdayHours?.isOpen &&
-    yesterdayHours.closeTime <= yesterdayHours.openTime &&
-    currentTimeStr < yesterdayHours.closeTime
-  ) {
-    return true
+  if (yesterdayHours?.isOpen) {
+    const yOpen = timeToMinutes(yesterdayHours.openTime)
+    const yClose = timeToMinutes(yesterdayHours.closeTime)
+    if (yClose <= yOpen && nowMinutes < yClose) {
+      return true
+    }
   }
 
   // 2. Check today's shift
   if (todayHours?.isOpen) {
-    if (todayHours.closeTime <= todayHours.openTime) {
-      // Shift crosses midnight into tomorrow. We are open if we are past today's open time.
-      if (currentTimeStr >= todayHours.openTime) {
+    const tOpen = timeToMinutes(todayHours.openTime)
+    const tClose = timeToMinutes(todayHours.closeTime)
+    if (tClose <= tOpen) {
+      // Shift crosses midnight into tomorrow. Open if past today's open time.
+      if (nowMinutes >= tOpen) {
         return true
       }
     } else {
       // Standard daytime shift
-      if (currentTimeStr >= todayHours.openTime && currentTimeStr < todayHours.closeTime) {
+      if (nowMinutes >= tOpen && nowMinutes < tClose) {
         return true
       }
     }

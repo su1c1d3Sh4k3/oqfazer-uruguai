@@ -304,9 +304,6 @@ END:VCALENDAR`
                     <Button onClick={() => handleAddToCalendar('google')} variant="outline">
                       Google Calendar
                     </Button>
-                    <Button onClick={() => handleAddToCalendar('apple')} variant="outline">
-                      Apple Calendar (.ics)
-                    </Button>
                   </div>
                 </DialogContent>
               </Dialog>
@@ -390,7 +387,7 @@ END:VCALENDAR`
                   asChild
                   className="gap-2 rounded-full border-pink-200 text-pink-600 hover:bg-pink-50 hover:text-pink-700"
                 >
-                  <a href={place.instagramUrl} target="_blank" rel="noreferrer">
+                  <a href={place.instagramUrl.match(/^https?:\/\//) ? place.instagramUrl : `https://${place.instagramUrl}`} target="_blank" rel="noreferrer">
                     <Instagram className="h-4 w-4" /> Instagram
                   </a>
                 </Button>
@@ -402,7 +399,7 @@ END:VCALENDAR`
                   asChild
                   className="gap-2 rounded-full border-blue-200 text-blue-600 hover:bg-blue-50 hover:text-blue-700"
                 >
-                  <a href={place.websiteUrl} target="_blank" rel="noreferrer">
+                  <a href={place.websiteUrl.match(/^https?:\/\//) ? place.websiteUrl : `https://${place.websiteUrl}`} target="_blank" rel="noreferrer">
                     <Globe className="h-4 w-4" /> Website
                   </a>
                 </Button>

@@ -10,14 +10,20 @@ import {
 } from '@/components/ui/dialog'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '@/context/AuthContext'
 import { toast } from 'sonner'
+import { getAppSetting } from '@/lib/appSettings'
 
 export function PlaceCheckInTicket({ checkInTime }: { checkInTime: number }) {
   const { currentUser } = useAuth()
   const [reportOpen, setReportOpen] = useState(false)
   const [issue, setIssue] = useState('')
+  const [whatsappNumber, setWhatsappNumber] = useState('5547999999999')
+
+  useEffect(() => {
+    getAppSetting('whatsapp_support').then(setWhatsappNumber)
+  }, [])
 
   const expirationTime = checkInTime + 86400000
   const isExpired = Date.now() > expirationTime
@@ -30,7 +36,7 @@ export function PlaceCheckInTicket({ checkInTime }: { checkInTime: number }) {
     const msg = encodeURIComponent(
       `Olá, tive um problema no estabelecimento usando o app.\nTelefone de cadastro: ${currentUser?.phone || 'Não informado'}\nProblema: ${issue}`,
     )
-    window.open(`https://wa.me/5547999999999?text=${msg}`, '_blank')
+    window.open(`https://wa.me/${whatsappNumber}?text=${msg}`, '_blank')
     setReportOpen(false)
     setIssue('')
   }

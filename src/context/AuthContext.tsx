@@ -114,7 +114,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const logout = async () => {
-    await supabase.auth.signOut()
+    try {
+      await supabase.auth.signOut()
+    } catch (err) {
+      console.error('Error signing out:', err)
+    }
     setCurrentUser(null)
     toast.success('Você saiu da conta.', {
       description: 'Sessão encerrada com segurança.',
@@ -140,13 +144,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     dbData.updated_at = new Date().toISOString()
 
-    const { error } = await supabase
+    const { error, count } = await supabase
       .from('profiles')
       .update(dbData)
       .eq('id', currentUser.id)
+      .select('id', { count: 'exact', head: true })
 
     if (error) {
       toast.error('Erro ao atualizar perfil')
+      return
+    }
+
+    if (count === 0) {
+      toast.error('Erro ao atualizar perfil', { description: 'Nenhum registro foi atualizado. Verifique suas permissões.' })
       return
     }
 
@@ -172,7 +182,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     }
 
-    // Update local state
+    // Update local state only after DB success
     setCurrentUser((prev) => (prev ? { ...prev, ...data } : null))
 
     if (!silent) {

@@ -138,8 +138,10 @@ export function AdminUsersList() {
         return
       }
 
-      // Update the auto-created profile with additional data
-      const { error: profileError } = await supabase.from('profiles').update({
+      // Upsert the profile with additional data (handles race condition with trigger)
+      const { error: profileError } = await supabase.from('profiles').upsert({
+        id: authData.user.id,
+        email: formData.email,
         role: formData.role,
         name: formData.name || null,
         phone: formData.phone || null,
@@ -148,10 +150,12 @@ export function AdminUsersList() {
         responsible_name: formData.responsibleName || null,
         managed_place_id: formData.managedPlaceId || null,
         travel_period: formData.travelPeriod || null,
-      }).eq('id', authData.user.id)
+        first_login_at: new Date().toISOString(),
+      }, { onConflict: 'id' })
 
       if (profileError) {
         console.error('Error updating profile:', profileError)
+        toast.error('Usuário criado mas houve erro ao salvar dados do perfil.')
       }
 
       toast.success('Usuário criado com sucesso!')
@@ -176,7 +180,8 @@ export function AdminUsersList() {
   }
 
   const exportExcel = () => {
-    let csvContent = 'Nome/Responsavel,Email,Telefone,CPF/CI,Tipo,Data de Cadastro,Status\n'
+    const BOM = '\uFEFF'
+    let csvContent = BOM + 'Nome/Responsavel;Email;Telefone;CPF/CI;Tipo;Data de Cadastro;Status\n'
 
     users.forEach((u) => {
       const name = u.name || u.responsible_name || ''
@@ -188,7 +193,7 @@ export function AdminUsersList() {
       const date = u.first_login_at ? new Date(u.first_login_at).toLocaleDateString() : ''
       const status = u.deletion_requested ? 'Exclusão Solicitada' : 'Ativo'
 
-      csvContent += `"${cleanName}","${email}","${phone}","${doc}","${role}","${date}","${status}"\n`
+      csvContent += `"${cleanName}";"${email}";"${phone}";"${doc}";"${role}";"${date}";"${status}"\n`
     })
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
@@ -198,6 +203,7 @@ export function AdminUsersList() {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
+    toast.success('Relatório de usuários exportado com sucesso!')
   }
 
   return (

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { usePlaces } from '@/context/PlacesContext'
 import { supabase } from '@/lib/supabase'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -54,42 +54,8 @@ export function AdminDashboard() {
     }
   }, [filterType])
 
-  const { multiplier } = useMemo(() => {
-    const getDaysDifference = (from?: Date, to?: Date) => {
-      if (!from || !to) return 30
-      const diffTime = Math.abs(to.getTime() - from.getTime())
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-      return diffDays === 0 ? 1 : diffDays
-    }
-
-    const getPseudoRandom = (seed: number) => {
-      const x = Math.sin(seed) * 10000
-      return x - Math.floor(x)
-    }
-
-    const days =
-      filterType === 'custom'
-        ? getDaysDifference(dateRange?.from, dateRange?.to)
-        : filterType === 'today'
-          ? 1
-          : filterType === 'yesterday'
-            ? 1
-            : filterType === '7days'
-              ? 7
-              : filterType === '30days'
-                ? 30
-                : 30
-
-    const seed = dateRange?.from ? dateRange.from.getTime() : 1
-    const randomFactor =
-      filterType === 'today' || filterType === 'yesterday'
-        ? 0.5 + getPseudoRandom(seed) * 0.5
-        : 0.8 + getPseudoRandom(seed) * 0.4
-
-    const mult = Math.max(0.005, Math.min(1, (days / 180) * randomFactor))
-
-    return { multiplier: mult }
-  }, [dateRange, filterType])
+  // Multiplier set to 1 — shows real data from Supabase
+  const multiplier = 1
 
   const totalAccesses = Math.floor(
     places.reduce((sum, p) => sum + (p.accessCount || 0), 0) * multiplier,
@@ -113,16 +79,17 @@ export function AdminDashboard() {
   const exportExcel = useCallback(async () => {
     const { data: reviews } = await supabase.from('reviews').select('*')
 
-    let csvContent = 'Estabelecimento,Visualizacoes,Cliques\n'
+    const BOM = '\uFEFF'
+    let csvContent = BOM + 'Estabelecimento;Visualizacoes;Cliques\n'
 
     places
       .sort((a, b) => (b.accessCount || 0) - (a.accessCount || 0))
       .forEach((p) => {
-        csvContent += `"${p.name}",${Math.floor((p.accessCount || 0) * multiplier)},${Math.floor((p.couponClickCount || 0) * multiplier)}\n`
+        csvContent += `"${p.name}";${p.accessCount || 0};${p.couponClickCount || 0}\n`
       })
 
     csvContent += '\nComentarios e Feedbacks Privados\n'
-    csvContent += 'Data,Usuario,Estabelecimento,Nota,Comentario\n'
+    csvContent += 'Data;Usuario;Estabelecimento;Nota;Comentario\n'
 
     ;(reviews || []).forEach((r: any) => {
       const rDate = new Date(r.date)
@@ -132,7 +99,7 @@ export function AdminDashboard() {
       if (inRange) {
         const pName = places.find((p) => p.id === r.place_id)?.name || 'Desconhecido'
         const cleanComment = r.comment ? r.comment.replace(/"/g, '""') : ''
-        csvContent += `"${rDate.toLocaleDateString()}","${r.user_email}","${pName}",${r.rating},"${cleanComment}"\n`
+        csvContent += `"${rDate.toLocaleDateString()}";"${r.user_email}";"${pName}";${r.rating};"${cleanComment}"\n`
       }
     })
 
@@ -143,8 +110,8 @@ export function AdminDashboard() {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    toast.success('Relatório CSV/Excel gerado com sucesso!')
-  }, [places, multiplier, dateRange])
+    toast.success('Relatório exportado com sucesso!')
+  }, [places, dateRange])
 
   const exportPDF = () => {
     window.print()

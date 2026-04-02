@@ -256,3 +256,31 @@ INSERT INTO public.badges (name) VALUES
   ('2x1'), ('Desconto de 50%'), ('Desconto de 40%'),
   ('Desconto de 30%'), ('Desconto de 20%'), ('Desconto de 10%'), ('Brinde')
 ON CONFLICT (name) DO NOTHING;
+
+-- =============================================
+-- 9. APP SETTINGS (key-value config)
+-- =============================================
+CREATE TABLE IF NOT EXISTS public.app_settings (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.app_settings ENABLE ROW LEVEL SECURITY;
+
+-- Todos podem ler configurações
+CREATE POLICY "Anyone can read app settings"
+  ON public.app_settings FOR SELECT
+  USING (true);
+
+-- Apenas admins podem atualizar configurações
+CREATE POLICY "Admins can manage app settings"
+  ON public.app_settings FOR ALL
+  USING (
+    EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin')
+  );
+
+-- Valor padrão do WhatsApp de suporte
+INSERT INTO public.app_settings (key, value) VALUES
+  ('whatsapp_support', '5547999999999')
+ON CONFLICT (key) DO NOTHING;

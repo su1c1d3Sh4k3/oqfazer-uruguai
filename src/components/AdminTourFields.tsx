@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Place } from '@/data/places'
@@ -8,6 +9,16 @@ interface Props {
 }
 
 export function AdminTourFields({ formData, onChange }: Props) {
+  const [includedText, setIncludedText] = useState(formData.included?.join(', ') || '')
+  const [daysText, setDaysText] = useState(formData.availableDays?.join(', ') || '')
+
+  const processCommaSeparated = (text: string): string[] => {
+    return text
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)
+  }
+
   return (
     <div className="space-y-4 rounded-xl border border-primary/20 bg-primary/5 p-5">
       <h3 className="font-bold text-primary text-lg">Informações Específicas do Passeio</h3>
@@ -31,33 +42,27 @@ export function AdminTourFields({ formData, onChange }: Props) {
         <div className="space-y-2">
           <Label>O que está incluído (separar por vírgula)</Label>
           <Input
-            value={formData.included?.join(', ') || ''}
-            onChange={(e) =>
-              onChange(
-                'included',
-                e.target.value
-                  .split(',')
-                  .map((s) => s.trim())
-                  .filter(Boolean),
-              )
-            }
+            value={includedText}
+            onChange={(e) => setIncludedText(e.target.value)}
+            onBlur={() => {
+              const items = processCommaSeparated(includedText)
+              onChange('included', items)
+              setIncludedText(items.join(', '))
+            }}
             placeholder="Guia, Transporte..."
           />
         </div>
         <div className="space-y-2">
           <Label>Dias disponíveis (separar por vírgula)</Label>
           <Input
-            value={formData.availableDays?.join(', ') || ''}
-            onChange={(e) =>
-              onChange(
-                'availableDays',
-                e.target.value
-                  .split(',')
-                  .map((s) => s.trim())
-                  .filter(Boolean),
-              )
-            }
-            placeholder="Segunda, Quarta..."
+            value={daysText}
+            onChange={(e) => setDaysText(e.target.value)}
+            onBlur={() => {
+              const items = processCommaSeparated(daysText)
+              onChange('availableDays', items)
+              setDaysText(items.join(', '))
+            }}
+            placeholder="Segunda, Quarta... ou Todos os Dias"
           />
         </div>
         <div className="space-y-2">

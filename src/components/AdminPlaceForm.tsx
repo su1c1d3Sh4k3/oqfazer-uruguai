@@ -316,6 +316,12 @@ export function AdminPlaceForm({ initialData, onSave, onCancel, isCompanyView }:
           <Input
             value={formData.instagramUrl || ''}
             onChange={(e) => handleChange('instagramUrl', e.target.value)}
+            onBlur={(e) => {
+              const val = e.target.value.trim()
+              if (val && !val.match(/^https?:\/\//)) {
+                handleChange('instagramUrl', `https://${val}`)
+              }
+            }}
             placeholder="https://instagram.com/..."
           />
         </div>
@@ -324,6 +330,12 @@ export function AdminPlaceForm({ initialData, onSave, onCancel, isCompanyView }:
           <Input
             value={formData.websiteUrl || ''}
             onChange={(e) => handleChange('websiteUrl', e.target.value)}
+            onBlur={(e) => {
+              const val = e.target.value.trim()
+              if (val && !val.match(/^https?:\/\//)) {
+                handleChange('websiteUrl', `https://${val}`)
+              }
+            }}
             placeholder="https://..."
           />
         </div>

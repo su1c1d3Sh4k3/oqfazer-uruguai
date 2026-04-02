@@ -41,7 +41,9 @@ export default function Auth() {
             .eq('id', session.user.id)
             .single()
 
-          if (profile?.role === 'establishment') {
+          if (profile?.role === 'admin') {
+            navigate('/admin')
+          } else if (profile?.role === 'establishment') {
             navigate('/empresa')
           } else {
             navigate('/profile')
