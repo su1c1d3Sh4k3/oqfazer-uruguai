@@ -50,6 +50,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       try {
         if (session?.user) {
+          // Se o access_token expirou, limpar sessão e seguir
+          const expiresAt = session.expires_at
+          if (expiresAt && expiresAt < Math.floor(Date.now() / 1000)) {
+            await supabase.auth.signOut()
+            setLoading(false)
+            return
+          }
           const user = await fetchProfile(session.user.id, session.user.email || '')
           setCurrentUser(user)
         }

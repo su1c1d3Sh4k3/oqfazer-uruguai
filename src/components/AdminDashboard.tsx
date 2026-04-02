@@ -54,27 +54,18 @@ export function AdminDashboard() {
     }
   }, [filterType])
 
-  // Multiplier set to 1 — shows real data from Supabase
-  const multiplier = 1
-
-  const totalAccesses = Math.floor(
-    places.reduce((sum, p) => sum + (p.accessCount || 0), 0) * multiplier,
-  )
-  const totalClicks = Math.floor(
-    places.reduce((sum, p) => sum + (p.couponClickCount || 0), 0) * multiplier,
-  )
+  const totalAccesses = places.reduce((sum, p) => sum + (p.accessCount || 0), 0)
+  const totalClicks = places.reduce((sum, p) => sum + (p.couponClickCount || 0), 0)
 
   const toursByAccess = [...places]
     .filter((p) => p.type === 'tour')
     .sort((a, b) => (b.accessCount || 0) - (a.accessCount || 0))
     .slice(0, 10)
-    .map((p) => ({ ...p, accessCount: Math.floor((p.accessCount || 0) * multiplier) }))
 
   const topCoupons = [...places]
     .filter((p) => p.discountBadge)
     .sort((a, b) => (b.couponClickCount || 0) - (a.couponClickCount || 0))
     .slice(0, 10)
-    .map((p) => ({ ...p, couponClickCount: Math.floor((p.couponClickCount || 0) * multiplier) }))
 
   const exportExcel = useCallback(async () => {
     const { data: reviews } = await supabase.from('reviews').select('*')
