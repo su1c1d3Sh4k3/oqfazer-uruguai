@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useAuth } from '@/context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
@@ -23,27 +23,33 @@ export default function Auth() {
   const [showForgot, setShowForgot] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
-  const { login, currentUser } = useAuth()
+  const { login } = useAuth()
   const navigate = useNavigate()
-
-  // Redirect when user is set by onAuthStateChange
-  useEffect(() => {
-    if (currentUser) {
-      if (currentUser.role === 'admin') {
-        navigate('/admin')
-      } else if (currentUser.role === 'establishment') {
-        navigate('/empresa')
-      } else {
-        navigate('/profile')
-      }
-    }
-  }, [currentUser, navigate])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     try {
-      await login(email, password)
+      const success = await login(email, password)
+      if (success) {
+        // Fetch profile to determine role
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', session.user.id)
+            .single()
+
+          if (profile?.role === 'admin') {
+            navigate('/admin')
+          } else if (profile?.role === 'establishment') {
+            navigate('/empresa')
+          } else {
+            navigate('/profile')
+          }
+        }
+      }
     } finally {
       setIsLoading(false)
     }

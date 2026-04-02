@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -15,6 +16,7 @@ export function AdminLogin({ onLogin }: Props) {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const { login } = useAuth()
+  const navigate = useNavigate()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -23,7 +25,9 @@ export function AdminLogin({ onLogin }: Props) {
 
     try {
       const success = await login(email, password)
-      if (!success) {
+      if (success) {
+        navigate('/admin')
+      } else {
         setError('Credenciais inválidas ou sem permissão de administrador.')
       }
     } finally {

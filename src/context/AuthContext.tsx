@@ -33,46 +33,54 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [currentUser, setCurrentUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
 
-  const fetchAndSetProfile = useCallback(async (userId: string, email: string) => {
-    try {
-      const { data: profile, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single()
+  const fetchProfile = useCallback(async (userId: string, email: string): Promise<User | null> => {
+    const { data: profile, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single()
 
-      if (!error && profile) {
-        setCurrentUser(rowToUser(profile, email) as User)
-      }
-    } catch (err) {
-      console.error('Error fetching profile:', err)
-    }
+    if (error || !profile) return null
+    return rowToUser(profile, email) as User
   }, [])
 
+  // Listen for auth state changes
   useEffect(() => {
     // Get initial session
     supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (session?.user) {
-        await fetchAndSetProfile(session.user.id, session.user.email || '')
+      try {
+        if (session?.user) {
+          const user = await fetchProfile(session.user.id, session.user.email || '')
+          setCurrentUser(user)
+        }
+      } catch (err) {
+        console.error('Error fetching session profile:', err)
+      } finally {
+        setLoading(false)
       }
-      setLoading(false)
-    }).catch(() => {
+    }).catch((err) => {
+      console.error('Error getting session:', err)
       setLoading(false)
     })
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' && session?.user) {
-        await fetchAndSetProfile(session.user.id, session.user.email || '')
-      } else if (event === 'SIGNED_OUT') {
-        setCurrentUser(null)
+      try {
+        if (event === 'SIGNED_IN' && session?.user) {
+          const user = await fetchProfile(session.user.id, session.user.email || '')
+          setCurrentUser(user)
+        } else if (event === 'SIGNED_OUT') {
+          setCurrentUser(null)
+        }
+      } catch (err) {
+        console.error('Error on auth state change:', err)
       }
     })
 
     return () => subscription.unsubscribe()
-  }, [fetchAndSetProfile])
+  }, [fetchProfile])
 
   const login = async (email: string, pass: string): Promise<boolean> => {
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password: pass,
     })
@@ -90,28 +98,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return false
     }
 
-    // onAuthStateChange handles setCurrentUser — just return success
-    toast.success('Login realizado com sucesso!')
-    return true
+    if (data.user) {
+      const user = await fetchProfile(data.user.id, data.user.email || '')
+      if (user) {
+        setCurrentUser(user)
+        toast.success('Login realizado com sucesso!', {
+          description:
+            user.role === 'establishment' ? 'Bem-vindo ao painel.' : 'Bem-vindo(a) de volta.',
+        })
+        return true
+      }
+    }
+
+    return false
   }
 
   const logout = () => {
     setCurrentUser(null)
-
-    // Clear session from storage immediately
     try {
       const storageKey = Object.keys(localStorage).find((k) => k.startsWith('sb-') && k.endsWith('-auth-token'))
       if (storageKey) localStorage.removeItem(storageKey)
     } catch {}
-
-    // Fire and forget signOut
     supabase.auth.signOut().catch(() => {})
-
     toast.success('Você saiu da conta.', {
       description: 'Sessão encerrada com segurança.',
     })
-
-    // Force full reload to clear all in-memory state
     window.location.href = '/'
   }
 
