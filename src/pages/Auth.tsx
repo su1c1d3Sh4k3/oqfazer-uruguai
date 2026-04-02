@@ -42,11 +42,11 @@ export default function Auth() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
-    const success = await login(email, password)
-    if (!success) {
+    try {
+      await login(email, password)
+    } finally {
       setIsLoading(false)
     }
-    // If success, onAuthStateChange sets currentUser → useEffect handles redirect
   }
 
   const handleForgot = async (e: React.FormEvent) => {

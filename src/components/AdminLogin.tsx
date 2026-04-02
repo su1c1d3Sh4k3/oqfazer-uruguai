@@ -21,12 +21,14 @@ export function AdminLogin({ onLogin }: Props) {
     setIsLoading(true)
     setError('')
 
-    const success = await login(email, password)
-    if (!success) {
-      setError('Credenciais inválidas ou sem permissão de administrador.')
+    try {
+      const success = await login(email, password)
+      if (!success) {
+        setError('Credenciais inválidas ou sem permissão de administrador.')
+      }
+    } finally {
       setIsLoading(false)
     }
-    // If success, onAuthStateChange sets currentUser → Admin.tsx re-renders and replaces this component
   }
 
   return (
