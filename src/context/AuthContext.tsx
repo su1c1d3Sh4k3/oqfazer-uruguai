@@ -121,16 +121,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const logout = async () => {
-    setCurrentUser(null)
-    supabase.auth.signOut().catch(() => {})
+    // Limpa token do localStorage ANTES de tudo
     try {
       Object.keys(localStorage)
         .filter((k) => k.startsWith('sb-'))
         .forEach((k) => localStorage.removeItem(k))
     } catch {}
-    toast.success('Você saiu da conta.', {
-      description: 'Sessão encerrada com segurança.',
-    })
+    // Reload força novo Supabase client limpo — sem token = sem travamento
+    window.location.href = '/'
   }
 
   const updateProfile = async (data: Partial<User>, silent = false) => {
