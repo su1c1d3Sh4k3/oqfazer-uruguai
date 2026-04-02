@@ -106,10 +106,7 @@ export default function UserProfile() {
         </div>
         <Button
           variant="outline"
-          onClick={async () => {
-            await logout()
-            window.location.href = '/'
-          }}
+          onClick={logout}
           className="text-red-500 hover:text-red-600 hover:bg-red-50 border-red-200"
         >
           <LogOut className="h-4 w-4 mr-2" /> Sair

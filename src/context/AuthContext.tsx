@@ -114,15 +114,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const logout = async () => {
-    try {
-      await supabase.auth.signOut()
-    } catch (err) {
-      console.error('Error signing out:', err)
-    }
+    // 1. Clear local state immediately
     setCurrentUser(null)
+
+    // 2. Try Supabase signOut
+    const { error } = await supabase.auth.signOut().catch(() => ({ error: { message: 'network' } }))
+
+    // 3. If signOut failed, force-clear session from storage
+    if (error) {
+      console.error('signOut error, clearing session manually:', error)
+      const storageKey = Object.keys(localStorage).find((k) => k.startsWith('sb-') && k.endsWith('-auth-token'))
+      if (storageKey) localStorage.removeItem(storageKey)
+    }
+
     toast.success('Você saiu da conta.', {
       description: 'Sessão encerrada com segurança.',
     })
+
+    // 4. Force full reload to clear all in-memory state
+    window.location.href = '/'
   }
 
   const updateProfile = async (data: Partial<User>, silent = false) => {
