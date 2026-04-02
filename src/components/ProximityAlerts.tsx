@@ -22,9 +22,11 @@ export function ProximityAlerts() {
   }, [accesses])
 
   useEffect(() => {
-    if ('Notification' in window && Notification.permission === 'default') {
-      Notification.requestPermission()
-    }
+    try {
+      if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission().catch(() => {})
+      }
+    } catch {}
   }, [])
 
   useEffect(() => {
