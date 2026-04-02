@@ -23,7 +23,7 @@ interface AuthContextType {
   currentUser: User | null
   loading: boolean
   login: (email: string, pass: string) => Promise<boolean>
-  logout: () => void
+  logout: () => Promise<void>
   updateProfile: (data: Partial<User>, silent?: boolean) => Promise<void>
 }
 
@@ -113,17 +113,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return false
   }
 
-  const logout = () => {
+  const logout = async () => {
+    await supabase.auth.signOut()
     setCurrentUser(null)
-    try {
-      const storageKey = Object.keys(localStorage).find((k) => k.startsWith('sb-') && k.endsWith('-auth-token'))
-      if (storageKey) localStorage.removeItem(storageKey)
-    } catch {}
-    supabase.auth.signOut().catch(() => {})
     toast.success('Você saiu da conta.', {
       description: 'Sessão encerrada com segurança.',
     })
-    window.location.href = '/'
   }
 
   const updateProfile = async (data: Partial<User>, silent = false) => {

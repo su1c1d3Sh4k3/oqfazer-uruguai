@@ -33,58 +33,38 @@ export function PlacesProvider({ children }: { children: React.ReactNode }) {
   const [badges, setBadges] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
 
-  const fetchAll = useCallback(async () => {
-    try {
-      const [placesRes, catsRes, citiesRes, badgesRes] = await Promise.all([
-        supabase.from('places').select('*').order('display_order', { ascending: true, nullsFirst: false }),
-        supabase.from('categories').select('name'),
-        supabase.from('cities').select('name'),
-        supabase.from('badges').select('name'),
-      ])
-
-      if (placesRes.data) {
-        setPlaces(placesRes.data.map((row: any) => rowToPlace(row) as Place))
-      }
-      if (catsRes.data) {
-        setCategories(catsRes.data.map((r: any) => r.name))
-      }
-      if (citiesRes.data) {
-        setCities(citiesRes.data.map((r: any) => r.name))
-      }
-      if (badgesRes.data) {
-        setBadges(badgesRes.data.map((r: any) => r.name))
-      }
-    } catch (err) {
-      console.error('Error fetching places data:', err)
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
-  // Fetch all data on mount + subscribe to realtime changes
+  // Fetch all data on mount
   useEffect(() => {
-    fetchAll()
+    const fetchAll = async () => {
+      try {
+        const [placesRes, catsRes, citiesRes, badgesRes] = await Promise.all([
+          supabase.from('places').select('*').order('display_order', { ascending: true, nullsFirst: false }),
+          supabase.from('categories').select('name'),
+          supabase.from('cities').select('name'),
+          supabase.from('badges').select('name'),
+        ])
 
-    const channel = supabase
-      .channel('places-realtime')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'places' }, () => {
-        fetchAll()
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'categories' }, () => {
-        fetchAll()
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'cities' }, () => {
-        fetchAll()
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'badges' }, () => {
-        fetchAll()
-      })
-      .subscribe()
-
-    return () => {
-      supabase.removeChannel(channel)
+        if (placesRes.data) {
+          setPlaces(placesRes.data.map((row: any) => rowToPlace(row) as Place))
+        }
+        if (catsRes.data) {
+          setCategories(catsRes.data.map((r: any) => r.name))
+        }
+        if (citiesRes.data) {
+          setCities(citiesRes.data.map((r: any) => r.name))
+        }
+        if (badgesRes.data) {
+          setBadges(badgesRes.data.map((r: any) => r.name))
+        }
+      } catch (err) {
+        console.error('Error fetching places data:', err)
+      } finally {
+        setLoading(false)
+      }
     }
-  }, [fetchAll])
+
+    fetchAll()
+  }, [])
 
   const addPlace = async (p: Place) => {
     const row = placeToRow(p)

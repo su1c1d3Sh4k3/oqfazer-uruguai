@@ -69,8 +69,9 @@ export default function Admin() {
     setActiveTab(val)
   }
 
-  const handleLogout = () => {
-    logout()
+  const handleLogout = async () => {
+    await logout()
+    toast.success('Sessão encerrada com sucesso')
   }
 
   return (
