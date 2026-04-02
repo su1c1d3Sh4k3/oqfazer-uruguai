@@ -38,27 +38,6 @@ import { PlaceMapSection } from '@/components/PlaceMapSection'
 import { PlaceCheckInTicket } from '@/components/PlaceCheckInTicket'
 import { PrivateReviews } from '@/components/PrivateReviews'
 
-const getMappedCouponCode = (placeName: string, originalCode?: string) => {
-  const name = placeName.toLowerCase()
-  if (name.includes('day tour punta')) return 'DAYTOURPUNTA-APP'
-  if (name.includes('bouza') && name.includes('pizzorno')) return 'BOUZAPIZZORNO-APP'
-  if (name.includes('ballena')) return 'BALLENA-APP'
-
-  if (name.includes('montevideo')) return 'MONTEVIDEO-APP'
-  if (name.includes('punta')) return 'PUNTA-APP'
-  if (name.includes('colonia')) return 'COLONIA-APP'
-  if (name.includes('bouza')) return 'BOUZA-APP'
-  if (name.includes('garzon') || name.includes('garzón')) return 'GARZON-APP'
-  if (name.includes('primuseum')) return 'PRIMUSEUM-APP'
-  if (name.includes('milongon') || name.includes('milongón')) return 'MILONGON-APP'
-  if (name.includes('spinoglio')) return 'SPINOGLIO-APP'
-  if (name.includes('deicas')) return 'DEICAS-APP'
-  if (name.includes('fripp')) return 'FRIPP-APP'
-  if (name.includes('pizzorno')) return 'PIZZORNO-APP'
-
-  return originalCode
-}
-
 export default function PlaceDetails() {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -447,7 +426,7 @@ END:VCALENDAR`
               <p className="mb-4 text-sm font-medium leading-relaxed text-slate-700">
                 {place.discountDescription}
               </p>
-              {getMappedCouponCode(place.name, place.couponCode) && (
+              {place.couponCode && (
                 <>
                   {!couponGenerated ? (
                     <Button
@@ -462,7 +441,7 @@ END:VCALENDAR`
                         Código do Cupom
                       </span>
                       <span className="font-mono text-2xl font-black text-slate-900">
-                        {getMappedCouponCode(place.name, place.couponCode)}
+                        {place.couponCode}
                       </span>
                     </div>
                   )}

@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { useAuth } from '@/context/AuthContext'
 import { useAccess } from '@/context/AccessContext'
 import { usePlaces } from '@/context/PlacesContext'
@@ -7,6 +8,7 @@ import { Progress } from '@/components/ui/progress'
 import { Button } from '@/components/ui/button'
 import { Link, Navigate } from 'react-router-dom'
 import { cn } from '@/lib/utils'
+import { supabase } from '@/lib/supabase'
 
 export default function Profile() {
   const { currentUser } = useAuth()
@@ -74,28 +76,50 @@ export default function Profile() {
     ? Math.min(100, (checkInCount / currentLevel.next) * 100)
     : 100
 
-  const MOCK_LEADERBOARD = [
-    { name: 'João Silva', checkins: 45, isGold: true },
-    { name: 'Maria Souza', checkins: 38 },
-    { name: 'Carlos Santos', checkins: 30 },
-    { name: 'Ana Costa', checkins: 25 },
-    { name: 'Pedro Alves', checkins: 20 },
-  ]
+  const [leaderboard, setLeaderboard] = useState<{ name: string; checkins: number; isMe?: boolean }[]>([])
 
-  const userEntry = { name: currentUser.email.split('@')[0], checkins: checkInCount, isMe: true }
-  const allScores = [...MOCK_LEADERBOARD, userEntry].sort((a, b) => b.checkins - a.checkins)
+  useEffect(() => {
+    const fetchLeaderboard = async () => {
+      // Count check-ins per user from access_records
+      const { data, error } = await supabase
+        .from('access_records')
+        .select('user_id')
 
-  const uniqueScores = allScores.reduce(
-    (acc, curr) => {
-      if (curr.isMe && acc.some((s) => s.isMe)) return acc
-      acc.push(curr)
-      return acc
-    },
-    [] as typeof allScores,
-  )
+      if (error || !data) return
 
-  const top5 = uniqueScores.slice(0, 5)
-  const myPosition = uniqueScores.findIndex((s) => s.isMe) + 1
+      // Count check-ins per user
+      const counts: Record<string, number> = {}
+      data.forEach((r: any) => {
+        counts[r.user_id] = (counts[r.user_id] || 0) + 1
+      })
+
+      // Get profile names for top users
+      const userIds = Object.keys(counts)
+      if (userIds.length === 0) return
+
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, name, email')
+        .in('id', userIds)
+
+      const entries = userIds.map((uid) => {
+        const profile = profiles?.find((p: any) => p.id === uid)
+        return {
+          name: profile?.name || profile?.email?.split('@')[0] || 'Usuário',
+          checkins: counts[uid],
+          isMe: uid === currentUser?.id,
+        }
+      })
+
+      entries.sort((a, b) => b.checkins - a.checkins)
+      setLeaderboard(entries)
+    }
+
+    fetchLeaderboard()
+  }, [currentUser?.id])
+
+  const top5 = leaderboard.slice(0, 5)
+  const myPosition = leaderboard.findIndex((s) => s.isMe) + 1
 
   return (
     <div className="flex h-full flex-col px-4 pb-12 pt-4 md:px-8 md:pt-8 max-w-7xl mx-auto w-full animate-fade-in">
@@ -239,14 +263,14 @@ export default function Profile() {
                 <div className="flex items-center gap-3">
                   <span className="font-black w-6 text-center text-slate-400">{myPosition}º</span>
                   <p className="font-bold text-sm text-slate-900 flex items-center gap-1.5">
-                    {userEntry.name}{' '}
+                    {currentUser.name || currentUser.email.split('@')[0]}{' '}
                     <span className="text-[9px] bg-primary text-white px-2 py-0.5 rounded-full uppercase tracking-widest">
                       Você
                     </span>
                   </p>
                 </div>
                 <div className="font-bold text-primary tabular-nums bg-white px-2 py-1 rounded-md shadow-sm border border-primary/10 text-sm">
-                  {userEntry.checkins}{' '}
+                  {checkInCount}{' '}
                   <span className="text-[10px] font-medium text-slate-400 uppercase">
                     Check-ins
                   </span>
