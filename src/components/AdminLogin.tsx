@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -16,23 +15,18 @@ export function AdminLogin({ onLogin }: Props) {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const { login } = useAuth()
-  const navigate = useNavigate()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     setError('')
 
-    try {
-      const success = await login(email, password)
-      if (success) {
-        navigate('/admin')
-      } else {
-        setError('Credenciais inválidas ou sem permissão de administrador.')
-      }
-    } finally {
+    const user = await login(email, password)
+    if (!user) {
+      setError('Credenciais inválidas ou sem permissão de administrador.')
       setIsLoading(false)
     }
+    // If login succeeded, Admin.tsx will re-render and replace this component
   }
 
   return (

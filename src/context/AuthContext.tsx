@@ -22,7 +22,7 @@ export interface User {
 interface AuthContextType {
   currentUser: User | null
   loading: boolean
-  login: (email: string, pass: string) => Promise<boolean>
+  login: (email: string, pass: string) => Promise<User | null>
   logout: () => Promise<void>
   updateProfile: (data: Partial<User>, silent?: boolean) => Promise<void>
 }
@@ -79,7 +79,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe()
   }, [fetchProfile])
 
-  const login = async (email: string, pass: string): Promise<boolean> => {
+  const login = async (email: string, pass: string): Promise<User | null> => {
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password: pass,
@@ -95,10 +95,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           description: error.message,
         })
       }
-      return false
+      return null
     }
 
     if (data.user) {
+      // onAuthStateChange will handle setCurrentUser, but we need the profile for redirect logic
       const user = await fetchProfile(data.user.id, data.user.email || '')
       if (user) {
         setCurrentUser(user)
@@ -106,11 +107,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           description:
             user.role === 'establishment' ? 'Bem-vindo ao painel.' : 'Bem-vindo(a) de volta.',
         })
-        return true
+        return user
       }
     }
 
-    return false
+    return null
   }
 
   const logout = async () => {
