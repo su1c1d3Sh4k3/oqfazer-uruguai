@@ -89,7 +89,13 @@ export function AccessProvider({ children }: { children: React.ReactNode }) {
     }
 
     // Increment check-in count on place
-    supabase.rpc('increment_place_metric', { p_place_id: placeId, p_metric: 'check_in_count' })
+    const { error: rpcError } = await supabase.rpc('increment_place_metric', {
+      p_place_id: placeId,
+      p_metric: 'check_in_count',
+    })
+    if (rpcError) {
+      console.error('Error incrementing check_in_count:', rpcError)
+    }
 
     // Set firstCheckInAt if first time
     if (currentUser.role === 'user' && !currentUser.firstCheckInAt) {

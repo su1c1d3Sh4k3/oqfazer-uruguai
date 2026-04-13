@@ -168,13 +168,21 @@ export function PlacesProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  const incrementMetric = async (id: string, metric: string) => {
+    const { error } = await supabase.rpc('increment_place_metric', {
+      p_place_id: id,
+      p_metric: metric,
+    })
+    if (error) {
+      console.error(`Error incrementing ${metric} for ${id}:`, error)
+    }
+  }
+
   const recordAccess = (id: string) => {
-    // Optimistic update
     setPlaces((prev) =>
       prev.map((p) => (p.id === id ? { ...p, accessCount: (p.accessCount || 0) + 1 } : p)),
     )
-    // Fire and forget
-    supabase.rpc('increment_place_metric', { p_place_id: id, p_metric: 'access_count' })
+    incrementMetric(id, 'access_count')
   }
 
   const recordCouponClick = (id: string) => {
@@ -183,7 +191,7 @@ export function PlacesProvider({ children }: { children: React.ReactNode }) {
         p.id === id ? { ...p, couponClickCount: (p.couponClickCount || 0) + 1 } : p,
       ),
     )
-    supabase.rpc('increment_place_metric', { p_place_id: id, p_metric: 'coupon_click_count' })
+    incrementMetric(id, 'coupon_click_count')
   }
 
   const recordHighlightClick = (id: string) => {
@@ -192,7 +200,7 @@ export function PlacesProvider({ children }: { children: React.ReactNode }) {
         p.id === id ? { ...p, highlightClickCount: (p.highlightClickCount || 0) + 1 } : p,
       ),
     )
-    supabase.rpc('increment_place_metric', { p_place_id: id, p_metric: 'highlight_click_count' })
+    incrementMetric(id, 'highlight_click_count')
   }
 
   const createFlashOffer = async (id: string, offer: FlashOffer | undefined) => {

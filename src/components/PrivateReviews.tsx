@@ -109,8 +109,12 @@ export function PrivateReviews({ placeId, checkInTime }: Props) {
       .single()
 
     if (error) {
-      toast.error('Erro ao salvar avaliação')
-      console.error(error)
+      console.error('Review save error:', error)
+      const msg =
+        error.code === '42501' || error.message?.includes('policy')
+          ? 'Sem permissão. Tente fazer logout e login novamente.'
+          : error.message || 'Tente novamente.'
+      toast.error('Erro ao salvar avaliação', { description: msg })
       return
     }
 

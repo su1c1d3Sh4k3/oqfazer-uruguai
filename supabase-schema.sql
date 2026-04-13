@@ -237,6 +237,10 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
+-- Grant execute to all authenticated users and anon (for view counting)
+GRANT EXECUTE ON FUNCTION public.increment_place_metric(TEXT, TEXT) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.increment_place_metric(TEXT, TEXT) TO anon;
+
 -- =============================================
 -- SEED DATA
 -- =============================================
