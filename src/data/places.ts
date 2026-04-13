@@ -29,6 +29,7 @@ export interface Place {
   address: string
   coordinates: { lat: number; lng: number }
   featured?: boolean
+  featuredOrder?: number
   order?: number // Added for display ordering
   operatingHours?: DailyHours[]
 

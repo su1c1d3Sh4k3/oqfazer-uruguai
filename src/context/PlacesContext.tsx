@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react'
 import { Place, FlashOffer } from '@/data/places'
-import { supabase, placeToRow, rowToPlace } from '@/lib/supabase'
+import { supabase, placeToRow, partialPlaceToRow, rowToPlace } from '@/lib/supabase'
 import { toast } from 'sonner'
 
 interface PlacesContextType {
@@ -81,20 +81,19 @@ export function PlacesProvider({ children }: { children: React.ReactNode }) {
   }
 
   const updatePlace = async (id: string, data: Partial<Place>) => {
+    // Save backup for rollback
+    const backup = places.find((p) => p.id === id)
     // Optimistic update
     setPlaces((prev) => prev.map((p) => (p.id === id ? { ...p, ...data } : p)))
 
-    const row = placeToRow({ id, ...data })
-    // Only send changed fields
-    const updateData: Record<string, any> = { updated_at: new Date().toISOString() }
-    for (const [key, value] of Object.entries(row)) {
-      if (key !== 'id' && value !== undefined) {
-        updateData[key] = value
-      }
-    }
+    // Only convert the keys that were actually provided — prevents overwriting other fields
+    const updateData = partialPlaceToRow(data)
+    updateData.updated_at = new Date().toISOString()
 
     const { error } = await supabase.from('places').update(updateData).eq('id', id)
     if (error) {
+      // Rollback on error
+      if (backup) setPlaces((prev) => prev.map((p) => (p.id === id ? backup : p)))
       console.error('Error updating place:', error)
       toast.error('Erro ao atualizar local')
     }
@@ -197,13 +196,16 @@ export function PlacesProvider({ children }: { children: React.ReactNode }) {
   }
 
   const createFlashOffer = async (id: string, offer: FlashOffer | undefined) => {
+    const backup = places.find((p) => p.id === id)
     setPlaces((prev) => prev.map((p) => (p.id === id ? { ...p, flashOffer: offer } : p)))
     const { error } = await supabase
       .from('places')
       .update({ flash_offer: offer ?? null, updated_at: new Date().toISOString() })
       .eq('id', id)
     if (error) {
+      if (backup) setPlaces((prev) => prev.map((p) => (p.id === id ? backup : p)))
       console.error('Error updating flash offer:', error)
+      toast.error('Erro ao atualizar oferta relâmpago')
     }
   }
 

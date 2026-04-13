@@ -52,6 +52,7 @@ CREATE TABLE public.places (
   address TEXT NOT NULL DEFAULT '',
   coordinates JSONB NOT NULL DEFAULT '{"lat": 0, "lng": 0}',
   featured BOOLEAN DEFAULT FALSE,
+  featured_order INTEGER,
   display_order INTEGER,
   operating_hours JSONB DEFAULT '[]',
   duration TEXT,

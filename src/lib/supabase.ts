@@ -4,10 +4,48 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: { autoRefreshToken: false },
+  auth: { autoRefreshToken: true },
 })
 
-// Helper: convert camelCase Place object to snake_case DB row
+// Mapping from camelCase Place keys to snake_case DB column names
+const PLACE_KEY_MAP: Record<string, string> = {
+  id: 'id',
+  type: 'type',
+  name: 'name',
+  category: 'category',
+  city: 'city',
+  discountBadge: 'discount_badge',
+  coverImage: 'cover_image',
+  galleryImages: 'gallery_images',
+  logoImage: 'logo_image',
+  description: 'description',
+  discountDescription: 'discount_description',
+  address: 'address',
+  coordinates: 'coordinates',
+  featured: 'featured',
+  featuredOrder: 'featured_order',
+  order: 'display_order',
+  operatingHours: 'operating_hours',
+  duration: 'duration',
+  departureCity: 'departure_city',
+  included: 'included',
+  availableDays: 'available_days',
+  bookingUrl: 'booking_url',
+  couponCode: 'coupon_code',
+  instagramUrl: 'instagram_url',
+  websiteUrl: 'website_url',
+  accessCount: 'access_count',
+  couponClickCount: 'coupon_click_count',
+  checkInCount: 'check_in_count',
+  highlightClickCount: 'highlight_click_count',
+  flashOffer: 'flash_offer',
+  responsibleName: 'responsible_name',
+  ci: 'ci',
+  contactEmail: 'contact_email',
+  contactPhone: 'contact_phone',
+}
+
+// Helper: convert camelCase Place object to snake_case DB row (full — for INSERT)
 export function placeToRow(place: Record<string, any>) {
   return {
     id: place.id,
@@ -24,6 +62,7 @@ export function placeToRow(place: Record<string, any>) {
     address: place.address ?? '',
     coordinates: place.coordinates ?? { lat: 0, lng: 0 },
     featured: place.featured ?? false,
+    featured_order: place.featuredOrder ?? null,
     display_order: place.order ?? null,
     operating_hours: place.operatingHours ?? [],
     duration: place.duration ?? null,
@@ -46,6 +85,19 @@ export function placeToRow(place: Record<string, any>) {
   }
 }
 
+// Helper: convert ONLY the provided camelCase keys to snake_case (for partial UPDATE)
+// This prevents overwriting existing data with defaults
+export function partialPlaceToRow(data: Record<string, any>): Record<string, any> {
+  const row: Record<string, any> = {}
+  for (const [key, value] of Object.entries(data)) {
+    const dbKey = PLACE_KEY_MAP[key]
+    if (dbKey) {
+      row[dbKey] = value ?? null
+    }
+  }
+  return row
+}
+
 // Helper: convert snake_case DB row to camelCase Place object
 export function rowToPlace(row: Record<string, any>) {
   return {
@@ -63,6 +115,7 @@ export function rowToPlace(row: Record<string, any>) {
     address: row.address ?? '',
     coordinates: row.coordinates ?? { lat: 0, lng: 0 },
     featured: row.featured ?? false,
+    featuredOrder: row.featured_order ?? undefined,
     order: row.display_order ?? undefined,
     operatingHours: row.operating_hours ?? undefined,
     duration: row.duration ?? undefined,

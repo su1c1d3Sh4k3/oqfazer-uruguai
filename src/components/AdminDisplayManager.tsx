@@ -30,7 +30,7 @@ export function AdminDisplayManager() {
   const featuredPlaces = useMemo(() => {
     return places
       .filter((p) => p.featured)
-      .sort((a, b) => ((a as any).featuredOrder ?? 999) - ((b as any).featuredOrder ?? 999))
+      .sort((a, b) => (a.featuredOrder ?? 999) - (b.featuredOrder ?? 999))
   }, [places])
 
   const [searchHighlight, setSearchHighlight] = useState('')
@@ -52,7 +52,7 @@ export function AdminDisplayManager() {
       return
     }
     const newOrder = featuredPlaces.length + 1
-    updatePlace(selectedHighlight, { featured: true, featuredOrder: newOrder } as any)
+    updatePlace(selectedHighlight, { featured: true, featuredOrder: newOrder })
     setSelectedHighlight('')
     setSearchHighlight('')
     setIsSearchOpen(false)
@@ -60,7 +60,7 @@ export function AdminDisplayManager() {
   }
 
   const handleRemoveHighlight = (id: string) => {
-    updatePlace(id, { featured: false, featuredOrder: undefined } as any)
+    updatePlace(id, { featured: false, featuredOrder: undefined })
     toast.success('Destaque removido!')
   }
 
@@ -89,8 +89,8 @@ export function AdminDisplayManager() {
 
     newOrderList.forEach((place, index) => {
       const newOrder = index + 1
-      if ((place as any).featuredOrder !== newOrder) {
-        updatePlace(place.id, { featuredOrder: newOrder } as any)
+      if (place.featuredOrder !== newOrder) {
+        updatePlace(place.id, { featuredOrder: newOrder })
       }
     })
 
