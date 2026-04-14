@@ -33,14 +33,21 @@ export function AdminPlaceForm({ initialData, onSave, onCancel, isCompanyView }:
   const [importUrl, setImportUrl] = useState('')
   const [mapsUrl, setMapsUrl] = useState('')
   const [isFetchingCoords, setIsFetchingCoords] = useState(false)
-  const [formData, setFormData] = useState<Partial<Place>>(() => ({
-    id: Math.random().toString(36).substr(2, 9),
-    type: 'tour',
-    galleryImages: ['', '', '', '', ''],
-    coordinates: { lat: -34.912, lng: -56.155 },
-    operatingHours: createDefaultHours(),
-    ...initialData,
-  }))
+  const [formData, setFormData] = useState<Partial<Place>>(() => {
+    const base = {
+      id: Math.random().toString(36).substr(2, 9),
+      type: 'tour' as const,
+      galleryImages: ['', '', '', '', ''],
+      coordinates: { lat: -34.912, lng: -56.155 },
+      operatingHours: createDefaultHours(),
+      ...initialData,
+    }
+    // Se operatingHours veio vazio do DB, restaura os defaults
+    if (!base.operatingHours || base.operatingHours.length === 0) {
+      base.operatingHours = createDefaultHours()
+    }
+    return base
+  })
 
   const handleChange = (field: keyof Place, value: any) =>
     setFormData((prev) => ({ ...prev, [field]: value }))

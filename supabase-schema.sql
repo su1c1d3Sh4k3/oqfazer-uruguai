@@ -202,9 +202,13 @@ CREATE POLICY "Anyone can read reviews"
 CREATE POLICY "Users manage own reviews"
   ON public.reviews FOR INSERT WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "Users update own reviews"
-  ON public.reviews FOR UPDATE USING (auth.uid() = user_id);
+  ON public.reviews FOR UPDATE
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "Users delete own reviews"
   ON public.reviews FOR DELETE USING (auth.uid() = user_id);
+CREATE POLICY "Admin can manage reviews"
+  ON public.reviews FOR ALL USING (public.is_admin());
 
 -- CATEGORIES / CITIES / BADGES (publicly readable, admin-writable)
 CREATE POLICY "Anyone can read categories" ON public.categories FOR SELECT USING (true);

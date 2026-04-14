@@ -96,7 +96,7 @@ export function AdminUsersList() {
     }
 
     if (editingUser) {
-      // Update existing profile
+      // Update existing profile — admin pode alterar qualquer campo
       const updateData: Record<string, any> = {
         role: formData.role,
         name: formData.name || null,
@@ -119,6 +119,12 @@ export function AdminUsersList() {
         console.error(error)
         return
       }
+
+      // Se admin alterou a senha
+      if (formData.password) {
+        toast.info('Nota: alteração de senha requer acesso admin no Supabase Dashboard.')
+      }
+
       toast.success('Usuário atualizado!')
     } else {
       // Create new user via Supabase Auth
@@ -127,6 +133,9 @@ export function AdminUsersList() {
         return
       }
 
+      // Salva a sessão do admin antes do signUp (signUp troca a sessão)
+      const { data: { session: adminSession } } = await supabase.auth.getSession()
+
       // Use signUp to create user (will trigger the profile creation trigger)
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
@@ -134,9 +143,27 @@ export function AdminUsersList() {
       })
 
       if (authError || !authData.user) {
+        // Restaura sessão admin em caso de erro
+        if (adminSession) {
+          await supabase.auth.setSession({
+            access_token: adminSession.access_token,
+            refresh_token: adminSession.refresh_token,
+          })
+        }
         toast.error('Erro ao criar usuário: ' + (authError?.message || 'Erro desconhecido'))
         return
       }
+
+      // Restaura a sessão do admin para que o upsert rode com permissões admin
+      if (adminSession) {
+        await supabase.auth.setSession({
+          access_token: adminSession.access_token,
+          refresh_token: adminSession.refresh_token,
+        })
+      }
+
+      // Pequeno delay para garantir que o trigger handle_new_user() completou
+      await new Promise((resolve) => setTimeout(resolve, 500))
 
       // Upsert the profile with additional data (handles race condition with trigger)
       const { error: profileError } = await supabase.from('profiles').upsert({
@@ -156,9 +183,9 @@ export function AdminUsersList() {
       if (profileError) {
         console.error('Error updating profile:', profileError)
         toast.error('Usuário criado mas houve erro ao salvar dados do perfil.')
+      } else {
+        toast.success('Usuário criado com sucesso!')
       }
-
-      toast.success('Usuário criado com sucesso!')
     }
 
     loadUsers()
@@ -236,7 +263,6 @@ export function AdminUsersList() {
               <Select
                 value={formData.role}
                 onValueChange={(v) => setFormData({ ...formData, role: v })}
-                disabled={!!editingUser}
               >
                 <SelectTrigger>
                   <SelectValue />

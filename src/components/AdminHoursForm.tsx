@@ -11,7 +11,14 @@ interface Props {
 
 export function AdminHoursForm({ hours, onChange }: Props) {
   const handleHourChange = (day: number, field: keyof DailyHours, value: any) => {
-    onChange(hours.map((h) => (h.day === day ? { ...h, [field]: value } : h)))
+    const exists = hours.some((h) => h.day === day)
+    if (exists) {
+      onChange(hours.map((h) => (h.day === day ? { ...h, [field]: value } : h)))
+    } else {
+      // Dia não existe no array — cria com valores default e aplica a alteração
+      const newDay: DailyHours = { day, isOpen: false, openTime: '09:00', closeTime: '18:00', [field]: value }
+      onChange([...hours, newDay].sort((a, b) => a.day - b.day))
+    }
   }
 
   return (

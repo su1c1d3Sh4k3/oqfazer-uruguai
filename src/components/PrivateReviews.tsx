@@ -69,24 +69,12 @@ export function PrivateReviews({ placeId, checkInTime }: Props) {
   useEffect(() => {
     if (!checkInTime) {
       setCanReview(false)
-      setTimeMessage('Faça check-in neste local para poder avaliá-lo no futuro.')
+      setTimeMessage('Faça check-in neste local para poder avaliá-lo.')
       return
     }
-    const checkAvailability = () => {
-      const now = Date.now()
-      const diff = checkInTime + 24 * 60 * 60 * 1000 - now
-      if (diff <= 0) {
-        setCanReview(true)
-        setTimeMessage('')
-      } else {
-        setCanReview(false)
-        const hours = Math.ceil(diff / (1000 * 60 * 60))
-        setTimeMessage(`Sua avaliação será liberada em aproximadamente ${hours} hora(s).`)
-      }
-    }
-    checkAvailability()
-    const interval = setInterval(checkAvailability, 60000)
-    return () => clearInterval(interval)
+    // Check-in realizado — avaliação liberada imediatamente
+    setCanReview(true)
+    setTimeMessage('')
   }, [checkInTime])
 
   const handleSave = async () => {
@@ -102,6 +90,8 @@ export function PrivateReviews({ placeId, checkInTime }: Props) {
       date: Date.now(),
     }
 
+    // Tenta upsert primeiro; se falhar, tenta update direto (fallback para RLS restritiva)
+    let result: any = null
     const { data, error } = await supabase
       .from('reviews')
       .upsert(reviewData, { onConflict: 'user_id,place_id' })
@@ -109,23 +99,58 @@ export function PrivateReviews({ placeId, checkInTime }: Props) {
       .single()
 
     if (error) {
-      console.error('Review save error:', error)
-      const msg =
-        error.code === '42501' || error.message?.includes('policy')
-          ? 'Sem permissão. Tente fazer logout e login novamente.'
-          : error.message || 'Tente novamente.'
-      toast.error('Erro ao salvar avaliação', { description: msg })
-      return
+      console.error('Review upsert error, tentando update direto:', error)
+      // Fallback: tenta update se já existe, senão insert
+      const { data: existing } = await supabase
+        .from('reviews')
+        .select('id')
+        .eq('user_id', currentUser.id)
+        .eq('place_id', placeId)
+        .maybeSingle()
+
+      if (existing) {
+        const { data: updated, error: updateErr } = await supabase
+          .from('reviews')
+          .update({ rating, comment, date: Date.now(), user_email: currentUser.email })
+          .eq('user_id', currentUser.id)
+          .eq('place_id', placeId)
+          .select()
+          .single()
+        if (updateErr) {
+          console.error('Review update error:', updateErr)
+          toast.error('Erro ao salvar avaliação', { description: updateErr.message || 'Tente novamente.' })
+          return
+        }
+        result = updated
+      } else {
+        const { data: inserted, error: insertErr } = await supabase
+          .from('reviews')
+          .insert(reviewData)
+          .select()
+          .single()
+        if (insertErr) {
+          console.error('Review insert error:', insertErr)
+          const msg =
+            insertErr.code === '42501' || insertErr.message?.includes('policy')
+              ? 'Sem permissão. Tente fazer logout e login novamente.'
+              : insertErr.message || 'Tente novamente.'
+          toast.error('Erro ao salvar avaliação', { description: msg })
+          return
+        }
+        result = inserted
+      }
+    } else {
+      result = data
     }
 
     const newReview: Review = {
-      id: data.id,
-      placeId: data.place_id,
-      userId: data.user_id,
-      userEmail: data.user_email,
-      rating: data.rating,
-      comment: data.comment || '',
-      date: data.date,
+      id: result.id,
+      placeId: result.place_id,
+      userId: result.user_id,
+      userEmail: result.user_email,
+      rating: result.rating,
+      comment: result.comment || '',
+      date: result.date,
     }
 
     setReviews((prev) => [
