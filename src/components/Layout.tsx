@@ -36,9 +36,8 @@ export function Layout() {
 
   const isAdminMaster = currentUser?.role === 'admin'
 
-  const handleLogout = async () => {
-    await logout()
-    navigate('/')
+  const handleLogout = () => {
+    logout()
   }
 
   useEffect(() => {
