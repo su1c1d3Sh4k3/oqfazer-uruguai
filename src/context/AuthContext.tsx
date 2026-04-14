@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react'
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react'
 import { toast } from 'sonner'
 import { supabase, rowToUser } from '@/lib/supabase'
 
@@ -22,16 +22,29 @@ export interface User {
 interface AuthContextType {
   currentUser: User | null
   loading: boolean
-  login: (email: string, pass: string) => Promise<boolean>
+  login: (email: string, pass: string) => Promise<User | null>
   logout: () => Promise<void>
   updateProfile: (data: Partial<User>, silent?: boolean) => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
+// Limpa todos os tokens do Supabase do localStorage
+function clearSupabaseTokens() {
+  try {
+    Object.keys(localStorage)
+      .filter((k) => k.startsWith('sb-'))
+      .forEach((k) => localStorage.removeItem(k))
+  } catch (e) {
+    console.warn('[Auth] Falha ao limpar tokens:', e)
+  }
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [currentUser, setCurrentUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  // Flag para evitar que onAuthStateChange e login() disputem setCurrentUser
+  const loginInProgressRef = useRef(false)
 
   const fetchProfile = useCallback(async (userId: string, email: string): Promise<User | null> => {
     const { data: profile, error } = await supabase
@@ -40,94 +53,125 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .eq('id', userId)
       .single()
 
-    if (error || !profile) return null
+    if (error) {
+      console.error('[Auth] Erro ao buscar perfil:', error.message, error.code)
+      return null
+    }
+    if (!profile) {
+      console.error('[Auth] Perfil não encontrado para userId:', userId)
+      return null
+    }
     return rowToUser(profile, email) as User
   }, [])
 
-  // Listen for auth state changes
+  // Recupera sessão no mount + escuta mudanças
   useEffect(() => {
-    // Get initial session
+    let cancelled = false
+
     supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (cancelled) return
       try {
         if (session?.user) {
-          // Se o access_token expirou, limpar sessão e seguir
           const expiresAt = session.expires_at
           if (expiresAt && expiresAt < Math.floor(Date.now() / 1000)) {
-            await supabase.auth.signOut()
+            // Token expirado — limpa tudo
+            clearSupabaseTokens()
+            await supabase.auth.signOut().catch(() => {})
             setLoading(false)
             return
           }
           const user = await fetchProfile(session.user.id, session.user.email || '')
-          setCurrentUser(user)
+          if (!cancelled) setCurrentUser(user)
         }
       } catch (err) {
-        console.error('Error fetching session profile:', err)
+        console.error('[Auth] Erro ao recuperar sessão:', err)
       } finally {
-        setLoading(false)
+        if (!cancelled) setLoading(false)
       }
     }).catch((err) => {
-      console.error('Error getting session:', err)
-      setLoading(false)
+      console.error('[Auth] getSession falhou:', err)
+      if (!cancelled) setLoading(false)
     })
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (cancelled) return
       try {
         if (event === 'SIGNED_IN' && session?.user) {
+          // Se login() está em andamento, ele próprio faz o setCurrentUser
+          if (loginInProgressRef.current) return
           const user = await fetchProfile(session.user.id, session.user.email || '')
-          setCurrentUser(user)
+          if (!cancelled) setCurrentUser(user)
         } else if (event === 'SIGNED_OUT') {
-          setCurrentUser(null)
+          if (!cancelled) setCurrentUser(null)
         }
       } catch (err) {
-        console.error('Error on auth state change:', err)
+        console.error('[Auth] onAuthStateChange erro:', err)
       }
     })
 
-    return () => subscription.unsubscribe()
+    return () => {
+      cancelled = true
+      subscription.unsubscribe()
+    }
   }, [fetchProfile])
 
-  const login = async (email: string, pass: string): Promise<boolean> => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password: pass,
-    })
+  const login = async (email: string, pass: string): Promise<User | null> => {
+    loginInProgressRef.current = true
+    try {
+      // Limpa qualquer sessão residual antes de tentar novo login
+      clearSupabaseTokens()
+      await supabase.auth.signOut().catch(() => {})
 
-    if (error) {
-      if (error.message.includes('Invalid login credentials')) {
-        toast.error('Credenciais inválidas', {
-          description: 'Verifique seu e-mail e senha.',
-        })
-      } else {
-        toast.error('Erro ao fazer login', {
-          description: error.message,
-        })
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password: pass,
+      })
+
+      if (error) {
+        if (error.message.includes('Invalid login credentials')) {
+          toast.error('Credenciais inválidas', {
+            description: 'Verifique seu e-mail e senha.',
+          })
+        } else {
+          toast.error('Erro ao fazer login', {
+            description: error.message,
+          })
+        }
+        return null
       }
-      return false
-    }
 
-    if (data.user) {
+      if (!data.user) {
+        toast.error('Erro ao fazer login', { description: 'Nenhum usuário retornado.' })
+        return null
+      }
+
       const user = await fetchProfile(data.user.id, data.user.email || '')
-      if (user) {
-        setCurrentUser(user)
-        toast.success('Login realizado com sucesso!', {
-          description:
-            user.role === 'establishment' ? 'Bem-vindo ao painel.' : 'Bem-vindo(a) de volta.',
+      if (!user) {
+        toast.error('Erro ao carregar perfil', {
+          description: 'Perfil não encontrado. Contate o administrador.',
         })
-        return true
+        // Limpa sessão Supabase que ficou ativa sem perfil
+        await supabase.auth.signOut().catch(() => {})
+        return null
       }
-    }
 
-    return false
+      setCurrentUser(user)
+      toast.success('Login realizado com sucesso!', {
+        description:
+          user.role === 'establishment' ? 'Bem-vindo ao painel.' : 'Bem-vindo(a) de volta.',
+      })
+      return user
+    } finally {
+      loginInProgressRef.current = false
+    }
   }
 
   const logout = async () => {
-    // Limpa token do localStorage ANTES de tudo
-    try {
-      Object.keys(localStorage)
-        .filter((k) => k.startsWith('sb-'))
-        .forEach((k) => localStorage.removeItem(k))
-    } catch {}
-    // Reload força novo Supabase client limpo — sem token = sem travamento
+    setCurrentUser(null)
+    clearSupabaseTokens()
+    // signOut no servidor (fire-and-forget)
+    supabase.auth.signOut().catch(() => {})
+    // Reload garante estado 100% limpo
     window.location.href = '/'
   }
 

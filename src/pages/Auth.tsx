@@ -14,7 +14,6 @@ import {
 } from '@/components/ui/dialog'
 import { Compass } from 'lucide-react'
 import { toast } from 'sonner'
-import { supabase } from '@/lib/supabase'
 
 export default function Auth() {
   const [email, setEmail] = useState('')
@@ -30,24 +29,14 @@ export default function Auth() {
     e.preventDefault()
     setIsLoading(true)
     try {
-      const success = await login(email, password)
-      if (success) {
-        // Fetch profile to determine role
-        const { data: { session } } = await supabase.auth.getSession()
-        if (session) {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', session.user.id)
-            .single()
-
-          if (profile?.role === 'admin') {
-            navigate('/admin')
-          } else if (profile?.role === 'establishment') {
-            navigate('/empresa')
-          } else {
-            navigate('/profile')
-          }
+      const user = await login(email, password)
+      if (user) {
+        if (user.role === 'admin') {
+          navigate('/admin')
+        } else if (user.role === 'establishment') {
+          navigate('/empresa')
+        } else {
+          navigate('/profile')
         }
       }
     } finally {

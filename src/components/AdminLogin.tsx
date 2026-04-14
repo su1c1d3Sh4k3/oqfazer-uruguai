@@ -24,8 +24,8 @@ export function AdminLogin({ onLogin }: Props) {
     setError('')
 
     try {
-      const success = await login(email, password)
-      if (success) {
+      const user = await login(email, password)
+      if (user) {
         navigate('/admin')
       } else {
         setError('Credenciais inválidas ou sem permissão de administrador.')

@@ -40,8 +40,8 @@ export default function EstablishmentAdmin() {
     if (!email || !password) return
     setIsLoading(true)
     try {
-      const success = await login(email, password)
-      if (success) {
+      const user = await login(email, password)
+      if (user) {
         navigate(`/empresa?tab=edit`)
       }
     } finally {
