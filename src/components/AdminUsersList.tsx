@@ -133,17 +133,16 @@ export function AdminUsersList() {
         return
       }
 
-      // Salva a sessão do admin antes do signUp (signUp troca a sessão)
+      // Salva a sessão do admin antes do signUp (signUp pode trocar a sessão)
       const { data: { session: adminSession } } = await supabase.auth.getSession()
 
-      // Use signUp to create user (will trigger the profile creation trigger)
+      // Cria o usuário no Supabase Auth (trigger cria profile com role='user')
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
       })
 
       if (authError || !authData.user) {
-        // Restaura sessão admin em caso de erro
         if (adminSession) {
           await supabase.auth.setSession({
             access_token: adminSession.access_token,
@@ -154,7 +153,7 @@ export function AdminUsersList() {
         return
       }
 
-      // Restaura a sessão do admin para que o upsert rode com permissões admin
+      // Restaura a sessão do admin (signUp pode ter trocado)
       if (adminSession) {
         await supabase.auth.setSession({
           access_token: adminSession.access_token,
@@ -162,23 +161,25 @@ export function AdminUsersList() {
         })
       }
 
-      // Pequeno delay para garantir que o trigger handle_new_user() completou
-      await new Promise((resolve) => setTimeout(resolve, 500))
+      // Delay para o trigger handle_new_user() completar
+      await new Promise((resolve) => setTimeout(resolve, 1000))
 
-      // Upsert the profile with additional data (handles race condition with trigger)
-      const { error: profileError } = await supabase.from('profiles').upsert({
-        id: authData.user.id,
-        email: formData.email,
-        role: formData.role,
-        name: formData.name || null,
-        phone: formData.phone || null,
-        cpf: formData.cpf || null,
-        ci: formData.ci || null,
-        responsible_name: formData.responsibleName || null,
-        managed_place_id: formData.managedPlaceId || null,
-        travel_period: formData.travelPeriod || null,
-        first_login_at: new Date().toISOString(),
-      }, { onConflict: 'id' })
+      // UPDATE direto no profile (o trigger já criou a row com role='user')
+      // Usamos UPDATE ao invés de UPSERT para evitar problemas com RLS no INSERT
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({
+          role: formData.role,
+          name: formData.name || null,
+          phone: formData.phone || null,
+          cpf: formData.cpf || null,
+          ci: formData.ci || null,
+          responsible_name: formData.responsibleName || null,
+          managed_place_id: formData.managedPlaceId || null,
+          travel_period: formData.travelPeriod || null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', authData.user.id)
 
       if (profileError) {
         console.error('Error updating profile:', profileError)
