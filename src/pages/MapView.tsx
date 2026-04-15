@@ -34,7 +34,7 @@ function pxToLatLng(x: number, y: number, z: number) {
 }
 
 export default function MapView() {
-  const { places, categories, cities } = usePlaces()
+  const { places, categories, cities, cityData } = usePlaces()
   const { location } = useGeo()
   const { getPlaceStatus } = useAccess()
   const [selectedPlace, setSelectedPlace] = useState<string | null>(null)
@@ -55,20 +55,27 @@ export default function MapView() {
   const frameRef = useRef<number>(null)
 
   useEffect(() => {
-    if (cityFilter === 'Punta del Este') {
-      setCenterLat(-34.966)
-      setCenterLng(-54.945)
+    if (cityFilter === 'Todas') return
+
+    // 1) Check if city has custom coordinates in the database
+    const city = cityData.find((c) => c.name === cityFilter)
+    if (city?.lat != null && city?.lng != null) {
+      setCenterLat(city.lat)
+      setCenterLng(city.lng)
       setZoom(15)
-    } else if (cityFilter === 'Colonia del Sacramento') {
-      setCenterLat(-34.472)
-      setCenterLng(-57.852)
-      setZoom(15.5)
-    } else if (cityFilter === 'Montevideo') {
-      setCenterLat(-34.915)
-      setCenterLng(-56.149)
-      setZoom(14.5)
+      return
     }
-  }, [cityFilter])
+
+    // 2) Fallback: calculate average from places in that city
+    const cityPlaces = places.filter((p) => p.city === cityFilter && p.coordinates.lat !== 0 && p.coordinates.lng !== 0)
+    if (cityPlaces.length > 0) {
+      const avgLat = cityPlaces.reduce((sum, p) => sum + p.coordinates.lat, 0) / cityPlaces.length
+      const avgLng = cityPlaces.reduce((sum, p) => sum + p.coordinates.lng, 0) / cityPlaces.length
+      setCenterLat(avgLat)
+      setCenterLng(avgLng)
+      setZoom(15)
+    }
+  }, [cityFilter, cityData, places])
 
   useLayoutEffect(() => {
     mapOffset.current = { x: 0, y: 0 }

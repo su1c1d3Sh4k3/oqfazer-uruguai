@@ -3,10 +3,186 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { X, MessageCircle } from 'lucide-react'
+import { X, MessageCircle, MapPin, Pencil, Check } from 'lucide-react'
 import { usePlaces } from '@/context/PlacesContext'
+import type { City } from '@/context/PlacesContext'
 import { getAppSetting, setAppSetting } from '@/lib/appSettings'
 import { toast } from 'sonner'
+
+function CityManagerSection({
+  cityData,
+  places,
+  onAdd,
+  onDelete,
+  onUpdateCoordinates,
+}: {
+  cityData: City[]
+  places: { city: string; coordinates: { lat: number; lng: number } }[]
+  onAdd: (name: string) => void
+  onDelete: (name: string) => void
+  onUpdateCoordinates: (name: string, lat: number | null, lng: number | null) => Promise<void>
+}) {
+  const [newCity, setNewCity] = useState('')
+  const [editingCity, setEditingCity] = useState<string | null>(null)
+  const [editLat, setEditLat] = useState('')
+  const [editLng, setEditLng] = useState('')
+
+  const getAutoCoords = (cityName: string) => {
+    const cityPlaces = places.filter(
+      (p) => p.city === cityName && p.coordinates.lat !== 0 && p.coordinates.lng !== 0,
+    )
+    if (cityPlaces.length === 0) return null
+    const lat = cityPlaces.reduce((s, p) => s + p.coordinates.lat, 0) / cityPlaces.length
+    const lng = cityPlaces.reduce((s, p) => s + p.coordinates.lng, 0) / cityPlaces.length
+    return { lat: +lat.toFixed(4), lng: +lng.toFixed(4) }
+  }
+
+  const startEdit = (city: City) => {
+    setEditingCity(city.name)
+    if (city.lat != null && city.lng != null) {
+      setEditLat(String(city.lat))
+      setEditLng(String(city.lng))
+    } else {
+      const auto = getAutoCoords(city.name)
+      setEditLat(auto ? String(auto.lat) : '')
+      setEditLng(auto ? String(auto.lng) : '')
+    }
+  }
+
+  const saveEdit = async () => {
+    if (!editingCity) return
+    const lat = editLat ? parseFloat(editLat) : null
+    const lng = editLng ? parseFloat(editLng) : null
+    if ((lat != null && isNaN(lat)) || (lng != null && isNaN(lng))) {
+      toast.error('Coordenadas inválidas')
+      return
+    }
+    await onUpdateCoordinates(editingCity, lat, lng)
+    toast.success(`Coordenadas de ${editingCity} atualizadas!`)
+    setEditingCity(null)
+  }
+
+  return (
+    <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <h2 className="mb-4 font-display text-xl font-bold text-slate-900 flex items-center gap-2">
+        <MapPin className="h-5 w-5 text-primary" /> Gerenciar Cidades
+      </h2>
+
+      <div className="mb-4 space-y-2">
+        {cityData.map((city) => {
+          const auto = getAutoCoords(city.name)
+          const hasCustom = city.lat != null && city.lng != null
+          const displayLat = hasCustom ? city.lat : auto?.lat
+          const displayLng = hasCustom ? city.lng : auto?.lng
+          const isEditing = editingCity === city.name
+
+          return (
+            <div
+              key={city.name}
+              className="flex items-center gap-3 rounded-xl border border-slate-100 bg-slate-50 px-4 py-3"
+            >
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-slate-800">{city.name}</span>
+                  {hasCustom ? (
+                    <span className="text-[10px] font-semibold text-green-600 bg-green-50 px-1.5 py-0.5 rounded">
+                      CUSTOM
+                    </span>
+                  ) : displayLat != null ? (
+                    <span className="text-[10px] font-semibold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">
+                      AUTO
+                    </span>
+                  ) : (
+                    <span className="text-[10px] font-semibold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded">
+                      SEM COORDS
+                    </span>
+                  )}
+                </div>
+
+                {isEditing ? (
+                  <div className="flex gap-2 mt-2">
+                    <Input
+                      value={editLat}
+                      onChange={(e) => setEditLat(e.target.value)}
+                      placeholder="Latitude (ex: -34.966)"
+                      className="h-8 text-xs max-w-[160px]"
+                    />
+                    <Input
+                      value={editLng}
+                      onChange={(e) => setEditLng(e.target.value)}
+                      placeholder="Longitude (ex: -54.945)"
+                      className="h-8 text-xs max-w-[160px]"
+                    />
+                    <Button size="sm" className="h-8 px-3" onClick={saveEdit}>
+                      <Check className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-8 px-3"
+                      onClick={() => setEditingCity(null)}
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                ) : (
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {displayLat != null && displayLng != null
+                      ? `${displayLat}, ${displayLng}`
+                      : 'Cadastre lugares nesta cidade para gerar coordenadas automáticas'}
+                  </p>
+                )}
+              </div>
+
+              {!isEditing && (
+                <div className="flex items-center gap-1 shrink-0">
+                  <button
+                    onClick={() => startEdit(city)}
+                    className="p-1.5 rounded-lg hover:bg-slate-200 text-slate-500 hover:text-primary transition-colors"
+                    title="Editar coordenadas"
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    onClick={() => onDelete(city.name)}
+                    className="p-1.5 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-colors"
+                    title="Remover cidade"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              )}
+            </div>
+          )
+        })}
+      </div>
+
+      <div className="flex max-w-sm gap-2">
+        <Input
+          value={newCity}
+          onChange={(e) => setNewCity(e.target.value)}
+          placeholder="Nova cidade..."
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && newCity) {
+              onAdd(newCity)
+              setNewCity('')
+            }
+          }}
+        />
+        <Button
+          onClick={() => {
+            if (newCity) {
+              onAdd(newCity)
+              setNewCity('')
+            }
+          }}
+        >
+          Adicionar
+        </Button>
+      </div>
+    </div>
+  )
+}
 
 export function AdminCategoryManager() {
   const {
@@ -14,11 +190,14 @@ export function AdminCategoryManager() {
     addCategory,
     deleteCategory,
     cities,
+    cityData,
     addCity,
     deleteCity,
+    updateCityCoordinates,
     badges,
     addBadge,
     deleteBadge,
+    places,
   } = usePlaces()
 
   const [whatsappNumber, setWhatsappNumber] = useState('')
@@ -131,12 +310,12 @@ export function AdminCategoryManager() {
         onDelete={deleteCategory}
         placeholder="Nova categoria..."
       />
-      <ManagerSection
-        title="Gerenciar Cidades"
-        items={cities}
+      <CityManagerSection
+        cityData={cityData}
+        places={places}
         onAdd={addCity}
         onDelete={deleteCity}
-        placeholder="Nova cidade..."
+        onUpdateCoordinates={updateCityCoordinates}
       />
       <ManagerSection
         title="Gerenciar Badges de Desconto"

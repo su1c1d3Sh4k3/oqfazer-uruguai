@@ -130,6 +130,8 @@ CREATE TABLE public.categories (
 CREATE TABLE public.cities (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL UNIQUE,
+  lat DOUBLE PRECISION,
+  lng DOUBLE PRECISION,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -256,8 +258,10 @@ INSERT INTO public.categories (name) VALUES
 ON CONFLICT (name) DO NOTHING;
 
 -- Cities
-INSERT INTO public.cities (name) VALUES
-  ('Montevideo'), ('Punta del Este'), ('Colonia del Sacramento')
+INSERT INTO public.cities (name, lat, lng) VALUES
+  ('Montevideo', -34.915, -56.149),
+  ('Punta del Este', -34.966, -54.945),
+  ('Colonia del Sacramento', -34.472, -57.852)
 ON CONFLICT (name) DO NOTHING;
 
 -- Badges

@@ -3,10 +3,17 @@ import { Place, FlashOffer } from '@/data/places'
 import { supabase, placeToRow, partialPlaceToRow, rowToPlace } from '@/lib/supabase'
 import { toast } from 'sonner'
 
+export interface City {
+  name: string
+  lat: number | null
+  lng: number | null
+}
+
 interface PlacesContextType {
   places: Place[]
   categories: string[]
   cities: string[]
+  cityData: City[]
   badges: string[]
   loading: boolean
   addPlace: (p: Place) => Promise<void>
@@ -16,6 +23,7 @@ interface PlacesContextType {
   deleteCategory: (c: string) => Promise<void>
   addCity: (c: string) => Promise<void>
   deleteCity: (c: string) => Promise<void>
+  updateCityCoordinates: (name: string, lat: number | null, lng: number | null) => Promise<void>
   addBadge: (b: string) => Promise<void>
   deleteBadge: (b: string) => Promise<void>
   recordAccess: (id: string) => void
@@ -29,9 +37,11 @@ const PlacesContext = createContext<PlacesContextType | undefined>(undefined)
 export function PlacesProvider({ children }: { children: React.ReactNode }) {
   const [places, setPlaces] = useState<Place[]>([])
   const [categories, setCategories] = useState<string[]>([])
-  const [cities, setCities] = useState<string[]>([])
+  const [cityData, setCityData] = useState<City[]>([])
   const [badges, setBadges] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
+
+  const cities = cityData.map((c) => c.name)
 
   // Fetch all data on mount
   useEffect(() => {
@@ -40,7 +50,7 @@ export function PlacesProvider({ children }: { children: React.ReactNode }) {
         const [placesRes, catsRes, citiesRes, badgesRes] = await Promise.all([
           supabase.from('places').select('*').order('display_order', { ascending: true, nullsFirst: false }),
           supabase.from('categories').select('name'),
-          supabase.from('cities').select('name'),
+          supabase.from('cities').select('name, lat, lng'),
           supabase.from('badges').select('name'),
         ])
 
@@ -51,7 +61,7 @@ export function PlacesProvider({ children }: { children: React.ReactNode }) {
           setCategories(catsRes.data.map((r: any) => r.name))
         }
         if (citiesRes.data) {
-          setCities(citiesRes.data.map((r: any) => r.name))
+          setCityData(citiesRes.data.map((r: any) => ({ name: r.name, lat: r.lat, lng: r.lng })))
         }
         if (badgesRes.data) {
           setBadges(badgesRes.data.map((r: any) => r.name))
@@ -132,20 +142,32 @@ export function PlacesProvider({ children }: { children: React.ReactNode }) {
 
   const addCity = async (c: string) => {
     if (cities.includes(c)) return
-    setCities((prev) => [...prev, c])
+    setCityData((prev) => [...prev, { name: c, lat: null, lng: null }])
     const { error } = await supabase.from('cities').insert({ name: c })
     if (error) {
-      setCities((prev) => prev.filter((city) => city !== c))
+      setCityData((prev) => prev.filter((city) => city.name !== c))
       toast.error('Erro ao adicionar cidade')
     }
   }
 
   const deleteCity = async (c: string) => {
-    setCities((prev) => prev.filter((city) => city !== c))
+    const backup = cityData.find((city) => city.name === c)
+    setCityData((prev) => prev.filter((city) => city.name !== c))
     const { error } = await supabase.from('cities').delete().eq('name', c)
     if (error) {
-      setCities((prev) => [...prev, c])
+      if (backup) setCityData((prev) => [...prev, backup])
       toast.error('Erro ao remover cidade')
+    }
+  }
+
+  const updateCityCoordinates = async (name: string, lat: number | null, lng: number | null) => {
+    const backup = cityData.find((c) => c.name === name)
+    setCityData((prev) => prev.map((c) => (c.name === name ? { ...c, lat, lng } : c)))
+    const { error } = await supabase.from('cities').update({ lat, lng }).eq('name', name)
+    if (error) {
+      if (backup) setCityData((prev) => prev.map((c) => (c.name === name ? backup : c)))
+      toast.error('Erro ao atualizar coordenadas')
+      console.error(error)
     }
   }
 
@@ -224,6 +246,7 @@ export function PlacesProvider({ children }: { children: React.ReactNode }) {
         places,
         categories,
         cities,
+        cityData,
         badges,
         loading,
         addPlace,
@@ -233,6 +256,7 @@ export function PlacesProvider({ children }: { children: React.ReactNode }) {
         deleteCategory,
         addCity,
         deleteCity,
+        updateCityCoordinates,
         addBadge,
         deleteBadge,
         recordAccess,
