@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { Edit, Trash2, Search, Filter } from 'lucide-react'
+import { Edit, Trash2, Search, Filter, User } from 'lucide-react'
 import { Place } from '@/data/places'
 import { AspectRatio } from '@/components/ui/aspect-ratio'
 import { Badge } from '@/components/ui/badge'
@@ -27,11 +27,20 @@ interface Props {
   categories: string[]
   onEdit: (place: Place) => void
   onDelete: (id: string) => void
+  establishmentUsers?: any[]
 }
 
-export function AdminPlacesList({ places, categories, onEdit, onDelete }: Props) {
+export function AdminPlacesList({ places, categories, onEdit, onDelete, establishmentUsers = [] }: Props) {
   const [searchTerm, setSearchTerm] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('Todas')
+
+  const ownerByPlaceId = useMemo(() => {
+    const map = new Map<string, any>()
+    for (const u of establishmentUsers) {
+      if (u.managed_place_id) map.set(u.managed_place_id, u)
+    }
+    return map
+  }, [establishmentUsers])
 
   const filteredPlaces = useMemo(() => {
     return places.filter((p) => {
@@ -84,6 +93,7 @@ export function AdminPlacesList({ places, categories, onEdit, onDelete }: Props)
               <TableHead>Categoria</TableHead>
               <TableHead>Cidade</TableHead>
               <TableHead>Tipo</TableHead>
+              <TableHead>Responsável</TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
@@ -125,6 +135,25 @@ export function AdminPlacesList({ places, categories, onEdit, onDelete }: Props)
                     </Badge>
                   )}
                 </TableCell>
+                <TableCell>
+                  {(() => {
+                    const owner = ownerByPlaceId.get(place.id)
+                    if (!owner) return <span className="text-muted-foreground text-xs">—</span>
+                    return (
+                      <div className="flex items-start gap-1.5">
+                        <User className="h-3.5 w-3.5 text-blue-500 mt-0.5 shrink-0" />
+                        <div className="min-w-0">
+                          <p className="text-xs font-medium leading-tight truncate max-w-[140px]">
+                            {owner.responsible_name || owner.name || '—'}
+                          </p>
+                          <p className="text-[10px] text-muted-foreground truncate max-w-[140px]">
+                            {owner.email}
+                          </p>
+                        </div>
+                      </div>
+                    )
+                  })()}
+                </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
                     <Button
@@ -149,7 +178,7 @@ export function AdminPlacesList({ places, categories, onEdit, onDelete }: Props)
             ))}
             {filteredPlaces.length === 0 && (
               <TableRow>
-                <TableCell colSpan={7} className="text-center text-muted-foreground py-12">
+                <TableCell colSpan={8} className="text-center text-muted-foreground py-12">
                   Nenhum local encontrado.
                 </TableCell>
               </TableRow>
@@ -186,6 +215,18 @@ export function AdminPlacesList({ places, categories, onEdit, onDelete }: Props)
                   </Badge>
                   <span className="truncate">{place.city}</span>
                 </div>
+                {(() => {
+                  const owner = ownerByPlaceId.get(place.id)
+                  if (!owner) return null
+                  return (
+                    <div className="flex items-center gap-1 mt-0.5">
+                      <User className="h-3 w-3 text-blue-500 shrink-0" />
+                      <span className="text-[10px] text-blue-600 font-medium truncate">
+                        {owner.responsible_name || owner.name || owner.email}
+                      </span>
+                    </div>
+                  )
+                })()}
               </div>
             </div>
             <div className="bg-muted/30 px-3 py-2 border-t border-border/50 flex items-center justify-between">

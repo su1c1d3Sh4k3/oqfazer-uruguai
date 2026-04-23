@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { AdminPlaceForm } from '@/components/AdminPlaceForm'
 import { AdminCategoryManager } from '@/components/AdminCategoryManager'
 import { AdminPlacesList } from '@/components/AdminPlacesList'
@@ -15,12 +15,24 @@ import { Place } from '@/data/places'
 import { toast } from 'sonner'
 import { Navigate } from 'react-router-dom'
 import { AdminLogin } from '@/components/AdminLogin'
+import { supabase } from '@/lib/supabase'
 
 export default function Admin() {
   const { currentUser, logout } = useAuth()
   const { places, addPlace, updatePlace, deletePlace, categories } = usePlaces()
   const [activeTab, setActiveTab] = useState('dashboard')
   const [editingPlace, setEditingPlace] = useState<Place | undefined>(undefined)
+  const [establishmentUsers, setEstablishmentUsers] = useState<any[]>([])
+
+  useEffect(() => {
+    supabase
+      .from('profiles')
+      .select('id, email, name, responsible_name, managed_place_id')
+      .eq('role', 'establishment')
+      .then(({ data }) => {
+        if (data) setEstablishmentUsers(data)
+      })
+  }, [])
 
   // Admin access: check if user has admin role
   const isAdmin = currentUser?.role === 'admin'
@@ -167,6 +179,7 @@ export default function Admin() {
             categories={categories}
             onEdit={handleEdit}
             onDelete={handleDelete}
+            establishmentUsers={establishmentUsers}
           />
         </TabsContent>
 
