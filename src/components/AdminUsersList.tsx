@@ -121,9 +121,26 @@ export function AdminUsersList() {
         return
       }
 
-      // Se admin alterou a senha
+      // Se admin alterou a senha, usa Edge Function com service role
       if (formData.password) {
-        toast.info('Nota: alteração de senha requer acesso admin no Supabase Dashboard.')
+        const { data: { session } } = await supabase.auth.getSession()
+        const res = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-update-user`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${session?.access_token}`,
+              'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+            },
+            body: JSON.stringify({ userId: editingUser.id, password: formData.password }),
+          },
+        )
+        const result = await res.json()
+        if (!result.success) {
+          toast.error('Erro ao alterar senha: ' + (result.error || 'Erro desconhecido'))
+          return
+        }
       }
 
       toast.success('Usuário atualizado!')
