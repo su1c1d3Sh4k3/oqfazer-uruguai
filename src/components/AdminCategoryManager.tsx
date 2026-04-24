@@ -3,11 +3,12 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { X, MessageCircle, MapPin, Pencil, Check } from 'lucide-react'
+import { X, MessageCircle, MapPin, Pencil, Check, Mail, Loader2 } from 'lucide-react'
 import { usePlaces } from '@/context/PlacesContext'
 import type { City } from '@/context/PlacesContext'
 import { getAppSetting, setAppSetting } from '@/lib/appSettings'
 import { toast } from 'sonner'
+import { supabase } from '@/lib/supabase'
 
 function CityManagerSection({
   cityData,
@@ -201,6 +202,50 @@ export function AdminCategoryManager() {
   } = usePlaces()
 
   const [whatsappNumber, setWhatsappNumber] = useState('')
+  const [smtpTestEmail, setSmtpTestEmail] = useState('suicideshake@gmail.com')
+  const [smtpSending, setSmtpSending] = useState(false)
+  const [smtpResult, setSmtpResult] = useState<{ success: boolean; message: string } | null>(null)
+
+  const handleSmtpTest = async () => {
+    if (!smtpTestEmail) {
+      toast.error('Informe um email de destino.')
+      return
+    }
+    setSmtpSending(true)
+    setSmtpResult(null)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-email`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session?.access_token}`,
+            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+          },
+          body: JSON.stringify({
+            to: smtpTestEmail,
+            subject: '[Teste SMTP] Uruguai Descontos - Disparo via Admin',
+          }),
+        }
+      )
+      const json = await res.json()
+      if (json.success) {
+        setSmtpResult({ success: true, message: json.message })
+        toast.success(`Email enviado para ${smtpTestEmail}!`)
+      } else {
+        setSmtpResult({ success: false, message: json.error || 'Erro desconhecido' })
+        toast.error(`Falha: ${json.error}`)
+      }
+    } catch (err) {
+      const msg = String(err)
+      setSmtpResult({ success: false, message: msg })
+      toast.error(`Erro: ${msg}`)
+    } finally {
+      setSmtpSending(false)
+    }
+  }
 
   useEffect(() => {
     getAppSetting('whatsapp_support').then(setWhatsappNumber)
@@ -300,6 +345,46 @@ export function AdminCategoryManager() {
               </Button>
             </div>
           </div>
+        </div>
+      </div>
+
+      <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <h2 className="mb-4 font-display text-xl font-bold text-slate-900 flex items-center gap-2">
+          <Mail className="h-5 w-5 text-blue-600" /> Teste SMTP Relay
+        </h2>
+        <p className="text-sm text-muted-foreground mb-4">
+          Envia um email de teste via smtp-relay.gmail.com (porta 587) para verificar a configuracao.
+        </p>
+        <div className="space-y-3 max-w-md">
+          <div className="space-y-2">
+            <Label className="text-slate-700 font-medium">Email de destino</Label>
+            <Input
+              value={smtpTestEmail}
+              onChange={(e) => setSmtpTestEmail(e.target.value)}
+              placeholder="email@exemplo.com"
+              type="email"
+            />
+          </div>
+          <Button
+            onClick={handleSmtpTest}
+            disabled={smtpSending}
+            className="gap-2"
+          >
+            {smtpSending ? (
+              <><Loader2 className="h-4 w-4 animate-spin" /> Enviando...</>
+            ) : (
+              <><Mail className="h-4 w-4" /> Enviar Email de Teste</>
+            )}
+          </Button>
+          {smtpResult && (
+            <div className={`mt-3 rounded-xl border p-4 text-sm ${
+              smtpResult.success
+                ? 'bg-green-50 border-green-200 text-green-800'
+                : 'bg-red-50 border-red-200 text-red-800'
+            }`}>
+              {smtpResult.success ? '✔' : '✘'} {smtpResult.message}
+            </div>
+          )}
         </div>
       </div>
 
