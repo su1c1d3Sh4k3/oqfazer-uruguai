@@ -8,7 +8,6 @@ import { usePlaces } from '@/context/PlacesContext'
 import type { City } from '@/context/PlacesContext'
 import { getAppSetting, setAppSetting } from '@/lib/appSettings'
 import { toast } from 'sonner'
-import { supabase } from '@/lib/supabase'
 
 function CityManagerSection({
   cityData,
@@ -214,16 +213,11 @@ export function AdminCategoryManager() {
     setSmtpSending(true)
     setSmtpResult(null)
     try {
-      const { data: { session } } = await supabase.auth.getSession()
       const res = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-email`,
+        'http://2.24.208.139:3001/send-email',
         {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${session?.access_token}`,
-            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             to: smtpTestEmail,
             subject: '[Teste SMTP] Uruguai Descontos - Disparo via Admin',
