@@ -28,7 +28,9 @@ import {
   Star,
   Send,
   Building,
+  Loader2,
 } from 'lucide-react'
+import { sendTemplatedEmail } from '@/lib/emailService'
 
 export function CompanyDashboard() {
   const { currentUser, updateProfile } = useAuth()
@@ -50,6 +52,7 @@ export function CompanyDashboard() {
 
   const [contactSubject, setContactSubject] = useState('')
   const [contactMessage, setContactMessage] = useState('')
+  const [contactSending, setContactSending] = useState(false)
 
   let managedPlace = places.find((p) => p.id === currentUser?.managedPlaceId)
   if (!managedPlace && currentUser?.email === 'contato@brasileirosnouruguai.com.br') {
@@ -87,19 +90,33 @@ export function CompanyDashboard() {
       )
     ) {
       await updateProfile({ deletionRequested: true })
+      sendTemplatedEmail('deletion', 'contato@brasileirosnouruguai.com.br', 'Solicitacao de Exclusao de Conta - ' + (managedPlace?.name || ''), {
+        empresa: managedPlace?.name || 'N/A',
+        nome: currentUser?.responsibleName || currentUser?.name || '',
+        email: currentUser?.email || '',
+      }).catch(console.error)
     }
   }
 
-  const handleContactSubmit = (e: React.FormEvent) => {
+  const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!contactSubject || !contactMessage) return
-    const body = encodeURIComponent(contactMessage)
-    window.location.href = `mailto:contato@brasileirosnouruguai.com.br?subject=Contato do Parceiro do App - ${contactSubject}&body=${body}`
-    toast.success('Mensagem preparada!', {
-      description: 'Seu cliente de e-mail foi aberto com os detalhes.',
+    setContactSending(true)
+    const result = await sendTemplatedEmail('contact', 'contato@brasileirosnouruguai.com.br', `Contato do Parceiro - ${contactSubject}`, {
+      empresa: managedPlace?.name || 'N/A',
+      nome: currentUser?.responsibleName || currentUser?.name || '',
+      email: currentUser?.email || '',
+      assunto: contactSubject,
+      mensagem: contactMessage,
     })
-    setContactSubject('')
-    setContactMessage('')
+    setContactSending(false)
+    if (result.success) {
+      toast.success('Mensagem enviada com sucesso!')
+      setContactSubject('')
+      setContactMessage('')
+    } else {
+      toast.error('Falha ao enviar mensagem: ' + (result.error || 'Erro desconhecido'))
+    }
   }
 
   if (!managedPlace) {
@@ -435,8 +452,12 @@ export function CompanyDashboard() {
                   </span>
                 </div>
               </div>
-              <Button type="submit" className="h-12 px-8 font-bold rounded-xl shadow-md w-full">
-                <Send className="mr-2 h-4 w-4" /> Enviar Mensagem
+              <Button type="submit" disabled={contactSending} className="h-12 px-8 font-bold rounded-xl shadow-md w-full">
+                {contactSending ? (
+                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Enviando...</>
+                ) : (
+                  <><Send className="mr-2 h-4 w-4" /> Enviar Mensagem</>
+                )}
               </Button>
             </form>
           </div>

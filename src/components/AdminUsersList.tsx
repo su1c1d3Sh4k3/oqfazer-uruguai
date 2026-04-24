@@ -29,6 +29,7 @@ import {
 import { toast } from 'sonner'
 import { PlaceSearchCombobox } from './PlaceSearchCombobox'
 import { supabase } from '@/lib/supabase'
+import { sendTemplatedEmail } from '@/lib/emailService'
 
 export function AdminUsersList() {
   const [users, setUsers] = useState<any[]>([])
@@ -186,6 +187,10 @@ export function AdminUsersList() {
         toast.error('Usuário criado mas houve erro ao salvar dados do perfil.')
       } else {
         toast.success('Usuário criado com sucesso!')
+        sendTemplatedEmail('welcome', formData.email, 'Bem-vindo ao O que Fazer no Uruguai!', {
+          nome: formData.name || formData.email,
+          email: formData.email,
+        }).catch(console.error)
       }
     }
 

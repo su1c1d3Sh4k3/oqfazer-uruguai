@@ -1,7 +1,8 @@
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { useAuth } from './AuthContext'
 import { supabase } from '@/lib/supabase'
+import { sendTemplatedEmail } from '@/lib/emailService'
 
 export interface AccessRecord {
   placeId: string
@@ -126,6 +127,21 @@ export function AccessProvider({ children }: { children: React.ReactNode }) {
     currentUser?.role === 'user' && currentUser.firstCheckInAt
       ? now > currentUser.firstCheckInAt + 20 * 24 * 60 * 60 * 1000
       : false
+
+  const expirationEmailSentRef = useRef(false)
+
+  useEffect(() => {
+    if (!isExpired || !currentUser?.email || expirationEmailSentRef.current) return
+    const key = `@uruguai:expiration_email_sent_${currentUser.id}`
+    if (localStorage.getItem(key)) return
+    expirationEmailSentRef.current = true
+    localStorage.setItem(key, '1')
+    sendTemplatedEmail('expiration', currentUser.email, 'Seu periodo de acesso expirou', {
+      nome: currentUser.name || currentUser.email,
+      email: currentUser.email,
+      data_expiracao: new Date().toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
+    }).catch(console.error)
+  }, [isExpired, currentUser?.email, currentUser?.id, currentUser?.name])
 
   const isGranted = currentUser?.role === 'establishment' || currentUser?.role === 'admin'
 

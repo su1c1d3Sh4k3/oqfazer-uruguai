@@ -8,6 +8,7 @@ import { usePlaces } from '@/context/PlacesContext'
 import type { City } from '@/context/PlacesContext'
 import { getAppSetting, setAppSetting } from '@/lib/appSettings'
 import { toast } from 'sonner'
+import { AdminEmailSettings } from './AdminEmailSettings'
 
 function CityManagerSection({
   cityData,
@@ -381,6 +382,8 @@ export function AdminCategoryManager() {
           )}
         </div>
       </div>
+
+      <AdminEmailSettings />
 
       <ManagerSection
         title="Gerenciar Categorias"
