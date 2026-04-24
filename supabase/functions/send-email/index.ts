@@ -2,7 +2,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 
 const SMTP_HOST = "smtp-relay.gmail.com";
-const SMTP_PORT = 587;
+const SMTP_PORT = 465;
 const SMTP_USER = "contato@brasileirosnouruguai.com.br";
 const SMTP_PASS = "Brasileiros3004G*";
 
@@ -35,7 +35,7 @@ Deno.serve(async (req: Request) => {
       connection: {
         hostname: SMTP_HOST,
         port: SMTP_PORT,
-        tls: false,
+        tls: true,
         auth: {
           username: SMTP_USER,
           password: SMTP_PASS,
