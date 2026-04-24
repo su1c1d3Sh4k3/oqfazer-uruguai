@@ -214,10 +214,10 @@ export function AdminCategoryManager() {
     setSmtpResult(null)
     try {
       const res = await fetch(
-        'http://2.24.208.139:3001/send-email',
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-email`,
         {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY },
           body: JSON.stringify({
             to: smtpTestEmail,
             subject: '[Teste SMTP] Uruguai Descontos - Disparo via Admin',
