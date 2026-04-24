@@ -13,7 +13,6 @@ import {
 } from '@/components/ui/dialog'
 import { Compass } from 'lucide-react'
 import { toast } from 'sonner'
-import { supabase } from '@/lib/supabase'
 
 export default function Auth() {
   const [email, setEmail] = useState('')
@@ -48,16 +47,25 @@ export default function Auth() {
     e.preventDefault()
     if (!forgotEmail) return
 
-    const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
-      redirectTo: window.location.origin + '/auth',
-    })
-
-    if (error) {
-      toast.error('Erro ao enviar link', { description: error.message })
-    } else {
-      toast.success('Link enviado!', {
-        description: 'Verifique sua caixa de entrada para redefinir a senha.',
-      })
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/reset-password`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', apikey: import.meta.env.VITE_SUPABASE_ANON_KEY },
+          body: JSON.stringify({ email: forgotEmail, redirectTo: window.location.origin + '/auth' }),
+        },
+      )
+      const result = await res.json()
+      if (result.success) {
+        toast.success('Link enviado!', {
+          description: 'Verifique sua caixa de entrada para redefinir a senha.',
+        })
+      } else {
+        toast.error('Erro ao enviar link', { description: result.error || 'Erro desconhecido' })
+      }
+    } catch {
+      toast.error('Erro ao enviar link de recuperação.')
     }
     setShowForgot(false)
     setForgotEmail('')

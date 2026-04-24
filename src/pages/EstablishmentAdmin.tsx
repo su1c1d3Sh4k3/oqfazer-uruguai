@@ -14,7 +14,6 @@ import {
 import { Store } from 'lucide-react'
 import { toast } from 'sonner'
 import { CompanyDashboard } from '@/components/CompanyDashboard'
-import { supabase } from '@/lib/supabase'
 
 export default function EstablishmentAdmin() {
   const [email, setEmail] = useState('')
@@ -52,16 +51,25 @@ export default function EstablishmentAdmin() {
     e.preventDefault()
     if (!forgotEmail) return
 
-    const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
-      redirectTo: window.location.origin + '/empresa',
-    })
-
-    if (error) {
-      toast.error('Erro ao enviar link', { description: error.message })
-    } else {
-      toast.success('Link enviado!', {
-        description: 'Verifique a caixa de entrada da sua empresa.',
-      })
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/reset-password`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', apikey: import.meta.env.VITE_SUPABASE_ANON_KEY },
+          body: JSON.stringify({ email: forgotEmail, redirectTo: window.location.origin + '/empresa' }),
+        },
+      )
+      const result = await res.json()
+      if (result.success) {
+        toast.success('Link enviado!', {
+          description: 'Verifique a caixa de entrada da sua empresa.',
+        })
+      } else {
+        toast.error('Erro ao enviar link', { description: result.error || 'Erro desconhecido' })
+      }
+    } catch {
+      toast.error('Erro ao enviar link de recuperação.')
     }
     setShowForgot(false)
     setForgotEmail('')
