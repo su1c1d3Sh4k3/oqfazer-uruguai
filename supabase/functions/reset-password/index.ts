@@ -32,12 +32,15 @@ Deno.serve(async (req: Request) => {
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const adminClient = createClient(supabaseUrl, serviceRoleKey);
 
+    // Use the provided redirectTo or default to production reset-password page
+    const finalRedirect = redirectTo || "https://oquefazernouruguai.com.br/reset-password";
+
     // Generate password reset link via admin API
     const { data, error } = await adminClient.auth.admin.generateLink({
       type: "recovery",
       email,
       options: {
-        redirectTo: redirectTo || supabaseUrl,
+        redirectTo: finalRedirect,
       },
     });
 

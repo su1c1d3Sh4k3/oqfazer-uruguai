@@ -53,7 +53,7 @@ export default function Auth() {
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', apikey: import.meta.env.VITE_SUPABASE_ANON_KEY },
-          body: JSON.stringify({ email: forgotEmail, redirectTo: window.location.origin + '/auth' }),
+          body: JSON.stringify({ email: forgotEmail, redirectTo: window.location.origin + '/reset-password' }),
         },
       )
       const result = await res.json()

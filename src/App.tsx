@@ -20,6 +20,7 @@ import NotFound from '@/pages/NotFound'
 import Profile from '@/pages/Profile'
 import UserProfile from '@/pages/UserProfile'
 import Auth from '@/pages/Auth'
+import ResetPassword from '@/pages/ResetPassword'
 import TopRestaurants from '@/pages/TopRestaurants'
 
 const App = () => (
@@ -42,6 +43,7 @@ const App = () => (
                     <Route path="/profile" element={<Profile />} />
                     <Route path="/perfil" element={<UserProfile />} />
                     <Route path="/auth" element={<Auth />} />
+                    <Route path="/reset-password" element={<ResetPassword />} />
                     <Route path="/admin" element={<Admin />} />
                     <Route path="/empresa" element={<EstablishmentAdmin />} />
                     <Route path="/top" element={<TopRestaurants />} />
