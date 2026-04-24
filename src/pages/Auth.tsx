@@ -10,10 +10,10 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog'
 import { Compass } from 'lucide-react'
 import { toast } from 'sonner'
+import { supabase } from '@/lib/supabase'
 
 export default function Auth() {
   const [email, setEmail] = useState('')
@@ -92,36 +92,13 @@ export default function Auth() {
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label htmlFor="login-pwd">Senha</Label>
-              <Dialog open={showForgot} onOpenChange={setShowForgot}>
-                <DialogTrigger asChild>
-                  <button
-                    type="button"
-                    className="text-xs font-medium text-primary hover:underline"
-                  >
-                    Esqueci a senha
-                  </button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-sm rounded-2xl">
-                  <DialogHeader>
-                    <DialogTitle>Recuperar Senha</DialogTitle>
-                    <DialogDescription>
-                      Digite seu e-mail para receber o link de recuperação.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <form onSubmit={handleForgot} className="mt-2 space-y-3">
-                    <Input
-                      type="email"
-                      required
-                      placeholder="seu@email.com"
-                      value={forgotEmail}
-                      onChange={(e) => setForgotEmail(e.target.value)}
-                    />
-                    <Button type="submit" className="w-full">
-                      Enviar link de recuperação
-                    </Button>
-                  </form>
-                </DialogContent>
-              </Dialog>
+              <button
+                type="button"
+                onClick={() => setShowForgot(true)}
+                className="text-xs font-medium text-primary hover:underline"
+              >
+                Esqueci a senha
+              </button>
             </div>
             <Input
               id="login-pwd"
@@ -141,6 +118,29 @@ export default function Auth() {
             {isLoading ? 'Entrando...' : 'Entrar'}
           </Button>
         </form>
+
+        <Dialog open={showForgot} onOpenChange={setShowForgot}>
+          <DialogContent className="sm:max-w-sm rounded-2xl">
+            <DialogHeader>
+              <DialogTitle>Recuperar Senha</DialogTitle>
+              <DialogDescription>
+                Digite seu e-mail para receber o link de recuperação.
+              </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleForgot} className="mt-2 space-y-3">
+              <Input
+                type="email"
+                required
+                placeholder="seu@email.com"
+                value={forgotEmail}
+                onChange={(e) => setForgotEmail(e.target.value)}
+              />
+              <Button type="submit" className="w-full">
+                Enviar link de recuperação
+              </Button>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   )

@@ -10,7 +10,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog'
 import { Store } from 'lucide-react'
 import { toast } from 'sonner'
@@ -98,36 +97,13 @@ export default function EstablishmentAdmin() {
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label htmlFor="company-pwd">Senha</Label>
-              <Dialog open={showForgot} onOpenChange={setShowForgot}>
-                <DialogTrigger asChild>
-                  <button
-                    type="button"
-                    className="text-xs font-medium text-primary hover:underline"
-                  >
-                    Esqueci minha senha
-                  </button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-sm rounded-2xl">
-                  <DialogHeader>
-                    <DialogTitle>Recuperar Senha Empresarial</DialogTitle>
-                    <DialogDescription>
-                      Informe o e-mail de acesso para receber o link de redefinição.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <form onSubmit={handleForgot} className="mt-2 space-y-3">
-                    <Input
-                      type="email"
-                      placeholder="contato@empresa.com"
-                      required
-                      value={forgotEmail}
-                      onChange={(e) => setForgotEmail(e.target.value)}
-                    />
-                    <Button type="submit" className="w-full">
-                      Enviar link de recuperação
-                    </Button>
-                  </form>
-                </DialogContent>
-              </Dialog>
+              <button
+                type="button"
+                onClick={() => setShowForgot(true)}
+                className="text-xs font-medium text-primary hover:underline"
+              >
+                Esqueci minha senha
+              </button>
             </div>
             <Input
               id="company-pwd"
@@ -148,6 +124,29 @@ export default function EstablishmentAdmin() {
             {isLoading ? 'Acessando...' : 'Acessar Painel'}
           </Button>
         </form>
+
+        <Dialog open={showForgot} onOpenChange={setShowForgot}>
+          <DialogContent className="sm:max-w-sm rounded-2xl">
+            <DialogHeader>
+              <DialogTitle>Recuperar Senha Empresarial</DialogTitle>
+              <DialogDescription>
+                Informe o e-mail de acesso para receber o link de redefinição.
+              </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleForgot} className="mt-2 space-y-3">
+              <Input
+                type="email"
+                placeholder="contato@empresa.com"
+                required
+                value={forgotEmail}
+                onChange={(e) => setForgotEmail(e.target.value)}
+              />
+              <Button type="submit" className="w-full">
+                Enviar link de recuperação
+              </Button>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   )
