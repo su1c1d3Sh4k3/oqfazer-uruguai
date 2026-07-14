@@ -223,11 +223,22 @@ export function AdminUsersList() {
 
   const handleDelete = async (userId: string) => {
     if (confirm('Confirmar exclusão permanente deste usuário?')) {
-      // Delete profile (cascade will handle)
-      const { error } = await supabase.from('profiles').delete().eq('id', userId)
-      if (error) {
-        toast.error('Erro ao remover usuário')
-        console.error(error)
+      const { data: { session } } = await supabase.auth.getSession()
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-update-user`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session?.access_token}`,
+            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+          },
+          body: JSON.stringify({ userId, action: 'delete' }),
+        },
+      )
+      const result = await res.json()
+      if (!result.success) {
+        toast.error('Erro ao remover usuário: ' + (result.error || 'Erro desconhecido'))
         return
       }
       toast.success('Usuário removido.')

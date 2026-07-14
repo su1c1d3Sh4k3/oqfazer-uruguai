@@ -55,11 +55,42 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const { userId, password } = await req.json();
+    const { userId, password, action } = await req.json();
 
-    if (!userId || !password) {
+    if (!userId) {
       return new Response(
-        JSON.stringify({ error: "userId e password sao obrigatorios" }),
+        JSON.stringify({ error: "userId e obrigatorio" }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
+    }
+
+    // Action: delete user from auth + profiles
+    if (action === "delete") {
+      const { error } = await adminClient.auth.admin.deleteUser(userId);
+
+      if (error) {
+        return new Response(
+          JSON.stringify({ success: false, error: error.message }),
+          {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          },
+        );
+      }
+
+      return new Response(
+        JSON.stringify({ success: true, message: "Usuario excluido" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
+    // Default action: update password
+    if (!password) {
+      return new Response(
+        JSON.stringify({ error: "password e obrigatorio para atualizar" }),
         {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
