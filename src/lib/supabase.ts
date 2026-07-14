@@ -154,5 +154,7 @@ export function rowToUser(profile: Record<string, any>, email?: string) {
     deletionRequested: profile.deletion_requested ?? false,
     firstCheckInAt: profile.first_check_in_at ?? undefined,
     firstLoginAt: profile.first_login_at ?? Date.now(),
+    adults: profile.adults ?? 1,
+    children: profile.children ?? 0,
   }
 }

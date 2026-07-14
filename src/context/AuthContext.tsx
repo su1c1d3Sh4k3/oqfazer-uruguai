@@ -28,6 +28,8 @@ export interface User {
   responsibleName?: string
   deletionRequested?: boolean
   firstCheckInAt?: number
+  adults: number
+  children: number
 }
 
 interface AuthContextType {
@@ -200,6 +202,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (data.managedPlaceId !== undefined) dbData.managed_place_id = data.managedPlaceId
     if (data.role !== undefined) dbData.role = data.role
     if (data.email !== undefined) dbData.email = data.email
+    if (data.adults !== undefined) dbData.adults = data.adults
+    if (data.children !== undefined) dbData.children = data.children
 
     dbData.updated_at = new Date().toISOString()
 

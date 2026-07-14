@@ -18,6 +18,8 @@ CREATE TABLE public.profiles (
   deletion_requested BOOLEAN DEFAULT FALSE,
   first_check_in_at BIGINT,
   first_login_at BIGINT DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT,
+  adults INTEGER NOT NULL DEFAULT 1,
+  children INTEGER NOT NULL DEFAULT 0,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );

@@ -80,11 +80,13 @@ export function AdminUsersList() {
         responsibleName: user.responsible_name || '',
         managedPlaceId: user.managed_place_id || '',
         travelPeriod: user.travel_period || '',
+        adults: user.adults ?? 1,
+        children: user.children ?? 0,
         password: '',
       })
     } else {
       setEditingUser(null)
-      setFormData({ role: 'user', email: '', password: '', name: '', phone: '' })
+      setFormData({ role: 'user', email: '', password: '', name: '', phone: '', adults: 1, children: 0 })
     }
     setIsDialogOpen(true)
   }
@@ -107,6 +109,8 @@ export function AdminUsersList() {
         responsible_name: formData.responsibleName || null,
         managed_place_id: formData.managedPlaceId || null,
         travel_period: formData.travelPeriod || null,
+        adults: formData.adults ?? 1,
+        children: formData.children ?? 0,
         updated_at: new Date().toISOString(),
       }
 
@@ -195,6 +199,8 @@ export function AdminUsersList() {
           responsible_name: formData.responsibleName || null,
           managed_place_id: formData.managedPlaceId || null,
           travel_period: formData.travelPeriod || null,
+          adults: formData.adults ?? 1,
+          children: formData.children ?? 0,
           updated_at: new Date().toISOString(),
         })
         .eq('id', authData.user.id)
@@ -387,6 +393,26 @@ export function AdminUsersList() {
                       placeholder="Ex: 10/12/2024 a 20/12/2024"
                     />
                   </div>
+                  <div className="space-y-2">
+                    <Label>Adultos</Label>
+                    <Input
+                      type="number"
+                      min={1}
+                      max={20}
+                      value={formData.adults ?? 1}
+                      onChange={(e) => setFormData({ ...formData, adults: parseInt(e.target.value) || 1 })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Crianças (3 a 7 anos)</Label>
+                    <Input
+                      type="number"
+                      min={0}
+                      max={20}
+                      value={formData.children ?? 0}
+                      onChange={(e) => setFormData({ ...formData, children: parseInt(e.target.value) || 0 })}
+                    />
+                  </div>
                 </div>
               </>
             )}
@@ -444,6 +470,12 @@ export function AdminUsersList() {
                     <p className="text-xs text-muted-foreground">
                       Doc: {u.cpf || u.ci || '-'} | Tel: {u.phone || '-'}
                     </p>
+                    {u.role !== 'establishment' && (
+                      <p className="text-xs text-muted-foreground">
+                        {u.adults ?? 1} adulto{(u.adults ?? 1) > 1 ? 's' : ''}
+                        {(u.children ?? 0) > 0 && ` + ${u.children} criança${u.children > 1 ? 's' : ''}`}
+                      </p>
+                    )}
                   </TableCell>
                   <TableCell>
                     <p>{u.email}</p>

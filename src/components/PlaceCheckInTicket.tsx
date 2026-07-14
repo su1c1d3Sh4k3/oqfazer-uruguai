@@ -74,7 +74,15 @@ export function PlaceCheckInTicket({ checkInTime }: { checkInTime: number }) {
           Validação Oficial
         </p>
         <p className="text-lg font-black leading-tight text-slate-900">
-          esse cupom vale até
+          {(() => {
+            const adults = currentUser?.adults ?? 1
+            const children = currentUser?.children ?? 0
+            let pessoasText = `${adults} pessoa${adults > 1 ? 's' : ''}`
+            if (children > 0) {
+              pessoasText += ` e ${children} criança${children > 1 ? 's' : ''}`
+            }
+            return `Esse cupom vale para ${pessoasText} até`
+          })()}
           <br />
           <span className="text-xl text-secondary">
             {format(new Date(expirationTime), 'dd/MM/yyyy')} às{' '}
