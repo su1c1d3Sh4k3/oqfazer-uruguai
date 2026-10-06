@@ -25,6 +25,13 @@ RUN printf 'server {\n\
     root /usr/share/nginx/html;\n\
     index index.html;\n\
 \n\
+    # Compressao: JS/CSS ficam ~70 por cento menores (o bundle inicial ia com ~600 KB)\n\
+    gzip on;\n\
+    gzip_vary on;\n\
+    gzip_comp_level 6;\n\
+    gzip_min_length 1024;\n\
+    gzip_types text/plain text/css application/javascript application/json image/svg+xml application/xml;\n\
+\n\
     # HTML never cached (prevents stale asset references)\n\
     location / {\n\
         try_files $uri $uri/ /index.html;\n\
@@ -35,8 +42,7 @@ RUN printf 'server {\n\
 \n\
     # Static assets cached forever (hashed filenames)\n\
     location /assets/ {\n\
-        expires 1y;\n\
-        add_header Cache-Control "public, immutable";\n\
+        add_header Cache-Control "public, max-age=31536000, immutable";\n\
     }\n\
 }\n' > /etc/nginx/conf.d/default.conf
 
