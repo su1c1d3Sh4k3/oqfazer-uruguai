@@ -64,3 +64,21 @@ export const cropImageToSquare = (file: File): Promise<string> => {
     reader.readAsDataURL(file)
   })
 }
+
+/** Miniatura 480x360 em WebP para os cards (a imagem já vem recortada em 4:3). */
+export const makeThumbnail = (dataUrl: string): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    img.onload = () => {
+      const canvas = document.createElement('canvas')
+      const ctx = canvas.getContext('2d')
+      if (!ctx) return reject('Failed to get canvas context')
+      canvas.width = 480
+      canvas.height = 360
+      ctx.drawImage(img, 0, 0, 480, 360)
+      resolve(canvas.toDataURL('image/webp', 0.7))
+    }
+    img.onerror = () => reject('Failed to load image')
+    img.src = dataUrl
+  })
+}

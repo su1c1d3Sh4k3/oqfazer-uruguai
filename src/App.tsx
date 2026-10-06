@@ -10,18 +10,27 @@ import { PlacesProvider } from '@/context/PlacesContext'
 
 import { Layout } from '@/components/Layout'
 import { ProximityAlerts } from '@/components/ProximityAlerts'
+import { lazy, Suspense } from 'react'
 import Index from '@/pages/Index'
-import PlaceDetails from '@/pages/PlaceDetails'
-import Favorites from '@/pages/Favorites'
-import MapView from '@/pages/MapView'
-import Admin from '@/pages/Admin'
-import EstablishmentAdmin from '@/pages/EstablishmentAdmin'
-import NotFound from '@/pages/NotFound'
-import Profile from '@/pages/Profile'
-import UserProfile from '@/pages/UserProfile'
-import Auth from '@/pages/Auth'
-import ResetPassword from '@/pages/ResetPassword'
-import TopRestaurants from '@/pages/TopRestaurants'
+
+// Só a home entra no bundle inicial; as demais páginas carregam sob demanda
+const PlaceDetails = lazy(() => import('@/pages/PlaceDetails'))
+const Favorites = lazy(() => import('@/pages/Favorites'))
+const MapView = lazy(() => import('@/pages/MapView'))
+const Admin = lazy(() => import('@/pages/Admin'))
+const EstablishmentAdmin = lazy(() => import('@/pages/EstablishmentAdmin'))
+const NotFound = lazy(() => import('@/pages/NotFound'))
+const Profile = lazy(() => import('@/pages/Profile'))
+const UserProfile = lazy(() => import('@/pages/UserProfile'))
+const Auth = lazy(() => import('@/pages/Auth'))
+const ResetPassword = lazy(() => import('@/pages/ResetPassword'))
+const TopRestaurants = lazy(() => import('@/pages/TopRestaurants'))
+
+const PageFallback = () => (
+  <div className="flex flex-1 items-center justify-center py-20">
+    <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
+  </div>
+)
 
 const App = () => (
   <BrowserRouter future={{ v7_startTransition: false, v7_relativeSplatPath: false }}>
@@ -34,6 +43,7 @@ const App = () => (
                 <Toaster />
                 <Sonner />
                 <ProximityAlerts />
+                <Suspense fallback={<PageFallback />}>
                 <Routes>
                   <Route element={<Layout />}>
                     <Route path="/" element={<Index />} />
@@ -50,6 +60,7 @@ const App = () => (
                   </Route>
                   <Route path="*" element={<NotFound />} />
                 </Routes>
+                </Suspense>
               </TooltipProvider>
             </FavoritesProvider>
           </PlacesProvider>

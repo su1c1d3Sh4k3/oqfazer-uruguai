@@ -43,13 +43,42 @@ interface PlacesContextType {
 
 const PlacesContext = createContext<PlacesContextType | undefined>(undefined)
 
+// Cache local (stale-while-revalidate): quem volta ao site vê os cards na hora,
+// enquanto os dados atualizados chegam. Lugares inativos são filtrados no cliente também.
+const CACHE_KEY = '@uruguai:places_cache_v1'
+
+interface PlacesCache {
+  places: Place[]
+  categories: string[]
+  cityData: City[]
+  badges: string[]
+}
+
+function readCache(): PlacesCache | null {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY)
+    return raw ? (JSON.parse(raw) as PlacesCache) : null
+  } catch {
+    return null
+  }
+}
+
+function writeCache(cache: PlacesCache) {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify(cache))
+  } catch {
+    // Sem espaço ou storage bloqueado — segue sem cache
+  }
+}
+
 export function PlacesProvider({ children }: { children: React.ReactNode }) {
   const { currentUser } = useAuth()
-  const [allPlaces, setPlaces] = useState<Place[]>([])
-  const [categories, setCategories] = useState<string[]>([])
-  const [cityData, setCityData] = useState<City[]>([])
-  const [badges, setBadges] = useState<string[]>([])
-  const [loading, setLoading] = useState(true)
+  const [cached] = useState(readCache)
+  const [allPlaces, setPlaces] = useState<Place[]>(cached?.places ?? [])
+  const [categories, setCategories] = useState<string[]>(cached?.categories ?? [])
+  const [cityData, setCityData] = useState<City[]>(cached?.cityData ?? [])
+  const [badges, setBadges] = useState<string[]>(cached?.badges ?? [])
+  const [loading, setLoading] = useState(!cached)
 
   const places = allPlaces
   const cities = cityData.map((c) => c.name)
@@ -83,28 +112,25 @@ export function PlacesProvider({ children }: { children: React.ReactNode }) {
           supabase.from('cities').select('name, lat, lng, country'),
           supabase.from('badges').select('name'),
         ])
-        // Tabela pesada (imagens base64): com cache frio a consulta pode estourar o timeout
+        // Falha transitória (rede/timeout): tenta mais uma vez
         const placesRes = firstPlacesRes.error ? await fetchPlaces() : firstPlacesRes
 
-        if (placesRes.data) {
-          setPlaces(placesRes.data.map((row: any) => rowToPlace(row) as Place))
+        const fresh: PlacesCache = {
+          places: (placesRes.data ?? []).map((row: any) => rowToPlace(row) as Place),
+          categories: (catsRes.data ?? []).map((r: any) => r.name),
+          cityData: (citiesRes.data ?? []).map((r: any) => ({
+            name: r.name,
+            lat: r.lat,
+            lng: r.lng,
+            country: r.country || 'Uruguai',
+          })),
+          badges: (badgesRes.data ?? []).map((r: any) => r.name),
         }
-        if (catsRes.data) {
-          setCategories(catsRes.data.map((r: any) => r.name))
-        }
-        if (citiesRes.data) {
-          setCityData(
-            citiesRes.data.map((r: any) => ({
-              name: r.name,
-              lat: r.lat,
-              lng: r.lng,
-              country: r.country || 'Uruguai',
-            })),
-          )
-        }
-        if (badgesRes.data) {
-          setBadges(badgesRes.data.map((r: any) => r.name))
-        }
+        if (placesRes.data) setPlaces(fresh.places)
+        if (catsRes.data) setCategories(fresh.categories)
+        if (citiesRes.data) setCityData(fresh.cityData)
+        if (badgesRes.data) setBadges(fresh.badges)
+        if (placesRes.data && catsRes.data && citiesRes.data && badgesRes.data) writeCache(fresh)
       } catch (err) {
         console.error('Error fetching places data:', err)
       } finally {

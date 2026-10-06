@@ -65,6 +65,9 @@ export function getSpDate(timestamp?: number): Date {
   return new Date(Date.UTC(year, month, day, hour, minute, second))
 }
 
+/** Validade de um check-in (ticket, status no mapa e registro no banco). */
+export const CHECKIN_DURATION_MS = 24 * 60 * 60 * 1000
+
 /** Converts "HH:MM" to minutes since midnight for reliable numeric comparison. */
 export function timeToMinutes(time: string): number {
   const [h, m] = time.split(':').map(Number)

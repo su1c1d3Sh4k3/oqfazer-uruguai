@@ -109,7 +109,8 @@ export function AdminPlacesList({ places, categories, onEdit, onDelete, establis
                       className="bg-muted rounded-md overflow-hidden border border-border/50"
                     >
                       <img
-                        src={place.coverImage}
+                        src={place.coverThumb || place.coverImage}
+                        loading="lazy"
                         alt={place.name}
                         className="object-cover w-full h-full"
                       />
@@ -203,7 +204,8 @@ export function AdminPlacesList({ places, categories, onEdit, onDelete, establis
                   className="bg-muted rounded-md overflow-hidden border border-border/50"
                 >
                   <img
-                    src={place.coverImage}
+                    src={place.coverThumb || place.coverImage}
+                        loading="lazy"
                     alt={place.name}
                     className="object-cover w-full h-full"
                   />

@@ -12,9 +12,11 @@ import { Badge } from '@/components/ui/badge'
 interface PlaceCardProps {
   place: Place
   activeCheckIn?: boolean
+  /** Primeiros cards da tela carregam sem lazy loading (aparecem antes). */
+  eager?: boolean
 }
 
-export function PlaceCard({ place, activeCheckIn }: PlaceCardProps) {
+export function PlaceCard({ place, activeCheckIn, eager }: PlaceCardProps) {
   const { isFavorite, toggleFavorite } = useFavorites()
   const { calculateDistance } = useGeo()
   const { currentUser } = useAuth()
@@ -56,10 +58,13 @@ export function PlaceCard({ place, activeCheckIn }: PlaceCardProps) {
       <div className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm transition-all duration-300 hover:shadow-xl">
         <div className="relative aspect-[4/3] w-full shrink-0 overflow-hidden bg-slate-100">
           <img
-            src={place.coverImage}
+            src={place.coverThumb || place.coverImage}
             alt={place.name}
+            width={480}
+            height={360}
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-            loading="lazy"
+            loading={eager ? 'eager' : 'lazy'}
+            decoding="async"
           />
           <div className="absolute left-3 top-3 flex flex-col items-start gap-1.5">
             {activeCheckIn && (

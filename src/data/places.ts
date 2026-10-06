@@ -48,6 +48,7 @@ export interface Place {
   city: string
   discountBadge: string
   coverImage: string
+  coverThumb?: string | null // miniatura 480x360 usada nos cards
   galleryImages: string[]
   logoImage?: string
   description: string
@@ -84,12 +85,6 @@ export interface Place {
 
   // Flash Offer
   flashOffer?: FlashOffer
-
-  // Sensitive Fields (Only for Admin Master and Company Owner)
-  responsibleName?: string
-  ci?: string
-  contactEmail?: string
-  contactPhone?: string
 }
 
 

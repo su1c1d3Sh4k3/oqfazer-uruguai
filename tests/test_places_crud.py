@@ -49,10 +49,6 @@ def make_place(place_id: str, **overrides) -> dict:
         "check_in_count": 0,
         "highlight_click_count": 0,
         "flash_offer": None,
-        "responsible_name": "João Teste",
-        "ci": "12345678",
-        "contact_email": "joao@teste.com",
-        "contact_phone": "+59899123456",
     }
     base.update(overrides)
     return base
@@ -89,7 +85,6 @@ class TestAdminCreatePlace:
         assert row["discount_description"] == place["discount_description"]
         assert row["address"] == place["address"]
         assert row["instagram_url"] == "https://instagram.com/teste"
-        assert row["responsible_name"] == "João Teste"
         assert row["coordinates"]["lat"] == pytest.approx(-34.9011, abs=0.001)
 
     def test_admin_can_create_tour(self, admin_session):
@@ -178,7 +173,6 @@ class TestAdminUpdatePlace:
             assert row["discount_badge"] == "Desconto de 20%", f"Badge apagado!"
             assert row["cover_image"] == "https://example.com/cover.jpg", f"Cover apagada!"
             assert row["instagram_url"] == "https://instagram.com/teste", f"Instagram apagado!"
-            assert row["responsible_name"] == "João Teste", f"Responsável apagado!"
         finally:
             cleanup_test_place(place_id)
 

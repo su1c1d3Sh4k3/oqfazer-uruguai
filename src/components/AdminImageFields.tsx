@@ -2,22 +2,26 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { AspectRatio } from '@/components/ui/aspect-ratio'
 import { Button } from '@/components/ui/button'
-import { Upload, Link as LinkIcon } from 'lucide-react'
+import { Upload, Link as LinkIcon, Loader2 } from 'lucide-react'
 import { useRef, useState } from 'react'
-import { cropImageTo4by3, cropImageToSquare } from '@/lib/imageUtils'
+import { cropImageTo4by3, cropImageToSquare, makeThumbnail } from '@/lib/imageUtils'
+import { uploadPlaceImage } from '@/lib/imageUpload'
 import { toast } from 'sonner'
 
 interface Props {
+  placeId: string
   coverImage: string
   galleryImages: string[]
   logoImage?: string
   showLogoField?: boolean
-  onChangeCover: (val: string) => void
+  /** thumb = miniatura dos cards; ausente quando a capa é digitada como URL */
+  onChangeCover: (val: string, thumb?: string | null) => void
   onChangeGallery: (idx: number, val: string) => void
   onChangeLogo?: (val: string) => void
 }
 
 export function AdminImageFields({
+  placeId,
   coverImage,
   galleryImages,
   logoImage,
@@ -28,6 +32,7 @@ export function AdminImageFields({
 }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [activeUploadIndex, setActiveUploadIndex] = useState<number | 'cover' | 'logo' | null>(null)
+  const [uploading, setUploading] = useState(false)
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -38,22 +43,32 @@ export function AdminImageFields({
       return
     }
 
+    setUploading(true)
     try {
       if (activeUploadIndex === 'logo') {
         const dataUrl = await cropImageToSquare(file)
-        if (onChangeLogo) onChangeLogo(dataUrl)
+        const url = await uploadPlaceImage(placeId, dataUrl, 'logo')
+        if (onChangeLogo) onChangeLogo(url)
         toast.success('Logotipo processado e recortado (1:1) com sucesso.')
       } else if (activeUploadIndex === 'cover') {
         const dataUrl = await cropImageTo4by3(file)
-        onChangeCover(dataUrl)
+        const [url, thumb] = await Promise.all([
+          uploadPlaceImage(placeId, dataUrl, 'cover'),
+          makeThumbnail(dataUrl).then((t) => uploadPlaceImage(placeId, t, 'cover-thumb')),
+        ])
+        onChangeCover(url, thumb)
         toast.success('Imagem processada e recortada (4:3) com sucesso.')
       } else if (typeof activeUploadIndex === 'number') {
         const dataUrl = await cropImageTo4by3(file)
-        onChangeGallery(activeUploadIndex, dataUrl)
+        const url = await uploadPlaceImage(placeId, dataUrl, `gallery-${activeUploadIndex}`)
+        onChangeGallery(activeUploadIndex, url)
         toast.success('Imagem processada e recortada (4:3) com sucesso.')
       }
     } catch (err) {
-      toast.error('Erro ao processar imagem')
+      console.error('Erro ao enviar imagem:', err)
+      toast.error('Erro ao enviar imagem', { description: 'Tente novamente.' })
+    } finally {
+      setUploading(false)
     }
 
     if (fileInputRef.current) fileInputRef.current.value = ''
@@ -67,6 +82,11 @@ export function AdminImageFields({
 
   return (
     <div className="space-y-6 pt-2">
+      {uploading && (
+        <div className="flex items-center gap-2 rounded-lg bg-primary/5 px-3 py-2 text-sm font-medium text-primary">
+          <Loader2 className="h-4 w-4 animate-spin" /> Enviando imagem...
+        </div>
+      )}
       <input
         type="file"
         ref={fileInputRef}
@@ -85,7 +105,7 @@ export function AdminImageFields({
               placeholder="URL da Imagem do Logo..."
               className="flex-1"
             />
-            <Button type="button" variant="outline" onClick={() => triggerUpload('logo')}>
+            <Button type="button" variant="outline" disabled={uploading} onClick={() => triggerUpload('logo')}>
               <Upload className="h-4 w-4 mr-2" /> Upload
             </Button>
           </div>
@@ -109,7 +129,7 @@ export function AdminImageFields({
             className="flex-1"
             required
           />
-          <Button type="button" variant="outline" onClick={() => triggerUpload('cover')}>
+          <Button type="button" variant="outline" disabled={uploading} onClick={() => triggerUpload('cover')}>
             <Upload className="h-4 w-4 mr-2" /> Upload
           </Button>
         </div>
@@ -140,6 +160,7 @@ export function AdminImageFields({
                   variant="outline"
                   size="icon"
                   className="h-8 w-8 shrink-0"
+                  disabled={uploading}
                   onClick={() => triggerUpload(i)}
                 >
                   <Upload className="h-3 w-3" />

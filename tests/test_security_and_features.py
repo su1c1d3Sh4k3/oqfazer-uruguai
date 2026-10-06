@@ -14,6 +14,7 @@ import httpx
 import pytest
 from conftest import (
     SUPABASE_URL,
+    SUPABASE_ANON_KEY,
     TIMEOUT,
     anon_headers,
     auth_headers,
@@ -268,3 +269,67 @@ class TestCities:
         rows = r.json()
         assert len(rows) > 0
         assert all(row["country"] for row in rows)
+
+
+class TestPlacePrivateData:
+    """CI e contatos do lugar ficam em place_private (admin + empresa dona)."""
+
+    def test_public_places_do_not_expose_sensitive_data(self):
+        r = httpx.get(f"{SUPABASE_URL}/rest/v1/places?select=*", headers=anon_headers(), timeout=TIMEOUT)
+        for row in r.json():
+            for col in ("ci", "contact_email", "contact_phone", "responsible_name"):
+                assert row.get(col) is None, f"{row['id']} expõe {col}"
+
+    def test_private_data_access(self, admin_session, user_session, establishment_session, owned_place):
+        httpx.post(
+            f"{SUPABASE_URL}/rest/v1/place_private",
+            headers=service_headers(),
+            json={"place_id": owned_place, "ci": "1234567-8", "contact_email": "x@teste.com"},
+            timeout=TIMEOUT,
+        )
+        url = f"{SUPABASE_URL}/rest/v1/place_private?place_id=eq.{owned_place}&select=ci"
+        assert httpx.get(url, headers=anon_headers(), timeout=TIMEOUT).json() == []
+        assert httpx.get(url, headers=auth_headers(user_session["access_token"]), timeout=TIMEOUT).json() == []
+        assert httpx.get(url, headers=auth_headers(admin_session["access_token"]), timeout=TIMEOUT).json() == [{"ci": "1234567-8"}]
+        owner = httpx.get(url, headers=auth_headers(establishment_session["access_token"]), timeout=TIMEOUT)
+        assert owner.json() == [{"ci": "1234567-8"}]
+
+
+class TestImageStorage:
+    """Upload no bucket place-images: admin em qualquer pasta, empresa só na do próprio lugar."""
+
+    PNG = bytes.fromhex(
+        "89504e470d0a1a0a0000000d4948445200000001000000010806000000"
+        "1f15c4890000000d49444154789c6360000002000154a24f5d0000000049454e44ae426082"
+    )
+
+    def _upload(self, token, path):
+        return httpx.post(
+            f"{SUPABASE_URL}/storage/v1/object/place-images/{path}",
+            headers={"apikey": SUPABASE_ANON_KEY, "Authorization": f"Bearer {token}", "Content-Type": "image/png"},
+            content=self.PNG,
+            timeout=TIMEOUT,
+        )
+
+    def _cleanup(self, *paths):
+        httpx.request(
+            "DELETE",
+            f"{SUPABASE_URL}/storage/v1/object/place-images",
+            headers=service_headers(),
+            json={"prefixes": list(paths)},
+            timeout=TIMEOUT,
+        )
+
+    def test_upload_permissions(self, admin_session, user_session, establishment_session, owned_place):
+        suffix = uuid.uuid4().hex[:6]
+        own = f"{owned_place}/test-{suffix}.png"
+        other = f"outro-lugar/test-{suffix}.png"
+        try:
+            assert self._upload(establishment_session["access_token"], own).status_code == 200
+            assert self._upload(establishment_session["access_token"], other).status_code >= 400
+            assert self._upload(user_session["access_token"], f"{owned_place}/u-{suffix}.png").status_code >= 400
+            assert self._upload(admin_session["access_token"], other).status_code == 200
+            public = httpx.get(f"{SUPABASE_URL}/storage/v1/object/public/place-images/{own}", timeout=TIMEOUT)
+            assert public.status_code == 200
+        finally:
+            self._cleanup(own, other)

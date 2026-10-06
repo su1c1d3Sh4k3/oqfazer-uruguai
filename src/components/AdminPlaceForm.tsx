@@ -409,7 +409,11 @@ export function AdminPlaceForm({ initialData, onSave, onCancel, isCompanyView }:
         galleryImages={formData.galleryImages || ['', '', '', '', '']}
         logoImage={formData.logoImage || ''}
         showLogoField={!isCompanyView}
-        onChangeCover={(v) => handleChange('coverImage', v)}
+        placeId={formData.id!}
+        onChangeCover={(v, thumb) =>
+          // Capa digitada como URL não tem miniatura — o card usa a própria capa
+          setFormData((prev) => ({ ...prev, coverImage: v, coverThumb: thumb ?? null }))
+        }
         onChangeGallery={(i, v) => {
           const newGal = [...(formData.galleryImages || ['', '', '', '', ''])]
           newGal[i] = v

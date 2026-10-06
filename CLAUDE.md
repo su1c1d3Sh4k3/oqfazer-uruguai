@@ -44,8 +44,8 @@ Hierarquia em `src/App.tsx`: `AuthProvider → AccessProvider → GeoProvider �
   3. Logout = remover chaves `sb-*` do localStorage + reload da página.
   4. Sem `onAuthStateChange` (race conditions com `login()`).
   5. Init sempre com timeout de segurança — `loading` nunca pode ficar `true` para sempre.
-- **AccessContext** — check-ins em `access_records` (upsert, com snapshot do desconto concedido em `discount`) + RPC `increment_place_metric`. Desconto ativo por 2h após check-in; trial de 20 dias contado a partir de `firstCheckInAt` do usuário. Quando expirado, `Layout.tsx` renderiza `AccessExpired` no lugar do `<Outlet />` nas rotas bloqueadas.
-- **PlacesContext** — carrega lugares, `categories`, `cities` (lat/lng + `country`), `badges`; CRUD de todos eles; métricas via RPC. Expõe **`places`** (visíveis para quem navega: ativos + regra do perfil, ex.: agência só vê `tour`) e **`allPlaces`** (tudo que o RLS devolveu — use nos painéis admin/empresa). Recarrega ao trocar de usuário porque o RLS muda o resultado.
+- **AccessContext** — check-ins em `access_records` (upsert, com snapshot do desconto concedido em `discount`) + RPC `increment_place_metric`. Check-in vale 24h (`CHECKIN_DURATION_MS` em `utils.ts` — ticket, mapa e banco usam a mesma constante); trial de 20 dias contado a partir de `firstCheckInAt` do usuário. Quando expirado, `Layout.tsx` renderiza `AccessExpired` no lugar do `<Outlet />` nas rotas bloqueadas.
+- **PlacesContext** — carrega lugares, `categories`, `cities` (lat/lng + `country`), `badges`; CRUD de todos eles; métricas via RPC. Expõe **`places`** (visíveis para quem navega: ativos + regra do perfil, ex.: agência só vê `tour`) e **`allPlaces`** (tudo que o RLS devolveu — use nos painéis admin/empresa). Recarrega ao trocar de usuário porque o RLS muda o resultado. Usa cache em `localStorage` (`@uruguai:places_cache_v1`, stale-while-revalidate) para a home renderizar na hora em visitas seguintes.
 - **FavoritesContext** — tabela `favorites`.
 - **GeoContext** — `watchPosition` + Haversine; usado por `ProximityAlerts` (alerta único por lugar por sessão quando < 500 m).
 
@@ -70,7 +70,8 @@ Ao adicionar um campo a `Place` ou `User`, atualize o tipo, os conversores (`PLA
 - Projeto `ppdceyhtmmwtzrmuidxy`. Schema base + RLS + funções em `supabase-schema.sql`; alterações posteriores em `supabase/migrations/` (idempotentes, aplicadas via Management API). Tabelas: `profiles`, `places`, `access_records`, `favorites`, `reviews`, `categories`, `cities`, `badges`, `app_settings`.
 - **Triggers de proteção** (`protect_profile_fields`, `protect_place_fields`): em requisições da API (`authenticated`/`anon`), usuário comum não altera `role`/`managed_place_id`/`first_check_in_at` (depois de definido); empresa não altera campos administrativos do lugar (`featured`, ordem, `is_active`, `price_level`, `type`); ninguém sobrescreve métricas (só via RPC). Não é possível desativar lugar com check-in ativo (`PLACE_HAS_ACTIVE_CHECKINS`).
 - RLS de `places`: SELECT só de lugares ativos (ou `reactivate_at` vencido), exceto admin e a empresa dona.
-- A tabela `places` guarda imagens em base64 (~22 MB): a consulta inicial é pesada e pode estourar o `statement_timeout` de 3s do `anon` com cache frio (há 1 retry em `PlacesContext`).
+- **Imagens** ficam no bucket público `place-images` (pasta `<place_id>/`), nunca em base64 na tabela (já deixou a home com 23 MB). Upload via `src/lib/imageUpload.ts`; a capa gera também `cover_thumb` (480x360 WebP) usado nos cards. Admin envia em qualquer pasta; empresa só na do próprio lugar.
+- **Dados sensíveis do lugar** (CI, contatos, responsável) ficam em `place_private` (RLS: admin + empresa dona) — não em `places`, que é público.
 - `app_settings` é um key/value usado por `src/lib/appSettings.ts` (com cache em memória e fallback para defaults) — guarda WhatsApp de suporte e templates/assuntos de email editáveis no admin (`email_template_<key>`, `email_subject_<key>`).
 - **Edge Functions** (`supabase/functions/`, Deno):
   - `send-email` — proxy para um relay SMTP numa VPS externa; usado por `src/lib/emailService.ts` (`sendTemplatedEmail` substitui `{{variavel}}`).
@@ -79,6 +80,8 @@ Ao adicionar um campo a `Place` ou `User`, atualize o tipo, os conversores (`PLA
 - `setup-supabase.mjs` é um script de bootstrap único (tabelas, seed, usuários) — não faz parte do fluxo normal.
 
 ### Páginas e permissões
+
+Todas as páginas exceto `Index` são carregadas com `React.lazy` (o `Suspense` fica dentro do `Layout`).
 
 Rotas definidas em `src/App.tsx`, todas dentro de `Layout` (exceto `*`). A checagem de role é feita dentro das próprias páginas (ex.: `Admin.tsx` verifica `currentUser.role === 'admin'` e mostra login caso contrário; `EstablishmentAdmin.tsx` em `/empresa` para `establishment`). Os componentes `Admin*` em `src/components/` compõem o painel admin.
 

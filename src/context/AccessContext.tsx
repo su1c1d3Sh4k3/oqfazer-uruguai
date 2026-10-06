@@ -4,6 +4,7 @@ import { useAuth } from './AuthContext'
 import { supabase } from '@/lib/supabase'
 import { sendTemplatedEmail } from '@/lib/emailService'
 import type { AppliedDiscount } from '@/data/places'
+import { CHECKIN_DURATION_MS } from '@/lib/utils'
 
 export interface AccessRecord {
   placeId: string
@@ -70,7 +71,7 @@ export function AccessProvider({ children }: { children: React.ReactNode }) {
     const newRecord: AccessRecord = {
       placeId,
       timestamp: Date.now(),
-      expiresAt: Date.now() + 2 * 60 * 60 * 1000, // 2 hours
+      expiresAt: Date.now() + CHECKIN_DURATION_MS,
       discount,
     }
 

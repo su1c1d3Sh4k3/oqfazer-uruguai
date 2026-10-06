@@ -15,6 +15,7 @@ import { useAuth } from '@/context/AuthContext'
 import { toast } from 'sonner'
 import { getAppSetting } from '@/lib/appSettings'
 import type { AppliedDiscount } from '@/data/places'
+import { CHECKIN_DURATION_MS } from '@/lib/utils'
 
 export function PlaceCheckInTicket({
   checkInTime,
@@ -32,7 +33,7 @@ export function PlaceCheckInTicket({
     getAppSetting('whatsapp_support').then(setWhatsappNumber)
   }, [])
 
-  const expirationTime = checkInTime + 86400000
+  const expirationTime = checkInTime + CHECKIN_DURATION_MS
   const isExpired = Date.now() > expirationTime
 
   const handleReport = () => {

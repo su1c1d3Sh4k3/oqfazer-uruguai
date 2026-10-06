@@ -18,7 +18,7 @@ import {
 } from '@/components/PlaceFilters'
 
 export default function Index() {
-  const { places, recordHighlightClick } = usePlaces()
+  const { places, loading, recordHighlightClick } = usePlaces()
   const { calculateDistance } = useGeo()
   const plugin = useRef(Autoplay({ delay: 4000, stopOnInteraction: true }))
 
@@ -110,8 +110,10 @@ export default function Index() {
                 <div className="flex gap-4">
                   <div className="h-20 w-20 rounded-xl overflow-hidden shrink-0 bg-slate-100 border border-red-100/50">
                     <img
-                      src={place.coverImage}
+                      src={place.coverThumb || place.coverImage}
                       alt={place.name}
+                      loading="lazy"
+                      decoding="async"
                       className="h-full w-full object-cover transition-transform group-hover:scale-105"
                     />
                   </div>
@@ -213,10 +215,21 @@ export default function Index() {
               className="animate-fade-in-up"
               style={{ animationDelay: `${index * 50}ms` }}
             >
-              <PlaceCard place={place} />
+              <PlaceCard place={place} eager={index < 4} />
             </div>
           ))}
-          {filteredPlaces.length === 0 && (
+          {loading &&
+            filteredPlaces.length === 0 &&
+            Array.from({ length: 8 }).map((_, i) => (
+              <div key={`skeleton-${i}`} className="overflow-hidden rounded-2xl border border-slate-100 bg-white">
+                <div className="aspect-[4/3] w-full animate-pulse bg-slate-100" />
+                <div className="space-y-2 p-4">
+                  <div className="h-5 w-3/4 animate-pulse rounded bg-slate-100" />
+                  <div className="h-3 w-1/3 animate-pulse rounded bg-slate-100" />
+                </div>
+              </div>
+            ))}
+          {!loading && filteredPlaces.length === 0 && (
             <p className="col-span-full py-8 text-center text-slate-500">
               Nenhuma atividade encontrada para os filtros selecionados.
             </p>
