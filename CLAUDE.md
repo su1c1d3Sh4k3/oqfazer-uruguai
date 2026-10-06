@@ -1,230 +1,86 @@
-# CLAUDE.md — Uruguai Descontos
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Visão Geral
 
-Aplicação web para a comunidade brasileira no Uruguai, focada em descoberta de lugares, sistema de check-in com descontos e gestão de estabelecimentos. Nome público: **"O que Fazer no Uruguai?"** (brasileirosnouruguai.com.br).
+App web para a comunidade brasileira no Uruguai: descoberta de lugares (restaurantes e tours), check-in com desconto e portal de estabelecimentos. Nome público: **"O que Fazer no Uruguai?"** (brasileirosnouruguai.com.br). Projeto originalmente gerado pelo Skip (goskip.dev) — daí o `name` "skip-react-template" no `package.json` e o `.skip.config.json`.
 
-- **Versão:** 0.0.92
-- **Repositório:** https://github.com/drimolha/adriana-brasileirosnouruguai.com.br
-
-## Tech Stack
-
-| Camada         | Tecnologia                              |
-| -------------- | --------------------------------------- |
-| Framework      | React 19 + TypeScript 5.9              |
-| Build          | Vite 8                                 |
-| Estilo         | Tailwind CSS 3.4 + Shadcn/UI (Radix)  |
-| Roteamento     | React Router DOM 7                     |
-| Formulários    | React Hook Form + Zod 4               |
-| Ícones         | Lucide React                           |
-| Gráficos       | Recharts                               |
-| Backend        | Supabase (Auth + PostgreSQL)           |
-| Notificações   | Sonner + Radix Toast                   |
-| Lint/Format    | oxlint + oxfmt                         |
-| Pacotes        | pnpm / npm                             |
+- Repositório: https://github.com/drimolha/adriana-brasileirosnouruguai.com.br
+- Stack: React 19 + TypeScript + Vite 8, Tailwind 3 + Shadcn/UI (Radix), React Router 7, React Hook Form + Zod 4, Supabase (Auth + Postgres + Edge Functions).
+- Idioma da interface: **português brasileiro**. Timezone padrão: **America/Sao_Paulo**.
 
 ## Comandos
 
 ```bash
-pnpm dev          # Dev server (localhost:8080)
-pnpm build        # Build produção → dist/
-pnpm build:dev    # Build dev → dev-dist/ (com sourcemaps)
-pnpm preview      # Preview do build
-pnpm lint         # Linting com oxlint
-pnpm lint:fix     # Lint + auto-fix
-pnpm format       # Formatação com oxfmt
+pnpm dev            # Dev server em localhost:8080 (o README fala em 5173 — está desatualizado)
+pnpm build          # Build produção → dist/
+pnpm build:dev      # Build modo development
+pnpm lint           # oxlint src
+pnpm lint:fix
+pnpm format         # oxfmt  (format:check para só verificar)
 ```
 
-**Nota:** Não há testes configurados (`pnpm test` → echo only).
+`pnpm test` é um no-op. Os testes reais são **Python/pytest** em `tests/` e rodam contra o **Supabase real** (não há banco local):
 
-## Estrutura do Projeto
-
-```
-src/
-├── pages/              # 12 páginas/rotas
-├── components/         # Componentes customizados + Admin
-│   └── ui/             # 60+ componentes Shadcn/UI
-├── context/            # 5 Context providers (estado global)
-├── hooks/              # use-mobile, use-toast
-├── lib/                # utils, imageUtils, importUrl
-├── data/               # Tipos e dados default (places.ts)
-├── assets/             # Favicon/logo
-├── App.tsx             # Roteamento + providers
-├── main.tsx            # Entry point React
-└── main.css            # Estilos globais
+```bash
+pytest tests/                                   # Testes de API (httpx → REST do Supabase)
+pytest tests/test_places_crud.py::test_nome     # Um teste específico
+pytest tests/e2e/                               # E2E com Playwright — exige `pnpm dev` rodando (APP_URL, default http://localhost:8080)
 ```
 
-## Rotas
+Os testes leem `.env` e `.env.local` e exigem `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` e `SUPABASE_SERVICE_ROLE_KEY`. Eles criam/limpam usuários de teste (`*@uruguaidescontos.test`) via Admin API; os E2E usam um lugar existente no banco (`TEST_RESTAURANT_ID` em `tests/e2e/conftest.py`).
 
-| Rota           | Página                | Descrição                          |
-| -------------- | --------------------- | ---------------------------------- |
-| `/`            | Index.tsx             | Home — descoberta de lugares       |
-| `/place/:id`   | PlaceDetails.tsx      | Detalhes + check-in                |
-| `/favorites`   | Favorites.tsx         | Lugares favoritados                |
-| `/map`         | MapView.tsx           | Mapa interativo customizado        |
-| `/profile`     | Profile.tsx           | Progresso e conquistas do usuário  |
-| `/perfil`      | UserProfile.tsx       | Configurações da conta             |
-| `/auth`        | Auth.tsx              | Login                              |
-| `/admin`       | Admin.tsx             | Painel admin master                |
-| `/empresa`     | EstablishmentAdmin.tsx| Portal do estabelecimento          |
-| `/top`         | TopRestaurants.tsx    | Top 20 leaderboard                 |
-| `*`            | NotFound.tsx          | 404                                |
+## Arquitetura
 
-## Arquitetura de Estado (React Context)
+### Estado global (React Context)
 
-Hierarquia de providers em `App.tsx`:
+Hierarquia em `src/App.tsx`: `AuthProvider → AccessProvider → GeoProvider → PlacesProvider → FavoritesProvider`. Todo acesso a dados passa pelos contexts (hooks `useAuth`, `usePlaces`, `useAccess`, `useFavorites`, `useGeo`), que falam direto com o Supabase via `src/lib/supabase.ts`. Não há camada de API própria.
 
-```
-AuthProvider → AccessProvider → GeoProvider → PlacesProvider → FavoritesProvider
-```
+- **AuthContext** — Supabase Auth (email/senha) + linha em `profiles` (role, dados pessoais, `firstCheckInAt`, etc.). Roles: `user`, `establishment` (tem `managedPlaceId`), `admin`.
+  **Regras de ouro documentadas no topo do arquivo — não violar:**
+  1. Nunca `await supabase.auth.signOut()` (pode travar para sempre).
+  2. Login = `signInWithPassword` + fetch do profile + `setCurrentUser`. Só isso.
+  3. Logout = remover chaves `sb-*` do localStorage + reload da página.
+  4. Sem `onAuthStateChange` (race conditions com `login()`).
+  5. Init sempre com timeout de segurança — `loading` nunca pode ficar `true` para sempre.
+- **AccessContext** — check-ins em `access_records` (upsert) + RPC `increment_place_metric`. Desconto ativo por 2h após check-in; trial de 20 dias contado a partir de `firstCheckInAt` do usuário. Quando expirado, `Layout.tsx` renderiza `AccessExpired` no lugar do `<Outlet />` nas rotas bloqueadas.
+- **PlacesContext** — carrega `places`, `categories`, `cities` (com lat/lng), `badges`; CRUD de todos eles; métricas (acessos, cliques em cupom, check-ins, cliques em destaque) via RPC.
+- **FavoritesContext** — tabela `favorites`.
+- **GeoContext** — `watchPosition` + Haversine; usado por `ProximityAlerts` (alerta único por lugar por sessão quando < 500 m).
 
-### 1. AuthContext
-- Autenticação por email/senha
-- Roles: `'user'` | `'establishment'`
-- Banco de usuários em localStorage (`@uruguai:users_db`)
-- Usuários de teste: `user@bnu.com / 123`, `empresa@bnu.com / 123`
+### Mapeamento camelCase ↔ snake_case
 
-### 2. PlacesContext
-- CRUD de lugares (restaurantes e tours)
-- Categorias e cidades
-- Templates de badges de desconto
-- Flash offers (descontos temporários)
-- Métricas: acessos, cliques em cupom, check-ins
+O tipo `Place` (em `src/data/places.ts`, que hoje só contém tipos/helpers, não dados) é camelCase; as colunas do Postgres são snake_case. Conversões ficam em `src/lib/supabase.ts`:
+- `placeToRow()` / `rowToPlace()` — conversão completa (preenche defaults).
+- `partialPlaceToRow()` — **use em UPDATEs parciais**; `placeToRow` sobrescreveria campos não enviados com defaults.
+- `rowToUser()` — profile → `User`.
 
-### 3. AccessContext
-- Sistema de check-in (janela de 2 horas)
-- Trial de 20 dias para usuários
-- Status: `'active'` | `'expired'` | `'none'`
+Ao adicionar um campo a `Place` ou `User`, atualize o tipo, os conversores **e** `supabase-schema.sql` (e aplique a migração no projeto Supabase).
 
-### 4. FavoritesContext
-- Array de IDs favoritados por usuário
-- Chave localStorage: `@uruguai:favorites_<userId>`
+### Backend Supabase
 
-### 5. GeoContext
-- Geolocalização do browser (watchPosition)
-- Cálculo de distância (Haversine)
+- Projeto `ppdceyhtmmwtzrmuidxy`. Schema completo + RLS + funções em `supabase-schema.sql`. Tabelas: `profiles`, `places`, `access_records`, `favorites`, `reviews`, `categories`, `cities`, `badges`, `app_settings`.
+- `app_settings` é um key/value usado por `src/lib/appSettings.ts` (com cache em memória e fallback para defaults) — guarda WhatsApp de suporte e templates/assuntos de email editáveis no admin (`email_template_<key>`, `email_subject_<key>`).
+- **Edge Functions** (`supabase/functions/`, Deno):
+  - `send-email` — proxy para um relay SMTP numa VPS externa; usado por `src/lib/emailService.ts` (`sendTemplatedEmail` substitui `{{variavel}}`).
+  - `reset-password` — gera o link de recuperação via Admin API e envia pelo mesmo relay (o fluxo do Supabase Auth não é usado para email). Página de destino: `/reset-password`.
+  - `admin-update-user` — operações administrativas em usuários (inclui editar e excluir do Supabase Auth); verifica se o chamador é admin.
+- `setup-supabase.mjs` é um script de bootstrap único (tabelas, seed, usuários) — não faz parte do fluxo normal.
 
-## Backend — Supabase
+### Páginas e permissões
 
-**Autenticação:** Supabase Auth (email/password)
-**Banco de dados:** PostgreSQL via Supabase
+Rotas definidas em `src/App.tsx`, todas dentro de `Layout` (exceto `*`). A checagem de role é feita dentro das próprias páginas (ex.: `Admin.tsx` verifica `currentUser.role === 'admin'` e mostra login caso contrário; `EstablishmentAdmin.tsx` em `/empresa` para `establishment`). Os componentes `Admin*` em `src/components/` compõem o painel admin.
 
-### Tabelas
-
-| Tabela           | Descrição                                  |
-| ---------------- | ------------------------------------------ |
-| `profiles`       | Extensão de auth.users (role, nome, etc.)  |
-| `places`         | Lugares/tours com métricas e flash offers  |
-| `access_records` | Check-ins (user_id, place_id, timestamps)  |
-| `favorites`      | Favoritos (user_id, place_id)              |
-| `reviews`        | Avaliações (rating, comment)               |
-| `categories`     | Categorias (name)                          |
-| `cities`         | Cidades (name)                             |
-| `badges`         | Badges de desconto (name)                  |
-
-### Configuração
-- **URL:** `VITE_SUPABASE_URL` (em `.env`)
-- **Anon Key:** `VITE_SUPABASE_ANON_KEY` (em `.env`)
-- **Client:** `src/lib/supabase.ts`
-- **Schema SQL:** `supabase-schema.sql` (na raiz do projeto)
-- **RLS:** Habilitado em todas as tabelas
-- **RPC:** `increment_place_metric()` para contadores
-
-### Roles
-| Role            | Acesso                                         |
-| --------------- | ---------------------------------------------- |
-| `user`          | Check-in, favoritos, perfil, mapa              |
-| `establishment` | Dashboard empresa, métricas, edição do lugar   |
-| `admin`         | Painel completo, gestão de usuários            |
-
-### Helpers (`src/lib/supabase.ts`)
-- `placeToRow()` — converte Place (camelCase) → row (snake_case)
-- `rowToPlace()` — converte row (snake_case) → Place (camelCase)
-- `rowToUser()` — converte profile row → User object
-
-## Funcionalidades Principais
-
-### Check-in com Desconto
-- Usuário faz check-in em um lugar → desconto ativo por 2 horas
-- Ticket visual com contagem regressiva
-- Limite trial: 20 dias a partir do primeiro check-in
-
-### Flash Offers
-- Descontos temporários com expiração
-- Exibidos em carrossel na home
-
-### Mapa Customizado
-- Renderização de tiles do Google Maps (sem API oficial)
-- Suporte multi-touch (drag + pinch zoom)
-- Pins coloridos por status (azul/dourado/cinza)
-- Centralização automática por cidade
-
-### Sistema de Níveis
-1. Recém-chegado (0+ check-ins)
-2. Explorador Iniciante (1+)
-3. Viajante Curioso (3+)
-4. Aventureiro (5+)
-5. Viajante Pro (10+)
-
-### Alertas de Proximidade
-- Toast + notificação nativa quando a <500m de um lugar
-- 1 alerta por lugar por sessão
-
-### Cupons
-- Códigos mapeados por nome do lugar
-- Tracking de cliques
-
-## Autenticação & Autorização
-
-Autenticação via **Supabase Auth** (email/password). Roles controladas na tabela `profiles`.
-
-| Role            | Acesso                                         |
-| --------------- | ---------------------------------------------- |
-| Anônimo         | Visualização de lugares (sem check-in)         |
-| `user`          | Check-in, favoritos, perfil, mapa              |
-| `establishment` | Dashboard empresa, métricas, edição do lugar   |
-| `admin`         | Painel completo, gestão de usuários e lugares  |
-
-## Estilo & Design
-
-- **Dark mode:** class-based (next-themes)
-- **Cores principais:**
-  - Primary: `#003399` (azul escuro)
-  - Secondary: `#2E8B57` (verde)
-  - Brand Yellow: `#FFD700` (dourado)
-- **Fontes:** Inter (body), Lexend (display)
-- **Responsivo:** mobile-first com breakpoints `sm/md/lg/xl`
-- **Container:** centralizado, padding 2rem, max 1400px
-
-## Configurações Importantes
-
-### Vite (`vite.config.ts`)
-- Dev server: `localhost:8080` (IPv6)
-- Path alias: `@/*` → `./src/*`
-- Plugin customizado: `vite-plugin-react-uid.js`
-- Alias para compatibilidade Zod v4
-
-### TypeScript
-- `noImplicitAny: false` (flexível)
-- `strictNullChecks: true`
-- Path aliases: `@/*`
-
-### Tailwind (`tailwind.config.ts`)
-- Plugins: animate, typography, aspect-ratio
-- Cores e fonts customizadas
-- Dark mode via classe CSS
+O mapa (`/map`) é customizado: renderiza tiles do Google Maps diretamente (sem SDK/API key), com drag e pinch-zoom implementados à mão.
 
 ## Deploy
 
-- **Frontend:** Site estático em `dist/` (Vercel, Netlify, etc.)
-- **Backend:** Supabase (hosted, projeto `ppdceyhtmmwtzrmuidxy`)
-- **Variáveis de ambiente:** `.env` com `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY`
+- `Dockerfile`: build Node 22 (`npm ci` + `npm run build`, recebe `VITE_SUPABASE_URL`/`VITE_SUPABASE_ANON_KEY` como build args) → nginx com fallback SPA e `index.html` sem cache.
+- Edge Functions são publicadas separadamente no Supabase.
 
-## Convenções do Código
+## Convenções
 
-- Componentes React em PascalCase (`.tsx`)
-- Contextos com pattern Provider + hook customizado (`useAuth`, `usePlaces`, etc.)
-- Estilização inline com classes Tailwind
-- Componentes UI base via Shadcn/UI em `src/components/ui/`
-- Timezone padrão: **America/Sao_Paulo** para todas as datas/horários
-- Idioma da interface: **Português brasileiro**
+- Alias `@/*` → `src/*`. Componentes Shadcn ficam em `src/components/ui/` (não editar sem necessidade).
+- TypeScript com `strictNullChecks` mas `noImplicitAny: false`.
+- Cores da marca: primary `#003399`, secondary `#2E8B57`, amarelo `#FFD700`. Fontes: Inter (body), Lexend (display). Dark mode por classe (next-themes).
