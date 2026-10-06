@@ -3,19 +3,22 @@ import { toast } from 'sonner'
 import { useAuth } from './AuthContext'
 import { supabase } from '@/lib/supabase'
 import { sendTemplatedEmail } from '@/lib/emailService'
+import type { AppliedDiscount } from '@/data/places'
 
 export interface AccessRecord {
   placeId: string
   timestamp: number
   expiresAt: number
+  discount?: AppliedDiscount | null
 }
 
 interface AccessContextType {
   accesses: AccessRecord[]
-  checkIn: (placeId: string) => void
+  checkIn: (placeId: string, discount?: AppliedDiscount | null) => void
   getPlaceStatus: (placeId: string) => 'active' | 'expired' | 'none'
   getPlaceCheckIn: (placeId: string) => number | null
-  recordCheckIn: (placeId: string) => void
+  getPlaceCheckInDiscount: (placeId: string) => AppliedDiscount | null
+  recordCheckIn: (placeId: string, discount?: AppliedDiscount | null) => void
   isExpired: boolean
   isGranted: boolean
 }
@@ -51,6 +54,7 @@ export function AccessProvider({ children }: { children: React.ReactNode }) {
             placeId: row.place_id,
             timestamp: row.timestamp,
             expiresAt: row.expires_at,
+            discount: row.discount ?? null,
           })),
         )
       }
@@ -59,13 +63,15 @@ export function AccessProvider({ children }: { children: React.ReactNode }) {
     fetchAccesses()
   }, [currentUser?.id])
 
-  const checkIn = async (placeId: string) => {
+  const checkIn = async (placeId: string, discount: AppliedDiscount | null = null) => {
     if (!currentUser) return
 
+    // O desconto vale conforme o momento do check-in (snapshot)
     const newRecord: AccessRecord = {
       placeId,
       timestamp: Date.now(),
       expiresAt: Date.now() + 2 * 60 * 60 * 1000, // 2 hours
+      discount,
     }
 
     // Optimistic update
@@ -81,6 +87,7 @@ export function AccessProvider({ children }: { children: React.ReactNode }) {
         place_id: placeId,
         timestamp: newRecord.timestamp,
         expires_at: newRecord.expiresAt,
+        discount,
       },
       { onConflict: 'user_id,place_id' },
     )
@@ -119,8 +126,11 @@ export function AccessProvider({ children }: { children: React.ReactNode }) {
     return record ? record.timestamp : null
   }
 
-  const recordCheckIn = (placeId: string) => {
-    checkIn(placeId)
+  const getPlaceCheckInDiscount = (placeId: string): AppliedDiscount | null =>
+    accesses.find((a) => a.placeId === placeId)?.discount ?? null
+
+  const recordCheckIn = (placeId: string, discount: AppliedDiscount | null = null) => {
+    checkIn(placeId, discount)
   }
 
   const isExpired =
@@ -153,6 +163,7 @@ export function AccessProvider({ children }: { children: React.ReactNode }) {
         checkIn,
         getPlaceStatus,
         getPlaceCheckIn,
+        getPlaceCheckInDiscount,
         recordCheckIn,
         isExpired,
         isGranted,

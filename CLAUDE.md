@@ -37,17 +37,24 @@ Os testes leem `.env` e `.env.local` e exigem `VITE_SUPABASE_URL`, `VITE_SUPABAS
 
 Hierarquia em `src/App.tsx`: `AuthProvider → AccessProvider → GeoProvider → PlacesProvider → FavoritesProvider`. Todo acesso a dados passa pelos contexts (hooks `useAuth`, `usePlaces`, `useAccess`, `useFavorites`, `useGeo`), que falam direto com o Supabase via `src/lib/supabase.ts`. Não há camada de API própria.
 
-- **AuthContext** — Supabase Auth (email/senha) + linha em `profiles` (role, dados pessoais, `firstCheckInAt`, etc.). Roles: `user`, `establishment` (tem `managedPlaceId`), `admin`.
+- **AuthContext** — Supabase Auth (email/senha) + linha em `profiles` (role, dados pessoais, `firstCheckInAt`, etc.). Roles: `user`, `establishment` (tem `managedPlaceId`), `admin`, `agency` (vê apenas passeios; sem mapa/Top 20/progresso — bloqueio em `Layout.tsx`).
   **Regras de ouro documentadas no topo do arquivo — não violar:**
   1. Nunca `await supabase.auth.signOut()` (pode travar para sempre).
   2. Login = `signInWithPassword` + fetch do profile + `setCurrentUser`. Só isso.
   3. Logout = remover chaves `sb-*` do localStorage + reload da página.
   4. Sem `onAuthStateChange` (race conditions com `login()`).
   5. Init sempre com timeout de segurança — `loading` nunca pode ficar `true` para sempre.
-- **AccessContext** — check-ins em `access_records` (upsert) + RPC `increment_place_metric`. Desconto ativo por 2h após check-in; trial de 20 dias contado a partir de `firstCheckInAt` do usuário. Quando expirado, `Layout.tsx` renderiza `AccessExpired` no lugar do `<Outlet />` nas rotas bloqueadas.
-- **PlacesContext** — carrega `places`, `categories`, `cities` (com lat/lng), `badges`; CRUD de todos eles; métricas (acessos, cliques em cupom, check-ins, cliques em destaque) via RPC.
+- **AccessContext** — check-ins em `access_records` (upsert, com snapshot do desconto concedido em `discount`) + RPC `increment_place_metric`. Desconto ativo por 2h após check-in; trial de 20 dias contado a partir de `firstCheckInAt` do usuário. Quando expirado, `Layout.tsx` renderiza `AccessExpired` no lugar do `<Outlet />` nas rotas bloqueadas.
+- **PlacesContext** — carrega lugares, `categories`, `cities` (lat/lng + `country`), `badges`; CRUD de todos eles; métricas via RPC. Expõe **`places`** (visíveis para quem navega: ativos + regra do perfil, ex.: agência só vê `tour`) e **`allPlaces`** (tudo que o RLS devolveu — use nos painéis admin/empresa). Recarrega ao trocar de usuário porque o RLS muda o resultado.
 - **FavoritesContext** — tabela `favorites`.
 - **GeoContext** — `watchPosition` + Haversine; usado por `ProximityAlerts` (alerta único por lugar por sessão quando < 500 m).
+
+### Regras de negócio centralizadas (`src/lib/utils.ts`)
+
+- Horários: `DailyHours.shifts` (vários intervalos por dia; `openTime`/`closeTime` espelham o 1º intervalo para registros antigos). Use `getShifts()`, `isPlaceOpen()` e `validateOperatingHours()` — nunca leia `openTime/closeTime` diretamente.
+- Desconto vigente: `getCurrentDiscount()` com prioridade Oferta Relâmpago > `discountRules` (janelas diárias) > `discountBadge`. Com `discountRules`, fora das janelas não há desconto nem check-in (`getNextDiscountRule()` informa o próximo).
+- `isPlaceActive()` (considera `reactivateAt`), `canRoleViewPlace()`, `PRICE_LEVELS` ($/$$/$$$).
+- Filtros/ordenação compartilhados por Home, Mapa e Top 20: `src/components/PlaceFilters.tsx`.
 
 ### Mapeamento camelCase ↔ snake_case
 
@@ -56,11 +63,14 @@ O tipo `Place` (em `src/data/places.ts`, que hoje só contém tipos/helpers, nã
 - `partialPlaceToRow()` — **use em UPDATEs parciais**; `placeToRow` sobrescreveria campos não enviados com defaults.
 - `rowToUser()` — profile → `User`.
 
-Ao adicionar um campo a `Place` ou `User`, atualize o tipo, os conversores **e** `supabase-schema.sql` (e aplique a migração no projeto Supabase).
+Ao adicionar um campo a `Place` ou `User`, atualize o tipo, os conversores (`PLACE_KEY_MAP`, `placeToRow`, `rowToPlace`) **e** crie uma migração em `supabase/migrations/` (aplicada no projeto Supabase).
 
 ### Backend Supabase
 
-- Projeto `ppdceyhtmmwtzrmuidxy`. Schema completo + RLS + funções em `supabase-schema.sql`. Tabelas: `profiles`, `places`, `access_records`, `favorites`, `reviews`, `categories`, `cities`, `badges`, `app_settings`.
+- Projeto `ppdceyhtmmwtzrmuidxy`. Schema base + RLS + funções em `supabase-schema.sql`; alterações posteriores em `supabase/migrations/` (idempotentes, aplicadas via Management API). Tabelas: `profiles`, `places`, `access_records`, `favorites`, `reviews`, `categories`, `cities`, `badges`, `app_settings`.
+- **Triggers de proteção** (`protect_profile_fields`, `protect_place_fields`): em requisições da API (`authenticated`/`anon`), usuário comum não altera `role`/`managed_place_id`/`first_check_in_at` (depois de definido); empresa não altera campos administrativos do lugar (`featured`, ordem, `is_active`, `price_level`, `type`); ninguém sobrescreve métricas (só via RPC). Não é possível desativar lugar com check-in ativo (`PLACE_HAS_ACTIVE_CHECKINS`).
+- RLS de `places`: SELECT só de lugares ativos (ou `reactivate_at` vencido), exceto admin e a empresa dona.
+- A tabela `places` guarda imagens em base64 (~22 MB): a consulta inicial é pesada e pode estourar o `statement_timeout` de 3s do `anon` com cache frio (há 1 retry em `PlacesContext`).
 - `app_settings` é um key/value usado por `src/lib/appSettings.ts` (com cache em memória e fallback para defaults) — guarda WhatsApp de suporte e templates/assuntos de email editáveis no admin (`email_template_<key>`, `email_subject_<key>`).
 - **Edge Functions** (`supabase/functions/`, Deno):
   - `send-email` — proxy para um relay SMTP numa VPS externa; usado por `src/lib/emailService.ts` (`sendTemplatedEmail` substitui `{{variavel}}`).

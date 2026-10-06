@@ -24,7 +24,7 @@ import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 
 export function AdminDisplayManager() {
-  const { places, updatePlace } = usePlaces()
+  const { allPlaces: places, updatePlace } = usePlaces()
 
   // Destaques State
   const featuredPlaces = useMemo(() => {

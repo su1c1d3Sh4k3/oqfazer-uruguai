@@ -19,7 +19,7 @@ import { supabase } from '@/lib/supabase'
 
 export default function Admin() {
   const { currentUser, logout } = useAuth()
-  const { places, addPlace, updatePlace, deletePlace, categories } = usePlaces()
+  const { allPlaces: places, addPlace, updatePlace, deletePlace, categories } = usePlaces()
   const [activeTab, setActiveTab] = useState('dashboard')
   const [editingPlace, setEditingPlace] = useState<Place | undefined>(undefined)
   const [establishmentUsers, setEstablishmentUsers] = useState<any[]>([])

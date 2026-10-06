@@ -28,7 +28,7 @@ import { subDays, startOfDay, endOfDay, format } from 'date-fns'
 import { DateRange } from 'react-day-picker'
 
 export function AdminDashboard() {
-  const { places } = usePlaces()
+  const { allPlaces: places } = usePlaces()
 
   const [filterType, setFilterType] = useState<string>('30days')
   const [dateRange, setDateRange] = useState<DateRange | undefined>({

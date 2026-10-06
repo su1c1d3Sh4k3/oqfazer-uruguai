@@ -256,7 +256,14 @@ export function AdminUsersList() {
       const email = u.email || ''
       const phone = u.phone || ''
       const doc = u.cpf || u.ci || ''
-      const role = u.role === 'establishment' ? 'Empresa' : u.role === 'admin' ? 'Admin' : 'Usuário'
+      const role =
+        u.role === 'establishment'
+          ? 'Empresa'
+          : u.role === 'admin'
+            ? 'Admin'
+            : u.role === 'agency'
+              ? 'Agência'
+              : 'Usuário'
       const date = u.first_login_at ? new Date(u.first_login_at).toLocaleDateString() : ''
       const status = u.deletion_requested ? 'Exclusão Solicitada' : 'Ativo'
 
@@ -310,6 +317,7 @@ export function AdminUsersList() {
                 <SelectContent>
                   <SelectItem value="user">Usuário Comum</SelectItem>
                   <SelectItem value="establishment">Empresa / Estabelecimento</SelectItem>
+                  <SelectItem value="agency">Agência (vê apenas passeios)</SelectItem>
                   <SelectItem value="admin">Administrador</SelectItem>
                 </SelectContent>
               </Select>
@@ -499,6 +507,10 @@ export function AdminUsersList() {
                     ) : u.role === 'admin' ? (
                       <Badge variant="outline" className="bg-purple-50 text-purple-600 border-purple-200">
                         Admin
+                      </Badge>
+                    ) : u.role === 'agency' ? (
+                      <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
+                        Agência
                       </Badge>
                     ) : (
                       <Badge variant="outline" className="bg-slate-50 text-slate-600">

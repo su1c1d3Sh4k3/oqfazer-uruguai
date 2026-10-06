@@ -18,7 +18,7 @@ export interface User {
   email: string
   password?: string
   firstLoginAt: number
-  role?: 'user' | 'establishment' | 'admin'
+  role?: 'user' | 'establishment' | 'admin' | 'agency'
   managedPlaceId?: string
   name?: string
   cpf?: string
@@ -167,6 +167,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       admin: 'Bem-vindo ao painel administrativo.',
       establishment: 'Bem-vindo ao painel da empresa.',
       user: 'Bem-vindo(a) de volta!',
+      agency: 'Bem-vindo(a)! Confira os passeios disponíveis.',
     }
     toast.success('Login realizado!', {
       description: greetings[user.role || 'user'],

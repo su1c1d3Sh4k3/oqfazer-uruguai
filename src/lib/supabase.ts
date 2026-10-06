@@ -43,6 +43,10 @@ const PLACE_KEY_MAP: Record<string, string> = {
   ci: 'ci',
   contactEmail: 'contact_email',
   contactPhone: 'contact_phone',
+  discountRules: 'discount_rules',
+  priceLevel: 'price_level',
+  isActive: 'is_active',
+  reactivateAt: 'reactivate_at',
 }
 
 // Helper: convert camelCase Place object to snake_case DB row (full — for INSERT)
@@ -82,6 +86,10 @@ export function placeToRow(place: Record<string, any>) {
     ci: place.ci ?? null,
     contact_email: place.contactEmail ?? null,
     contact_phone: place.contactPhone ?? null,
+    discount_rules: place.discountRules ?? [],
+    price_level: place.priceLevel ?? null,
+    is_active: place.isActive ?? true,
+    reactivate_at: place.reactivateAt ?? null,
   }
 }
 
@@ -135,6 +143,11 @@ export function rowToPlace(row: Record<string, any>) {
     ci: row.ci ?? undefined,
     contactEmail: row.contact_email ?? undefined,
     contactPhone: row.contact_phone ?? undefined,
+    discountRules: row.discount_rules ?? [],
+    priceLevel: row.price_level ?? null,
+    isActive: row.is_active ?? true,
+    reactivateAt: row.reactivate_at ?? null,
+    createdAt: row.created_at ? Date.parse(row.created_at) : undefined,
   }
 }
 
@@ -143,7 +156,7 @@ export function rowToUser(profile: Record<string, any>, email?: string) {
   return {
     id: profile.id,
     email: email || profile.email,
-    role: profile.role as 'user' | 'establishment' | 'admin',
+    role: profile.role as 'user' | 'establishment' | 'admin' | 'agency',
     managedPlaceId: profile.managed_place_id ?? undefined,
     name: profile.name ?? undefined,
     cpf: profile.cpf ?? undefined,

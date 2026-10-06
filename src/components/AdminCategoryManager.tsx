@@ -16,17 +16,20 @@ function CityManagerSection({
   onAdd,
   onDelete,
   onUpdateCoordinates,
+  onUpdateCountry,
 }: {
   cityData: City[]
   places: { city: string; coordinates: { lat: number; lng: number } }[]
   onAdd: (name: string) => void
   onDelete: (name: string) => void
   onUpdateCoordinates: (name: string, lat: number | null, lng: number | null) => Promise<void>
+  onUpdateCountry: (name: string, country: string) => Promise<void>
 }) {
   const [newCity, setNewCity] = useState('')
   const [editingCity, setEditingCity] = useState<string | null>(null)
   const [editLat, setEditLat] = useState('')
   const [editLng, setEditLng] = useState('')
+  const [editCountry, setEditCountry] = useState('')
 
   const getAutoCoords = (cityName: string) => {
     const cityPlaces = places.filter(
@@ -40,6 +43,7 @@ function CityManagerSection({
 
   const startEdit = (city: City) => {
     setEditingCity(city.name)
+    setEditCountry(city.country)
     if (city.lat != null && city.lng != null) {
       setEditLat(String(city.lat))
       setEditLng(String(city.lng))
@@ -59,7 +63,11 @@ function CityManagerSection({
       return
     }
     await onUpdateCoordinates(editingCity, lat, lng)
-    toast.success(`Coordenadas de ${editingCity} atualizadas!`)
+    const country = editCountry.trim()
+    if (country && country !== cityData.find((c) => c.name === editingCity)?.country) {
+      await onUpdateCountry(editingCity, country)
+    }
+    toast.success(`${editingCity} atualizada!`)
     setEditingCity(null)
   }
 
@@ -85,6 +93,7 @@ function CityManagerSection({
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="font-bold text-slate-800">{city.name}</span>
+                  <span className="text-xs font-medium text-slate-500">{city.country}</span>
                   {hasCustom ? (
                     <span className="text-[10px] font-semibold text-green-600 bg-green-50 px-1.5 py-0.5 rounded">
                       CUSTOM
@@ -101,7 +110,13 @@ function CityManagerSection({
                 </div>
 
                 {isEditing ? (
-                  <div className="flex gap-2 mt-2">
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    <Input
+                      value={editCountry}
+                      onChange={(e) => setEditCountry(e.target.value)}
+                      placeholder="País"
+                      className="h-8 text-xs max-w-[120px]"
+                    />
                     <Input
                       value={editLat}
                       onChange={(e) => setEditLat(e.target.value)}
@@ -140,7 +155,7 @@ function CityManagerSection({
                   <button
                     onClick={() => startEdit(city)}
                     className="p-1.5 rounded-lg hover:bg-slate-200 text-slate-500 hover:text-primary transition-colors"
-                    title="Editar coordenadas"
+                    title="Editar país e coordenadas"
                   >
                     <Pencil className="h-3.5 w-3.5" />
                   </button>
@@ -195,10 +210,11 @@ export function AdminCategoryManager() {
     addCity,
     deleteCity,
     updateCityCoordinates,
+    updateCityCountry,
     badges,
     addBadge,
     deleteBadge,
-    places,
+    allPlaces: places,
   } = usePlaces()
 
   const [whatsappNumber, setWhatsappNumber] = useState('')
@@ -398,6 +414,7 @@ export function AdminCategoryManager() {
         onAdd={addCity}
         onDelete={deleteCity}
         onUpdateCoordinates={updateCityCoordinates}
+        onUpdateCountry={updateCityCountry}
       />
       <ManagerSection
         title="Gerenciar Badges de Desconto"

@@ -14,8 +14,15 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '@/context/AuthContext'
 import { toast } from 'sonner'
 import { getAppSetting } from '@/lib/appSettings'
+import type { AppliedDiscount } from '@/data/places'
 
-export function PlaceCheckInTicket({ checkInTime }: { checkInTime: number }) {
+export function PlaceCheckInTicket({
+  checkInTime,
+  discount,
+}: {
+  checkInTime: number
+  discount?: AppliedDiscount | null
+}) {
   const { currentUser } = useAuth()
   const [reportOpen, setReportOpen] = useState(false)
   const [issue, setIssue] = useState('')
@@ -62,6 +69,12 @@ export function PlaceCheckInTicket({ checkInTime }: { checkInTime: number }) {
           <span className="text-green-50 font-medium">Check-in:</span>
           <span className="font-bold">{format(new Date(checkInTime), 'dd/MM/yyyy - HH:mm')}</span>
         </div>
+        {discount && (
+          <div className="flex items-center justify-between gap-3 text-sm">
+            <span className="text-green-50 font-medium">Desconto:</span>
+            <span className="text-right font-black text-brand-yellow">{discount.label}</span>
+          </div>
+        )}
         <div className="flex items-center justify-between text-sm">
           <span className="text-green-50 font-medium">Expira:</span>
           <span className="font-bold">

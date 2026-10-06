@@ -33,7 +33,17 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel'
-import { cn, DAYS_OF_WEEK, isPlaceOpen, getSpDate } from '@/lib/utils'
+import {
+  cn,
+  DAYS_OF_WEEK,
+  isPlaceOpen,
+  getSpDate,
+  getCurrentDiscount,
+  getNextDiscountRule,
+  getShifts,
+  isFlashOfferActive as checkFlashOffer,
+  PRICE_LEVELS,
+} from '@/lib/utils'
 import { PlaceMapSection } from '@/components/PlaceMapSection'
 import { PlaceCheckInTicket } from '@/components/PlaceCheckInTicket'
 import { PrivateReviews } from '@/components/PrivateReviews'
@@ -43,9 +53,9 @@ export default function PlaceDetails() {
   const navigate = useNavigate()
   const { currentUser } = useAuth()
   const { isFavorite, toggleFavorite } = useFavorites()
-  const { places, recordAccess, recordCouponClick } = usePlaces()
+  const { places, loading, recordAccess, recordCouponClick } = usePlaces()
   const { calculateDistance } = useGeo()
-  const { isExpired, getPlaceCheckIn, recordCheckIn } = useAccess()
+  const { isExpired, getPlaceCheckIn, getPlaceCheckInDiscount, recordCheckIn } = useAccess()
   const [showCheckInDialog, setShowCheckInDialog] = useState(false)
   const [isCheckInLoading, setIsCheckInLoading] = useState(true)
   const [now, setNow] = useState(Date.now())
@@ -81,7 +91,15 @@ export default function PlaceDetails() {
     }
   }, [place, recordAccess])
 
-  if (!place) return <div className="p-8 text-center text-xl font-bold">Local não encontrado</div>
+  if (!place && loading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+      </div>
+    )
+  }
+  // Inativo ou fora do perfil (ex.: agência abrindo restaurante) também cai aqui
+  if (!place) return <div className="p-8 text-center text-xl font-bold">Local não encontrado ou indisponível</div>
 
   const isTour = place.type === 'tour'
   const favorite = isFavorite(place.id)
@@ -90,7 +108,13 @@ export default function PlaceDetails() {
   const displayDistance = dist ? `${dist.toFixed(1)} km` : 'Calculando...'
   const checkInTime = getPlaceCheckIn(place.id)
   const isOpen = !isTour && isPlaceOpen(place.operatingHours, now)
-  const isFlashOfferActive = place.flashOffer && place.flashOffer.expiresAt > now
+  const isFlashOfferActive = checkFlashOffer(place, now)
+  const discountRules = place.discountRules ?? []
+  const currentDiscount = getCurrentDiscount(place, now)
+  const nextRule = getNextDiscountRule(place, now)
+  // Com descontos por horário, o check-in só é liberado dentro de um intervalo
+  const canCheckInNow = discountRules.length === 0 || !!currentDiscount
+  const priceLevel = !isTour ? PRICE_LEVELS.find((p) => p.value === place.priceLevel) : undefined
 
   const handleShare = async () => {
     const url = window.location.href
@@ -140,7 +164,16 @@ export default function PlaceDetails() {
       })
       return
     }
-    recordCheckIn(place.id)
+    // O desconto aplicado é o do momento do check-in
+    const discountNow = getCurrentDiscount(place)
+    if (discountRules.length > 0 && !discountNow) {
+      toast.error('Fora do horário de desconto', {
+        description: nextRule ? `Próximo desconto às ${nextRule.startTime}: ${nextRule.label}.` : undefined,
+      })
+      setShowCheckInDialog(false)
+      return
+    }
+    recordCheckIn(place.id, discountNow)
     setShowCheckInDialog(false)
     toast.success('Check-in realizado com sucesso!', {
       description: 'Este local foi adicionado ao seu histórico de visitas.',
@@ -260,9 +293,19 @@ END:VCALENDAR`
       <div className="hide-scrollbar flex-1 bg-white pb-24 lg:w-[480px] lg:flex-none lg:overflow-y-auto lg:pb-0">
         <div className="p-5 md:p-8">
           <div className="mb-3 flex items-center justify-between">
-            <span className="rounded-md bg-primary/10 px-2 py-1 text-xs font-bold uppercase tracking-wider text-primary">
-              {place.category}
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="rounded-md bg-primary/10 px-2 py-1 text-xs font-bold uppercase tracking-wider text-primary">
+                {place.category}
+              </span>
+              {priceLevel && (
+                <span
+                  className="rounded-md bg-secondary/10 px-2 py-1 text-xs font-bold tracking-wider text-secondary"
+                  title={`Faixa de preço: ${priceLevel.description}`}
+                >
+                  {priceLevel.label} · {priceLevel.description}
+                </span>
+              )}
+            </div>
             <div className="flex items-center gap-2">
               <Dialog>
                 <DialogTrigger asChild>
@@ -396,7 +439,12 @@ END:VCALENDAR`
                 </span>
               </div>
             ) : (
-              checkInTime && <PlaceCheckInTicket checkInTime={checkInTime} />
+              checkInTime && (
+                <PlaceCheckInTicket
+                  checkInTime={checkInTime}
+                  discount={getPlaceCheckInDiscount(place.id)}
+                />
+              )
             ))}
 
           {isFlashOfferActive && (
@@ -469,10 +517,52 @@ END:VCALENDAR`
                   <Ticket className="h-6 w-6 text-brand-yellow drop-shadow-sm" />
                   <h3 className="font-display text-lg font-bold">Oferta Exclusiva</h3>
                 </div>
-                <p className="mb-3 text-2xl font-black text-slate-900">{place.discountBadge}</p>
-                <p className="text-sm font-medium leading-relaxed text-slate-700">
-                  {place.discountDescription}
-                </p>
+                {discountRules.length > 0 ? (
+                  <>
+                    {currentDiscount ? (
+                      <p className="mb-3 text-2xl font-black text-slate-900">
+                        {currentDiscount.label}{' '}
+                        <span className="text-sm font-bold text-secondary">válido agora</span>
+                      </p>
+                    ) : (
+                      nextRule && (
+                        <p className="mb-3 text-lg font-black text-slate-900">
+                          Próximo desconto às {nextRule.startTime}: {nextRule.label}
+                        </p>
+                      )
+                    )}
+                    <ul className="mb-3 space-y-1.5">
+                      {[...discountRules]
+                        .sort((a, b) => a.startTime.localeCompare(b.startTime))
+                        .map((rule) => (
+                          <li
+                            key={rule.id}
+                            className={cn(
+                              'flex justify-between gap-3 rounded-lg px-3 py-1.5 text-sm',
+                              currentDiscount?.label === rule.label
+                                ? 'bg-brand-yellow/30 font-bold text-slate-900'
+                                : 'bg-white/60 font-medium text-slate-700',
+                            )}
+                          >
+                            <span>
+                              {rule.startTime} às {rule.endTime}
+                            </span>
+                            <span>{rule.label}</span>
+                          </li>
+                        ))}
+                    </ul>
+                    <p className="text-sm font-medium leading-relaxed text-slate-700">
+                      {currentDiscount?.description || place.discountDescription}
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="mb-3 text-2xl font-black text-slate-900">{place.discountBadge}</p>
+                    <p className="text-sm font-medium leading-relaxed text-slate-700">
+                      {place.discountDescription}
+                    </p>
+                  </>
+                )}
               </div>
             )
           )}
@@ -496,7 +586,11 @@ END:VCALENDAR`
                     >
                       <span>{day.label}</span>
                       <span>
-                        {hours?.isOpen ? `${hours.openTime} - ${hours.closeTime}` : 'Fechado'}
+                        {hours?.isOpen && getShifts(hours).length > 0
+                          ? getShifts(hours)
+                              .map((s) => `${s.openTime} - ${s.closeTime}`)
+                              .join(' | ')
+                          : 'Fechado'}
                       </span>
                     </div>
                   )
@@ -564,6 +658,16 @@ END:VCALENDAR`
                 Check-in restrito para Conta Empresa
               </Button>
             ) : (
+              !canCheckInNow ? (
+                <Button
+                  disabled
+                  className="h-auto min-h-14 w-full cursor-not-allowed whitespace-normal rounded-2xl py-3 text-base font-bold shadow-xl opacity-70"
+                >
+                  {nextRule
+                    ? `Próximo desconto às ${nextRule.startTime} (${nextRule.label})`
+                    : 'Fora do horário de desconto'}
+                </Button>
+              ) : (
               <Dialog open={showCheckInDialog} onOpenChange={setShowCheckInDialog}>
                 <Button
                   size="lg"
@@ -580,6 +684,11 @@ END:VCALENDAR`
                       ativará seu desconto pelas próximas 24 horas. Certifique-se de estar no local.
                     </DialogDescription>
                   </DialogHeader>
+                  {currentDiscount && (
+                    <p className="rounded-xl bg-brand-yellow/20 px-4 py-3 text-sm font-bold text-slate-900">
+                      Desconto aplicado: {currentDiscount.label}
+                    </p>
+                  )}
                   <div className="mt-4 flex justify-end gap-3 pt-4">
                     <Button variant="outline" onClick={() => setShowCheckInDialog(false)}>
                       Cancelar
@@ -588,6 +697,7 @@ END:VCALENDAR`
                   </div>
                 </DialogContent>
               </Dialog>
+              )
             )}
           </div>
         )}

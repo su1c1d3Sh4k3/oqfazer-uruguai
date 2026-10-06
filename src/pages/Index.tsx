@@ -7,26 +7,25 @@ import { useRef, useState, useMemo, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
-import { cn, isPlaceOpen } from '@/lib/utils'
-import { Zap, Timer, Search, ChevronDown } from 'lucide-react'
+import { getDiscountBadgeText, isFlashOfferActive } from '@/lib/utils'
+import { Zap, Timer, Search } from 'lucide-react'
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+  PlaceFilters,
+  filterPlaces,
+  sortPlaces,
+  useCityCountryMap,
+  usePlaceFilters,
+} from '@/components/PlaceFilters'
 
 export default function Index() {
-  const { places, categories, cities, recordHighlightClick } = usePlaces()
+  const { places, recordHighlightClick } = usePlaces()
   const { calculateDistance } = useGeo()
   const plugin = useRef(Autoplay({ delay: 4000, stopOnInteraction: true }))
 
-  const [searchQuery, setSearchQuery] = useState('')
-  const [selectedCity, setSelectedCity] = useState('Todas')
-  const [selectedCategory, setSelectedCategory] = useState('Todas')
-  const [selectedType, setSelectedType] = useState('Todos')
-  const [openNowOnly, setOpenNowOnly] = useState(false)
+  const { filters, setFilters } = usePlaceFilters()
+  const cityCountry = useCityCountryMap()
+  const searchQuery = filters.search
+  const setSearchQuery = (search: string) => setFilters({ ...filters, search })
   const [now, setNow] = useState(Date.now())
 
   useEffect(() => {
@@ -34,34 +33,16 @@ export default function Index() {
     return () => clearInterval(timer)
   }, [])
 
-  const CITIES = ['Todas', ...cities]
-  const TYPES = ['Todos', 'Locais', 'Passeio']
-  const CATEGORIES = ['Todas', ...categories]
-
   const activeFlashOffers = useMemo(() => {
-    return places.filter((p) => p.flashOffer && p.flashOffer.expiresAt > Date.now())
-  }, [places])
+    return places.filter((p) => isFlashOfferActive(p, now))
+  }, [places, now])
 
   const filteredPlaces = useMemo(() => {
-    let result = places
+    const result = filterPlaces(places, filters, cityCountry, now)
 
-    if (searchQuery.trim().length >= 3) {
-      const query = searchQuery.toLowerCase()
-      result = result.filter((p) => p.name.toLowerCase().includes(query))
-    }
-
-    if (selectedCity !== 'Todas') result = result.filter((p) => p.city === selectedCity)
-    if (selectedCategory !== 'Todas') result = result.filter((p) => p.category === selectedCategory)
-
-    if (selectedType === 'Locais') {
-      result = result.filter((p) => p.type !== 'tour')
-    } else if (selectedType === 'Passeio') {
-      result = result.filter((p) => p.type === 'tour')
-    }
-
-    if (openNowOnly) {
-      result = result.filter((p) => isPlaceOpen(p.operatingHours))
-    }
+    // Ordenação escolhida pelo usuário substitui a ordem recomendada
+    const userSorted = sortPlaces(result, filters.sort, calculateDistance)
+    if (userSorted) return userSorted
 
     return result.sort((a, b) => {
       const orderA = a.order
@@ -104,16 +85,7 @@ export default function Index() {
       const distB = calculateDistance(b.coordinates.lat, b.coordinates.lng) ?? 9999
       return distA - distB
     })
-  }, [
-    places,
-    searchQuery,
-    selectedCity,
-    selectedCategory,
-    selectedType,
-    openNowOnly,
-    calculateDistance,
-    now,
-  ])
+  }, [places, filters, cityCountry, calculateDistance, now])
 
   const featured = useMemo(() => {
     return places
@@ -183,7 +155,7 @@ export default function Index() {
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
                       <div className="absolute bottom-0 left-0 p-4 md:p-6">
                         <Badge className="mb-2 border-none bg-brand-yellow text-brand-yellow-foreground shadow-sm hover:bg-brand-yellow/90">
-                          {place.discountBadge}
+                          {getDiscountBadgeText(place, now)}
                         </Badge>
                         <h3 className="font-display text-xl font-bold text-white md:text-3xl">
                           {place.name}
@@ -218,105 +190,14 @@ export default function Index() {
           </p>
         )}
 
-        <div className="hide-scrollbar -mx-4 flex overflow-x-auto px-4 py-1 md:mx-0 md:px-0">
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setOpenNowOnly(!openNowOnly)}
-              className={cn(
-                'flex items-center gap-1.5 whitespace-nowrap rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors shadow-sm',
-                openNowOnly
-                  ? 'border-primary bg-primary text-primary-foreground'
-                  : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50',
-              )}
-            >
-              Aberto Agora
-            </button>
-
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button
-                  className={cn(
-                    'flex items-center gap-1.5 whitespace-nowrap rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors shadow-sm',
-                    selectedCategory !== 'Todas'
-                      ? 'border-primary bg-primary/10 text-primary'
-                      : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50',
-                  )}
-                >
-                  {selectedCategory === 'Todas' ? 'Categorias' : selectedCategory}
-                  <ChevronDown className="h-4 w-4 opacity-50" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="start"
-                className="w-[200px] max-h-[300px] overflow-y-auto"
-              >
-                <DropdownMenuRadioGroup
-                  value={selectedCategory}
-                  onValueChange={setSelectedCategory}
-                >
-                  {CATEGORIES.map((cat) => (
-                    <DropdownMenuRadioItem key={cat} value={cat}>
-                      {cat}
-                    </DropdownMenuRadioItem>
-                  ))}
-                </DropdownMenuRadioGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button
-                  className={cn(
-                    'flex items-center gap-1.5 whitespace-nowrap rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors shadow-sm',
-                    selectedCity !== 'Todas'
-                      ? 'border-primary bg-primary/10 text-primary'
-                      : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50',
-                  )}
-                >
-                  {selectedCity === 'Todas' ? 'Cidades' : selectedCity}
-                  <ChevronDown className="h-4 w-4 opacity-50" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="start"
-                className="w-[200px] max-h-[300px] overflow-y-auto"
-              >
-                <DropdownMenuRadioGroup value={selectedCity} onValueChange={setSelectedCity}>
-                  {CITIES.map((city) => (
-                    <DropdownMenuRadioItem key={city} value={city}>
-                      {city}
-                    </DropdownMenuRadioItem>
-                  ))}
-                </DropdownMenuRadioGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button
-                  className={cn(
-                    'flex items-center gap-1.5 whitespace-nowrap rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors shadow-sm',
-                    selectedType !== 'Todos'
-                      ? 'border-primary bg-primary/10 text-primary'
-                      : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50',
-                  )}
-                >
-                  {selectedType === 'Todos' ? 'Tipo' : selectedType}
-                  <ChevronDown className="h-4 w-4 opacity-50" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-[200px]">
-                <DropdownMenuRadioGroup value={selectedType} onValueChange={setSelectedType}>
-                  {TYPES.map((type) => (
-                    <DropdownMenuRadioItem key={type} value={type}>
-                      {type}
-                    </DropdownMenuRadioItem>
-                  ))}
-                </DropdownMenuRadioGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
+        <PlaceFilters
+          places={places}
+          value={filters}
+          onChange={setFilters}
+          showType
+          showSort
+          className="-mx-4 px-4 md:mx-0 md:px-0"
+        />
       </section>
 
       <section className="px-4 md:px-0">

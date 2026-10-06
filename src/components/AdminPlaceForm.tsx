@@ -12,6 +12,8 @@ import {
 } from '@/components/ui/select'
 import { Place, createDefaultHours } from '@/data/places'
 import { AdminHoursForm } from './AdminHoursForm'
+import { AdminDiscountRulesForm, validateDiscountRules } from './AdminDiscountRulesForm'
+import { PRICE_LEVELS, validateOperatingHours } from '@/lib/utils'
 import { AdminTourFields } from './AdminTourFields'
 import { AdminImageFields } from './AdminImageFields'
 import { AdminPlaceReviews } from './AdminPlaceReviews'
@@ -125,6 +127,16 @@ export function AdminPlaceForm({ initialData, onSave, onCancel, isCompanyView }:
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    if (formData.type !== 'tour') {
+      const hoursErrors = validateOperatingHours(formData.operatingHours || [])
+      const discountErrors = validateDiscountRules(formData.discountRules || [])
+      if (hoursErrors.length > 0 || discountErrors.length > 0) {
+        toast.error('Corrija os horários antes de salvar', {
+          description: [...hoursErrors, ...discountErrors][0],
+        })
+        return
+      }
+    }
     onSave(formData as Place)
   }
 
@@ -220,10 +232,16 @@ export function AdminPlaceForm({ initialData, onSave, onCancel, isCompanyView }:
       {isTour ? (
         <AdminTourFields formData={formData} onChange={handleChange} />
       ) : (
-        <AdminHoursForm
-          hours={formData.operatingHours || []}
-          onChange={(h) => handleChange('operatingHours', h)}
-        />
+        <>
+          <AdminHoursForm
+            hours={formData.operatingHours || []}
+            onChange={(h) => handleChange('operatingHours', h)}
+          />
+          <AdminDiscountRulesForm
+            rules={formData.discountRules || []}
+            onChange={(r) => handleChange('discountRules', r)}
+          />
+        </>
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -245,6 +263,27 @@ export function AdminPlaceForm({ initialData, onSave, onCancel, isCompanyView }:
             </SelectContent>
           </Select>
         </div>
+        {!isTour && !isCompanyView && (
+          <div className="space-y-2">
+            <Label>Faixa de Preço</Label>
+            <Select
+              value={formData.priceLevel ? String(formData.priceLevel) : 'none'}
+              onValueChange={(v) => handleChange('priceLevel', v === 'none' ? null : Number(v))}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Não informada</SelectItem>
+                {PRICE_LEVELS.map((p) => (
+                  <SelectItem key={p.value} value={String(p.value)}>
+                    {p.label} — {p.description}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
         <div className="space-y-2">
           <Label>Endereço do Google Maps</Label>
           <div className="flex gap-2">

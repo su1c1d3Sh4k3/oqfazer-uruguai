@@ -6,7 +6,7 @@ import { useFavorites } from '@/context/FavoritesContext'
 import { useGeo } from '@/context/GeoContext'
 import { useAuth } from '@/context/AuthContext'
 import { usePlaces } from '@/context/PlacesContext'
-import { cn, isPlaceOpen } from '@/lib/utils'
+import { cn, getDiscountBadgeText, isPlaceOpen } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 
 interface PlaceCardProps {
@@ -37,6 +37,7 @@ export function PlaceCard({ place, activeCheckIn }: PlaceCardProps) {
   const isTour = place.type === 'tour'
   const isOpen = !isTour && isPlaceOpen(place.operatingHours, now)
   const isCompany = currentUser?.role === 'establishment'
+  const discountText = getDiscountBadgeText(place, now)
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -66,9 +67,11 @@ export function PlaceCard({ place, activeCheckIn }: PlaceCardProps) {
                 Check-in Ativo
               </Badge>
             )}
-            <Badge className="border-none bg-brand-yellow font-bold text-brand-yellow-foreground shadow-md hover:bg-brand-yellow/90">
-              {place.discountBadge}
-            </Badge>
+            {discountText && (
+              <Badge className="border-none bg-brand-yellow font-bold text-brand-yellow-foreground shadow-md hover:bg-brand-yellow/90">
+                {discountText}
+              </Badge>
+            )}
             {!isTour && (
               <Badge
                 className={cn(

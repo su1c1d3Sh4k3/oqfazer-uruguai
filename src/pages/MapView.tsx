@@ -1,4 +1,4 @@
-import { MapPin, Filter, Navigation, Plus, Minus, LocateFixed } from 'lucide-react'
+import { MapPin, Navigation, Plus, Minus, LocateFixed } from 'lucide-react'
 import { useState, useMemo, useRef, useEffect, useLayoutEffect } from 'react'
 import { usePlaces } from '@/context/PlacesContext'
 import { useGeo } from '@/context/GeoContext'
@@ -6,14 +6,11 @@ import { useAccess } from '@/context/AccessContext'
 import { Link } from 'react-router-dom'
 import { isPlaceOpen, cn } from '@/lib/utils'
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { Switch } from '@/components/ui/switch'
-import { Label } from '@/components/ui/label'
+  PlaceFilters,
+  filterPlaces,
+  useCityCountryMap,
+  usePlaceFilters,
+} from '@/components/PlaceFilters'
 
 const TILE_SIZE = 256
 
@@ -34,14 +31,14 @@ function pxToLatLng(x: number, y: number, z: number) {
 }
 
 export default function MapView() {
-  const { places, categories, cities, cityData } = usePlaces()
+  const { places, cityData } = usePlaces()
   const { location } = useGeo()
   const { getPlaceStatus } = useAccess()
   const [selectedPlace, setSelectedPlace] = useState<string | null>(null)
 
-  const [cityFilter, setCityFilter] = useState('Todas')
-  const [categoryFilter, setCategoryFilter] = useState('Todas')
-  const [openNow, setOpenNow] = useState(false)
+  const { filters, setFilters } = usePlaceFilters()
+  const cityCountry = useCityCountryMap()
+  const cityFilter = filters.city
 
   const [centerLat, setCenterLat] = useState(-34.91)
   const [centerLng, setCenterLng] = useState(-56.151)
@@ -83,15 +80,16 @@ export default function MapView() {
     if (popupRef.current) popupRef.current.style.transform = `translate(0px, 0px)`
   }, [centerLat, centerLng, zoom])
 
-  const filteredPlaces = useMemo(() => {
-    return places.filter((p) => {
-      if (p.type === 'tour' || p.category.toLowerCase() === 'passeios') return false
-      if (cityFilter !== 'Todas' && p.city !== cityFilter) return false
-      if (categoryFilter !== 'Todas' && p.category !== categoryFilter) return false
-      if (openNow && !isPlaceOpen(p.operatingHours)) return false
-      return true
-    })
-  }, [places, cityFilter, categoryFilter, openNow])
+  // O mapa mostra apenas estabelecimentos (passeios não têm endereço fixo)
+  const mapPlaces = useMemo(
+    () => places.filter((p) => p.type !== 'tour' && p.category.toLowerCase() !== 'passeios'),
+    [places],
+  )
+
+  const filteredPlaces = useMemo(
+    () => filterPlaces(mapPlaces, filters, cityCountry),
+    [mapPlaces, filters, cityCountry],
+  )
 
   const selectedPlaceData = useMemo(() => {
     return selectedPlace ? places.find((p) => p.id === selectedPlace) : null
@@ -330,65 +328,8 @@ export default function MapView() {
 
       {/* Interface overlay: Filters */}
       <div className="no-drag absolute left-1/2 top-4 z-40 flex w-[94%] max-w-[500px] -translate-x-1/2 flex-col gap-2">
-        <div className="flex w-full flex-row gap-1.5 rounded-2xl border border-white/50 bg-white/95 p-1.5 shadow-lg backdrop-blur-md items-center cursor-auto">
-          <div className="flex-1 min-w-0">
-            <Select value={cityFilter} onValueChange={setCityFilter}>
-              <SelectTrigger className="h-9 w-full min-w-0 bg-white px-2.5 text-xs rounded-xl border-slate-200 shadow-sm">
-                <div className="flex items-center gap-1.5 min-w-0 truncate">
-                  <MapPin className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                  <span className="truncate font-semibold text-slate-700">
-                    <SelectValue placeholder="Cidades" />
-                  </span>
-                </div>
-              </SelectTrigger>
-              <SelectContent className="no-drag">
-                <SelectItem value="Todas">Todas as Cidades</SelectItem>
-                {cities.map((c) => (
-                  <SelectItem key={c} value={c}>
-                    {c}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex-1 min-w-0">
-            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger className="h-9 w-full min-w-0 bg-white px-2.5 text-xs rounded-xl border-slate-200 shadow-sm">
-                <div className="flex items-center gap-1.5 min-w-0 truncate">
-                  <Filter className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                  <span className="truncate font-semibold text-slate-700">
-                    <SelectValue placeholder="Categoria" />
-                  </span>
-                </div>
-              </SelectTrigger>
-              <SelectContent className="no-drag">
-                <SelectItem value="Todas">Todas as Categorias</SelectItem>
-                {categories
-                  .filter((c) => c.toLowerCase() !== 'passeios')
-                  .map((c) => (
-                    <SelectItem key={c} value={c}>
-                      {c}
-                    </SelectItem>
-                  ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex h-9 shrink-0 items-center gap-2 rounded-xl bg-white px-2.5 border border-slate-200 shadow-sm">
-            <Label
-              htmlFor="map-open-now"
-              className="cursor-pointer whitespace-nowrap text-[11px] font-bold text-slate-700"
-            >
-              Aberto
-            </Label>
-            <Switch
-              id="map-open-now"
-              className="scale-75 origin-right"
-              checked={openNow}
-              onCheckedChange={setOpenNow}
-            />
-          </div>
+        <div className="w-full rounded-2xl border border-white/50 bg-white/95 px-1.5 shadow-lg backdrop-blur-md cursor-auto">
+          <PlaceFilters places={mapPlaces} value={filters} onChange={setFilters} />
         </div>
       </div>
 

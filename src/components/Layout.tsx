@@ -1,4 +1,4 @@
-import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { Link, Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import {
   Compass,
   Heart,
@@ -69,13 +69,15 @@ export function Layout() {
 
   const isCompany = currentUser?.role === 'establishment'
   const isUser = currentUser?.role === 'user'
+  // Agência vê apenas passeios: sem mapa, ranking ou progresso (exclusivos de estabelecimentos)
+  const isAgency = currentUser?.role === 'agency'
 
   const headerTitle = isAdminMaster ? 'Painel Admin' : 'O que Fazer no Uruguai?'
 
   const navItems = [
     { name: 'Explorar', path: '/', icon: Compass, show: true },
-    { name: 'Mapa', path: '/map', icon: MapIcon, show: true },
-    { name: 'Top 20', path: '/top', icon: Trophy, show: true },
+    { name: 'Mapa', path: '/map', icon: MapIcon, show: !isAgency },
+    { name: 'Top 20', path: '/top', icon: Trophy, show: !isAgency },
     { name: 'Favoritos', path: '/favorites', icon: Heart, show: !isCompany && !isAdminMaster },
     {
       name: 'Meu Negócio',
@@ -92,6 +94,11 @@ export function Layout() {
     { name: 'Painel Admin', path: '/admin', icon: ShieldAlert, show: isAdminMaster },
     { name: 'Perfil', path: '/perfil', icon: User, show: isUser },
   ].filter((item) => item.show !== false)
+
+  const agencyBlockedPaths = ['/map', '/top', '/profile', '/perfil']
+  if (isAgency && agencyBlockedPaths.includes(location.pathname)) {
+    return <Navigate to="/" replace />
+  }
 
   const blockedPaths = ['/', '/map', '/favorites', '/top']
   const isBlockedPath =

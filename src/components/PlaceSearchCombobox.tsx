@@ -12,7 +12,7 @@ interface Props {
 }
 
 export function PlaceSearchCombobox({ value, onChange }: Props) {
-  const { places } = usePlaces()
+  const { allPlaces: places } = usePlaces()
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
 

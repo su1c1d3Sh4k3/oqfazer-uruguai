@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { useState, useMemo } from 'react'
+import { PlaceActiveToggle } from './PlaceActiveToggle'
 
 interface Props {
   places: Place[]
@@ -94,6 +95,7 @@ export function AdminPlacesList({ places, categories, onEdit, onDelete, establis
               <TableHead>Cidade</TableHead>
               <TableHead>Tipo</TableHead>
               <TableHead>Responsável</TableHead>
+              <TableHead>Status</TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
@@ -154,6 +156,9 @@ export function AdminPlacesList({ places, categories, onEdit, onDelete, establis
                     )
                   })()}
                 </TableCell>
+                <TableCell>
+                  <PlaceActiveToggle place={place} />
+                </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
                     <Button
@@ -178,7 +183,7 @@ export function AdminPlacesList({ places, categories, onEdit, onDelete, establis
             ))}
             {filteredPlaces.length === 0 && (
               <TableRow>
-                <TableCell colSpan={8} className="text-center text-muted-foreground py-12">
+                <TableCell colSpan={9} className="text-center text-muted-foreground py-12">
                   Nenhum local encontrado.
                 </TableCell>
               </TableRow>
@@ -239,7 +244,8 @@ export function AdminPlacesList({ places, categories, onEdit, onDelete, establis
                   Local
                 </Badge>
               )}
-              <div className="flex justify-end gap-1">
+              <div className="flex items-center justify-end gap-1">
+                <PlaceActiveToggle place={place} />
                 <Button
                   variant="ghost"
                   size="icon"

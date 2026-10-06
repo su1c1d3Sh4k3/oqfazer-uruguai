@@ -1,11 +1,37 @@
 export type PlaceType = 'restaurant' | 'tour'
 
-export interface DailyHours {
-  day: number
-  isOpen: boolean
+export interface TimeShift {
   openTime: string
   closeTime: string
 }
+
+export interface DailyHours {
+  day: number
+  isOpen: boolean
+  // Espelham o primeiro intervalo (compatibilidade com registros antigos)
+  openTime: string
+  closeTime: string
+  // Intervalos do dia (ex.: 06:00–13:00 | 14:00–20:00). Ausente em registros antigos.
+  shifts?: TimeShift[]
+}
+
+// Desconto que vale todos os dias dentro do intervalo [startTime, endTime)
+export interface DiscountRule {
+  id: string
+  startTime: string
+  endTime: string
+  label: string // ex.: "10% OFF" ou "Drink grátis"
+  description?: string
+}
+
+// Desconto efetivamente aplicado (gravado no check-in)
+export interface AppliedDiscount {
+  source: 'flash' | 'rule' | 'badge'
+  label: string
+  description?: string
+}
+
+export type PriceLevel = 1 | 2 | 3
 
 export interface FlashOffer {
   percentage: string
@@ -32,6 +58,11 @@ export interface Place {
   featuredOrder?: number
   order?: number // Added for display ordering
   operatingHours?: DailyHours[]
+  discountRules?: DiscountRule[]
+  priceLevel?: PriceLevel | null
+  isActive?: boolean
+  reactivateAt?: string | null // ISO — reativação automática
+  createdAt?: number
 
   // Tour specific fields
   duration?: string

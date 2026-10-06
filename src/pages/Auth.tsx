@@ -34,6 +34,8 @@ export default function Auth() {
           navigate('/admin')
         } else if (user.role === 'establishment') {
           navigate('/empresa')
+        } else if (user.role === 'agency') {
+          navigate('/')
         } else {
           navigate('/profile')
         }

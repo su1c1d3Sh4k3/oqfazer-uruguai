@@ -34,7 +34,7 @@ import { sendTemplatedEmail } from '@/lib/emailService'
 
 export function CompanyDashboard() {
   const { currentUser, updateProfile } = useAuth()
-  const { places, updatePlace } = usePlaces()
+  const { allPlaces: places, updatePlace } = usePlaces()
   const [searchParams] = useSearchParams()
 
   const defaultTab = searchParams.get('tab') === 'edit' ? 'edit' : 'metrics'

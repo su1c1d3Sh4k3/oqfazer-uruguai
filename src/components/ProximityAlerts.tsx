@@ -3,6 +3,7 @@ import { useGeo } from '@/context/GeoContext'
 import { usePlaces } from '@/context/PlacesContext'
 import { useAccess } from '@/context/AccessContext'
 import { toast } from 'sonner'
+import { getCurrentDiscount } from '@/lib/utils'
 
 export function ProximityAlerts() {
   const { location, calculateDistance } = useGeo()
@@ -36,14 +37,16 @@ export function ProximityAlerts() {
       if (placeCheckIns[place.id]) return
       if (alerted.current.has(place.id)) return
 
-      if (!place.discountBadge && !place.discountDescription) return
+      // Só avisa se houver desconto valendo agora
+      const discount = getCurrentDiscount(place)
+      if (!discount) return
 
       const dist = calculateDistance(place.coordinates.lat, place.coordinates.lng)
       if (dist !== null && dist <= 0.5) {
         alerted.current.add(place.id)
 
         const alertTitle = `Lembrete Amigável`
-        const alertBody = `Você está bem perto de ${place.name}! Aproveite para visitar e usar seu benefício de ${place.discountBadge}.`
+        const alertBody = `Você está bem perto de ${place.name}! Aproveite para visitar e usar seu benefício de ${discount.label}.`
 
         toast.message(alertTitle, {
           description: alertBody,

@@ -5,15 +5,27 @@ import { Trophy, CheckCircle2 } from 'lucide-react'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { useAuth } from '@/context/AuthContext'
 import { cn } from '@/lib/utils'
+import {
+  PlaceFilters,
+  filterPlaces,
+  useCityCountryMap,
+  usePlaceFilters,
+} from '@/components/PlaceFilters'
 
 export default function TopRestaurants() {
   const { places } = usePlaces()
   const { currentUser } = useAuth()
   const [filter, setFilter] = useState<'all' | '30d'>('all')
+  const { filters, setFilters } = usePlaceFilters()
+  const cityCountry = useCityCountryMap()
+
+  const restaurants = useMemo(
+    () => places.filter((p) => p.type !== 'tour' && p.category !== 'Passeios'),
+    [places],
+  )
 
   const allRankedPlaces = useMemo(() => {
-    return places
-      .filter((p) => p.type !== 'tour' && p.category !== 'Passeios')
+    return filterPlaces(restaurants, filters, cityCountry)
       .map((p) => {
         const baseCheckins = p.checkInCount || 0
         return {
@@ -22,7 +34,7 @@ export default function TopRestaurants() {
         }
       })
       .sort((a, b) => b.displayCheckins - a.displayCheckins)
-  }, [places, filter])
+  }, [restaurants, filters, cityCountry, filter])
 
   const topPlaces = useMemo(() => allRankedPlaces.slice(0, 20), [allRankedPlaces])
 
@@ -78,6 +90,8 @@ export default function TopRestaurants() {
           </div>
         </div>
       </div>
+
+      <PlaceFilters places={restaurants} value={filters} onChange={setFilters} />
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 mt-4">
         {topPlaces.map((place, index) => {
