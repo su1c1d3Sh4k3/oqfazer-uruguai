@@ -37,7 +37,7 @@ Os testes leem `.env` e `.env.local` e exigem `VITE_SUPABASE_URL`, `VITE_SUPABAS
 
 Hierarquia em `src/App.tsx`: `AuthProvider → AccessProvider → GeoProvider → PlacesProvider → FavoritesProvider`. Todo acesso a dados passa pelos contexts (hooks `useAuth`, `usePlaces`, `useAccess`, `useFavorites`, `useGeo`), que falam direto com o Supabase via `src/lib/supabase.ts`. Não há camada de API própria.
 
-- **AuthContext** — Supabase Auth (email/senha) + linha em `profiles` (role, dados pessoais, `firstCheckInAt`, etc.). Roles: `user`, `establishment` (tem `managedPlaceId`), `admin`, `agency` (vê apenas passeios; sem mapa/Top 20/progresso — bloqueio em `Layout.tsx`).
+- **AuthContext** — Supabase Auth (email/senha) + linha em `profiles` (role, dados pessoais, `firstCheckInAt`, etc.). Roles: `user`, `establishment` (tem `managedPlaceId`), `admin`, `agency` (vê apenas restaurantes, não passeios; não faz check-in; sem progresso/perfil de viajante — bloqueio em `Layout.tsx`).
   **Regras de ouro documentadas no topo do arquivo — não violar:**
   1. Nunca `await supabase.auth.signOut()` (pode travar para sempre).
   2. Login = `signInWithPassword` + fetch do profile + `setCurrentUser`. Só isso.
@@ -45,7 +45,7 @@ Hierarquia em `src/App.tsx`: `AuthProvider → AccessProvider → GeoProvider �
   4. Sem `onAuthStateChange` (race conditions com `login()`).
   5. Init sempre com timeout de segurança — `loading` nunca pode ficar `true` para sempre.
 - **AccessContext** — check-ins em `access_records` (upsert, com snapshot do desconto concedido em `discount`) + RPC `increment_place_metric`. Check-in vale 24h (`CHECKIN_DURATION_MS` em `utils.ts` — ticket, mapa e banco usam a mesma constante); trial de 20 dias contado a partir de `firstCheckInAt` do usuário. Quando expirado, `Layout.tsx` renderiza `AccessExpired` no lugar do `<Outlet />` nas rotas bloqueadas.
-- **PlacesContext** — carrega lugares, `categories`, `cities` (lat/lng + `country`), `badges`; CRUD de todos eles; métricas via RPC. Expõe **`places`** (visíveis para quem navega: ativos + regra do perfil, ex.: agência só vê `tour`) e **`allPlaces`** (tudo que o RLS devolveu — use nos painéis admin/empresa). Recarrega ao trocar de usuário porque o RLS muda o resultado. Usa cache em `localStorage` (`@uruguai:places_cache_v1`, stale-while-revalidate) para a home renderizar na hora em visitas seguintes.
+- **PlacesContext** — carrega lugares, `categories`, `cities` (lat/lng + `country`), `badges`; CRUD de todos eles; métricas via RPC. Expõe **`places`** (visíveis para quem navega: ativos + regra do perfil, ex.: agência não vê `tour`) e **`allPlaces`** (tudo que o RLS devolveu — use nos painéis admin/empresa). Recarrega ao trocar de usuário porque o RLS muda o resultado. Usa cache em `localStorage` (`@uruguai:places_cache_v1`, stale-while-revalidate) para a home renderizar na hora em visitas seguintes.
 - **FavoritesContext** — tabela `favorites`.
 - **GeoContext** — `watchPosition` + Haversine; usado por `ProximityAlerts` (alerta único por lugar por sessão quando < 500 m).
 
@@ -54,7 +54,7 @@ Hierarquia em `src/App.tsx`: `AuthProvider → AccessProvider → GeoProvider �
 - Horários: `DailyHours.shifts` (vários intervalos por dia; `openTime`/`closeTime` espelham o 1º intervalo para registros antigos). Use `getShifts()`, `isPlaceOpen()` e `validateOperatingHours()` — nunca leia `openTime/closeTime` diretamente.
 - Desconto vigente: `getCurrentDiscount()` com prioridade Oferta Relâmpago > `discountRules` (janelas diárias) > `discountBadge`. Com `discountRules`, fora das janelas não há desconto nem check-in (`getNextDiscountRule()` informa o próximo).
 - `isPlaceActive()` (considera `reactivateAt`), `canRoleViewPlace()`, `PRICE_LEVELS` ($/$$/$$$).
-- Filtros/ordenação compartilhados por Home, Mapa e Top 20: `src/components/PlaceFilters.tsx`.
+- Filtros/ordenação compartilhados por Home, Mapa e Top 20: `src/components/PlaceFilters.tsx`. A ordem das opções de cidade/categoria (e, por consequência, país) vem de `sort_order` em `cities`/`categories`, definida pelo admin em Configurações (`moveCity`/`moveCategory`).
 
 ### Mapeamento camelCase ↔ snake_case
 

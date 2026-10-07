@@ -3,7 +3,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { X, MessageCircle, MapPin, Pencil, Check, Mail, Loader2 } from 'lucide-react'
+import { X, MessageCircle, MapPin, Pencil, Check, Mail, Loader2, ChevronUp, ChevronDown } from 'lucide-react'
 import { usePlaces } from '@/context/PlacesContext'
 import type { City } from '@/context/PlacesContext'
 import { getAppSetting, setAppSetting } from '@/lib/appSettings'
@@ -17,6 +17,7 @@ function CityManagerSection({
   onDelete,
   onUpdateCoordinates,
   onUpdateCountry,
+  onMove,
 }: {
   cityData: City[]
   places: { city: string; coordinates: { lat: number; lng: number } }[]
@@ -24,6 +25,7 @@ function CityManagerSection({
   onDelete: (name: string) => void
   onUpdateCoordinates: (name: string, lat: number | null, lng: number | null) => Promise<void>
   onUpdateCountry: (name: string, country: string) => Promise<void>
+  onMove: (name: string, direction: -1 | 1) => void
 }) {
   const [newCity, setNewCity] = useState('')
   const [editingCity, setEditingCity] = useState<string | null>(null)
@@ -73,12 +75,15 @@ function CityManagerSection({
 
   return (
     <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <h2 className="mb-4 font-display text-xl font-bold text-slate-900 flex items-center gap-2">
+      <h2 className="mb-1 font-display text-xl font-bold text-slate-900 flex items-center gap-2">
         <MapPin className="h-5 w-5 text-primary" /> Gerenciar Cidades
       </h2>
+      <p className="mb-4 text-xs text-muted-foreground">
+        Use as setas para definir a ordem em que as cidades aparecem nos filtros do app.
+      </p>
 
       <div className="mb-4 space-y-2">
-        {cityData.map((city) => {
+        {cityData.map((city, index) => {
           const auto = getAutoCoords(city.name)
           const hasCustom = city.lat != null && city.lng != null
           const displayLat = hasCustom ? city.lat : auto?.lat
@@ -153,6 +158,22 @@ function CityManagerSection({
               {!isEditing && (
                 <div className="flex items-center gap-1 shrink-0">
                   <button
+                    onClick={() => onMove(city.name, -1)}
+                    disabled={index === 0}
+                    className="p-1.5 rounded-lg hover:bg-slate-200 text-slate-500 hover:text-primary transition-colors disabled:opacity-30 disabled:pointer-events-none"
+                    title="Subir"
+                  >
+                    <ChevronUp className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    onClick={() => onMove(city.name, 1)}
+                    disabled={index === cityData.length - 1}
+                    className="p-1.5 rounded-lg hover:bg-slate-200 text-slate-500 hover:text-primary transition-colors disabled:opacity-30 disabled:pointer-events-none"
+                    title="Descer"
+                  >
+                    <ChevronDown className="h-3.5 w-3.5" />
+                  </button>
+                  <button
                     onClick={() => startEdit(city)}
                     className="p-1.5 rounded-lg hover:bg-slate-200 text-slate-500 hover:text-primary transition-colors"
                     title="Editar país e coordenadas"
@@ -211,6 +232,8 @@ export function AdminCategoryManager() {
     deleteCity,
     updateCityCoordinates,
     updateCityCountry,
+    moveCity,
+    moveCategory,
     badges,
     addBadge,
     deleteBadge,
@@ -282,22 +305,50 @@ export function AdminCategoryManager() {
     items,
     onAdd,
     onDelete,
+    onMove,
     placeholder,
   }: {
     title: string
     items: string[]
     onAdd: (v: string) => void
     onDelete: (v: string) => void
+    /** Se informado, mostra setas para ordenar (ordem usada nos filtros) */
+    onMove?: (v: string, direction: -1 | 1) => void
     placeholder: string
   }) => {
     const [val, setVal] = useState('')
     return (
       <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="mb-4 font-display text-xl font-bold text-slate-900">{title}</h2>
+        <h2 className={`${onMove ? 'mb-1' : 'mb-4'} font-display text-xl font-bold text-slate-900`}>{title}</h2>
+        {onMove && (
+          <p className="mb-4 text-xs text-muted-foreground">
+            Use as setas para definir a ordem em que aparecem nos filtros do app.
+          </p>
+        )}
         <div className="mb-4 flex flex-wrap gap-2">
-          {items.map((item) => (
+          {items.map((item, index) => (
             <Badge key={item} variant="secondary" className="px-3 py-1 text-sm font-bold">
+              {onMove && (
+                <button
+                  onClick={() => onMove(item, -1)}
+                  disabled={index === 0}
+                  className="mr-1 hover:text-primary disabled:opacity-30"
+                  title="Mover para antes"
+                >
+                  <ChevronUp className="h-3 w-3 -rotate-90" />
+                </button>
+              )}
               {item}
+              {onMove && (
+                <button
+                  onClick={() => onMove(item, 1)}
+                  disabled={index === items.length - 1}
+                  className="ml-1 hover:text-primary disabled:opacity-30"
+                  title="Mover para depois"
+                >
+                  <ChevronDown className="h-3 w-3 -rotate-90" />
+                </button>
+              )}
               <button onClick={() => onDelete(item)} className="ml-2 hover:text-red-500">
                 <X className="h-3 w-3" />
               </button>
@@ -406,6 +457,7 @@ export function AdminCategoryManager() {
         items={categories}
         onAdd={addCategory}
         onDelete={deleteCategory}
+        onMove={moveCategory}
         placeholder="Nova categoria..."
       />
       <CityManagerSection
@@ -415,6 +467,7 @@ export function AdminCategoryManager() {
         onDelete={deleteCity}
         onUpdateCoordinates={updateCityCoordinates}
         onUpdateCountry={updateCityCountry}
+        onMove={moveCity}
       />
       <ManagerSection
         title="Gerenciar Badges de Desconto"

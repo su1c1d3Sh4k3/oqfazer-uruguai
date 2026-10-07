@@ -69,15 +69,15 @@ export function Layout() {
 
   const isCompany = currentUser?.role === 'establishment'
   const isUser = currentUser?.role === 'user'
-  // Agência vê apenas passeios: sem mapa, ranking ou progresso (exclusivos de estabelecimentos)
+  // Agência vê apenas restaurantes e não faz check-in: sem progresso/perfil de viajante
   const isAgency = currentUser?.role === 'agency'
 
   const headerTitle = isAdminMaster ? 'Painel Admin' : 'O que Fazer no Uruguai?'
 
   const navItems = [
     { name: 'Explorar', path: '/', icon: Compass, show: true },
-    { name: 'Mapa', path: '/map', icon: MapIcon, show: !isAgency },
-    { name: 'Top 20', path: '/top', icon: Trophy, show: !isAgency },
+    { name: 'Mapa', path: '/map', icon: MapIcon, show: true },
+    { name: 'Top 20', path: '/top', icon: Trophy, show: true },
     { name: 'Favoritos', path: '/favorites', icon: Heart, show: !isCompany && !isAdminMaster },
     {
       name: 'Meu Negócio',
@@ -95,7 +95,7 @@ export function Layout() {
     { name: 'Perfil', path: '/perfil', icon: User, show: isUser },
   ].filter((item) => item.show !== false)
 
-  const agencyBlockedPaths = ['/map', '/top', '/profile', '/perfil']
+  const agencyBlockedPaths = ['/profile', '/perfil']
   if (isAgency && agencyBlockedPaths.includes(location.pathname)) {
     return <Navigate to="/" replace />
   }

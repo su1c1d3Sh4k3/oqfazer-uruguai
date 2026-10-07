@@ -317,7 +317,7 @@ export function AdminUsersList() {
                 <SelectContent>
                   <SelectItem value="user">Usuário Comum</SelectItem>
                   <SelectItem value="establishment">Empresa / Estabelecimento</SelectItem>
-                  <SelectItem value="agency">Agência (vê apenas passeios)</SelectItem>
+                  <SelectItem value="agency">Agência (vê apenas restaurantes)</SelectItem>
                   <SelectItem value="admin">Administrador</SelectItem>
                 </SelectContent>
               </Select>

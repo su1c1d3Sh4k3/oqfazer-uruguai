@@ -72,6 +72,7 @@ export default function PlaceDetails() {
 
   const place = places.find((p) => p.id === id)
   const isCompany = currentUser?.role === 'establishment'
+  const isAgency = currentUser?.role === 'agency'
 
   useEffect(() => {
     if (place) {
@@ -431,6 +432,7 @@ END:VCALENDAR`
 
           {!isTour &&
             !isCompany &&
+            !isAgency &&
             (isCheckInLoading ? (
               <div className="mb-8 flex items-center justify-center rounded-3xl border border-slate-100 bg-slate-50 py-8 shadow-inner">
                 <Loader2 className="h-6 w-6 animate-spin text-primary" />
@@ -650,12 +652,12 @@ END:VCALENDAR`
 
         {!isTour && !checkInTime && !isCheckInLoading && (
           <div className="pb-safe fixed bottom-0 left-0 right-0 z-40 border-t bg-white p-4 shadow-[0_-10px_15px_-3px_rgb(0,0,0,0.05)] lg:sticky lg:border-none lg:bg-transparent lg:px-8 lg:pb-8 lg:shadow-none">
-            {isCompany ? (
+            {isCompany || isAgency ? (
               <Button
                 disabled
                 className="h-14 w-full cursor-not-allowed rounded-2xl text-lg font-bold shadow-xl opacity-50"
               >
-                Check-in restrito para Conta Empresa
+                Check-in restrito para Conta {isAgency ? 'Agência' : 'Empresa'}
               </Button>
             ) : (
               !canCheckInNow ? (

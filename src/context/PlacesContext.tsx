@@ -33,6 +33,9 @@ interface PlacesContextType {
   deleteCity: (c: string) => Promise<void>
   updateCityCoordinates: (name: string, lat: number | null, lng: number | null) => Promise<void>
   updateCityCountry: (name: string, country: string) => Promise<void>
+  /** Ordem definida pelo admin (filtros e selects). direction: -1 sobe, +1 desce */
+  moveCity: (name: string, direction: -1 | 1) => Promise<void>
+  moveCategory: (name: string, direction: -1 | 1) => Promise<void>
   addBadge: (b: string) => Promise<void>
   deleteBadge: (b: string) => Promise<void>
   recordAccess: (id: string) => void
@@ -82,10 +85,8 @@ export function PlacesProvider({ children }: { children: React.ReactNode }) {
 
   const places = allPlaces
   const cities = cityData.map((c) => c.name)
-  const countries = useMemo(
-    () => [...new Set(cityData.map((c) => c.country))].sort(),
-    [cityData],
-  )
+  // Países seguem a ordem da primeira cidade de cada um
+  const countries = useMemo(() => [...new Set(cityData.map((c) => c.country))], [cityData])
 
   // Desativação temporária expira sozinha — reavalia a cada minuto
   const [now, setNow] = useState(Date.now())
@@ -108,8 +109,12 @@ export function PlacesProvider({ children }: { children: React.ReactNode }) {
           supabase.from('places').select('*').order('display_order', { ascending: true, nullsFirst: false })
         const [firstPlacesRes, catsRes, citiesRes, badgesRes] = await Promise.all([
           fetchPlaces(),
-          supabase.from('categories').select('name'),
-          supabase.from('cities').select('name, lat, lng, country'),
+          supabase.from('categories').select('name').order('sort_order', { nullsFirst: false }).order('name'),
+          supabase
+            .from('cities')
+            .select('name, lat, lng, country')
+            .order('sort_order', { nullsFirst: false })
+            .order('name'),
           supabase.from('badges').select('name'),
         ])
         // Falha transitória (rede/timeout): tenta mais uma vez
@@ -220,7 +225,7 @@ export function PlacesProvider({ children }: { children: React.ReactNode }) {
   const addCategory = async (c: string) => {
     if (categories.includes(c)) return
     setCategories((prev) => [...prev, c])
-    const { error } = await supabase.from('categories').insert({ name: c })
+    const { error } = await supabase.from('categories').insert({ name: c, sort_order: categories.length })
     if (error) {
       setCategories((prev) => prev.filter((cat) => cat !== c))
       toast.error('Erro ao adicionar categoria')
@@ -239,7 +244,7 @@ export function PlacesProvider({ children }: { children: React.ReactNode }) {
   const addCity = async (c: string) => {
     if (cities.includes(c)) return
     setCityData((prev) => [...prev, { name: c, lat: null, lng: null, country: 'Uruguai' }])
-    const { error } = await supabase.from('cities').insert({ name: c })
+    const { error } = await supabase.from('cities').insert({ name: c, sort_order: cityData.length })
     if (error) {
       setCityData((prev) => prev.filter((city) => city.name !== c))
       toast.error('Erro ao adicionar cidade')
@@ -275,6 +280,44 @@ export function PlacesProvider({ children }: { children: React.ReactNode }) {
       if (backup) setCityData((prev) => prev.map((c) => (c.name === name ? backup : c)))
       toast.error('Erro ao atualizar país')
       console.error(error)
+    }
+  }
+
+  /** Troca o item de posição com o vizinho e grava a nova ordem completa. */
+  const persistOrder = async (table: 'cities' | 'categories', names: string[]) => {
+    const results = await Promise.all(
+      names.map((name, i) => supabase.from(table).update({ sort_order: i }).eq('name', name)),
+    )
+    return !results.some((r) => r.error)
+  }
+
+  const swap = <T,>(list: T[], index: number, direction: -1 | 1) => {
+    const target = index + direction
+    if (index < 0 || target < 0 || target >= list.length) return null
+    const next = [...list]
+    ;[next[index], next[target]] = [next[target], next[index]]
+    return next
+  }
+
+  const moveCity = async (name: string, direction: -1 | 1) => {
+    const next = swap(cityData, cityData.findIndex((c) => c.name === name), direction)
+    if (!next) return
+    const backup = cityData
+    setCityData(next)
+    if (!(await persistOrder('cities', next.map((c) => c.name)))) {
+      setCityData(backup)
+      toast.error('Erro ao salvar a ordem das cidades')
+    }
+  }
+
+  const moveCategory = async (name: string, direction: -1 | 1) => {
+    const next = swap(categories, categories.indexOf(name), direction)
+    if (!next) return
+    const backup = categories
+    setCategories(next)
+    if (!(await persistOrder('categories', next))) {
+      setCategories(backup)
+      toast.error('Erro ao salvar a ordem das categorias')
     }
   }
 
@@ -368,6 +411,8 @@ export function PlacesProvider({ children }: { children: React.ReactNode }) {
         deleteCity,
         updateCityCoordinates,
         updateCityCountry,
+        moveCity,
+        moveCategory,
         addBadge,
         deleteBadge,
         recordAccess,

@@ -65,7 +65,8 @@ export function AccessProvider({ children }: { children: React.ReactNode }) {
   }, [currentUser?.id])
 
   const checkIn = async (placeId: string, discount: AppliedDiscount | null = null) => {
-    if (!currentUser) return
+    // Agência só consulta os estabelecimentos; não faz check-in
+    if (!currentUser || currentUser.role === 'agency') return
 
     // O desconto vale conforme o momento do check-in (snapshot)
     const newRecord: AccessRecord = {

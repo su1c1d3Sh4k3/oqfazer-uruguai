@@ -167,7 +167,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       admin: 'Bem-vindo ao painel administrativo.',
       establishment: 'Bem-vindo ao painel da empresa.',
       user: 'Bem-vindo(a) de volta!',
-      agency: 'Bem-vindo(a)! Confira os passeios disponíveis.',
+      agency: 'Bem-vindo(a)! Confira os estabelecimentos disponíveis.',
     }
     toast.success('Login realizado!', {
       description: greetings[user.role || 'user'],

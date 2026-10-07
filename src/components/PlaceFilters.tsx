@@ -125,21 +125,29 @@ export function PlaceFilters({
   className,
 }: Props) {
   const cityCountry = useCityCountryMap()
+  const { cities: orderedCities, categories: orderedCategories, countries: orderedCountries } = usePlaces()
 
   const options = useMemo(() => {
-    const uniq = (arr: string[]) => [...new Set(arr.filter(Boolean))].sort((a, b) => a.localeCompare(b, 'pt-BR'))
+    // Ordem definida pelo admin (Configurações); itens fora da lista vão ao fim, em ordem alfabética
+    const byOrder = (order: string[]) => (arr: string[]) => {
+      const rank = (v: string) => {
+        const i = order.indexOf(v)
+        return i === -1 ? Number.MAX_SAFE_INTEGER : i
+      }
+      return [...new Set(arr.filter(Boolean))].sort((a, b) => rank(a) - rank(b) || a.localeCompare(b, 'pt-BR'))
+    }
     return {
-      categories: uniq(places.map((p) => p.category)),
-      cities: uniq(
+      categories: byOrder(orderedCategories)(places.map((p) => p.category)),
+      cities: byOrder(orderedCities)(
         places
           .filter((p) => value.country === ALL || (cityCountry.get(p.city) ?? 'Uruguai') === value.country)
           .map((p) => p.city),
       ),
-      countries: uniq(places.map((p) => cityCountry.get(p.city) ?? 'Uruguai')),
+      countries: byOrder(orderedCountries)(places.map((p) => cityCountry.get(p.city) ?? 'Uruguai')),
       hasPrices: places.some((p) => p.priceLevel),
       types: new Set(places.map((p) => (p.type === 'tour' ? 'tour' : 'restaurant'))),
     }
-  }, [places, cityCountry, value.country])
+  }, [places, cityCountry, value.country, orderedCities, orderedCategories, orderedCountries])
 
   const set = <K extends keyof PlaceFilterState>(key: K, v: PlaceFilterState[K]) =>
     // Trocar de país invalida a cidade escolhida
