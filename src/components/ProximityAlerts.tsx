@@ -4,6 +4,7 @@ import { usePlaces } from '@/context/PlacesContext'
 import { useAccess } from '@/context/AccessContext'
 import { toast } from 'sonner'
 import { getCurrentDiscount } from '@/lib/utils'
+import { showNotification } from '@/lib/notifications'
 
 export function ProximityAlerts() {
   const { location, calculateDistance } = useGeo()
@@ -59,12 +60,10 @@ export function ProximityAlerts() {
           duration: 10000,
         })
 
-        if ('Notification' in window && Notification.permission === 'granted') {
-          new Notification(alertTitle, {
-            body: alertBody,
-            icon: '/favicon.ico',
-          })
-        }
+        void showNotification(alertTitle, {
+          body: alertBody,
+          icon: '/favicon.ico',
+        })
       }
     })
   }, [location, places, placeCheckIns, calculateDistance])
