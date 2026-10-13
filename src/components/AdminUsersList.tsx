@@ -28,7 +28,7 @@ import {
 } from '@/components/ui/select'
 import { toast } from 'sonner'
 import { PlaceSearchCombobox } from './PlaceSearchCombobox'
-import { supabase } from '@/lib/supabase'
+import { supabase, checkWrite, writeFailMessage } from '@/lib/supabase'
 import { sendTemplatedEmail } from '@/lib/emailService'
 
 export function AdminUsersList() {
@@ -114,14 +114,13 @@ export function AdminUsersList() {
         updated_at: new Date().toISOString(),
       }
 
-      const { error } = await supabase
-        .from('profiles')
-        .update(updateData)
-        .eq('id', editingUser.id)
+      const result = await checkWrite(
+        supabase.from('profiles').update(updateData).eq('id', editingUser.id).select('id'),
+      )
 
-      if (error) {
-        toast.error('Erro ao atualizar usuário')
-        console.error(error)
+      if (!result.ok) {
+        toast.error('Erro ao atualizar usuário', { description: writeFailMessage(result) })
+        console.error(result.error)
         return
       }
 
@@ -188,7 +187,8 @@ export function AdminUsersList() {
 
       // UPDATE direto no profile (o trigger já criou a row com role='user')
       // Usamos UPDATE ao invés de UPSERT para evitar problemas com RLS no INSERT
-      const { error: profileError } = await supabase
+      const { error: profileError } = await checkWrite(
+        supabase
         .from('profiles')
         .update({
           role: formData.role,
@@ -204,6 +204,8 @@ export function AdminUsersList() {
           updated_at: new Date().toISOString(),
         })
         .eq('id', authData.user.id)
+        .select('id'),
+      )
 
       if (profileError) {
         console.error('Error updating profile:', profileError)

@@ -79,7 +79,7 @@ export default function UserProfile() {
     updateProfile({ ...formData, travelPeriod: periodStr })
   }
 
-  const handleSavePassword = (e: React.FormEvent) => {
+  const handleSavePassword = async (e: React.FormEvent) => {
     e.preventDefault()
     if (pwdForm.newPwd !== pwdForm.confirmPwd) {
       toast.error('As senhas não coincidem.')
@@ -89,7 +89,7 @@ export default function UserProfile() {
       toast.error('A nova senha deve ter no mínimo 6 caracteres.')
       return
     }
-    updateProfile({ password: pwdForm.newPwd })
+    if (!(await updateProfile({ password: pwdForm.newPwd }))) return
     toast.success('Senha atualizada com sucesso!')
     setIsPasswordModalOpen(false)
     setPwdForm({ oldPwd: '', newPwd: '', confirmPwd: '' })

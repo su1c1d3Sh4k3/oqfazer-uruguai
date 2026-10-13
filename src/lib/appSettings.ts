@@ -1,4 +1,4 @@
-import { supabase } from './supabase'
+import { supabase, checkWrite } from './supabase'
 
 const DEFAULTS: Record<string, string> = {
   whatsapp_support: '5547999999999',
@@ -39,11 +39,14 @@ export async function setAppSetting(key: string, value: string): Promise<boolean
   cache[key] = value
 
   try {
-    const { error } = await supabase
-      .from('app_settings')
-      .upsert({ key, value, updated_at: new Date().toISOString() }, { onConflict: 'key' })
+    const result = await checkWrite(
+      supabase
+        .from('app_settings')
+        .upsert({ key, value, updated_at: new Date().toISOString() }, { onConflict: 'key' })
+        .select('key'),
+    )
 
-    return !error
+    return result.ok
   } catch {
     return false
   }

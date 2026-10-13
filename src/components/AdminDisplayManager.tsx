@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import { usePlaces } from '@/context/PlacesContext'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import {
@@ -45,23 +45,25 @@ export function AdminDisplayManager() {
     )
   }, [searchHighlight, places])
 
-  const handleAddHighlight = () => {
+  const handleAddHighlight = async () => {
     if (!selectedHighlight) return
     if (featuredPlaces.length >= 10) {
       toast.error('Limite atingido', { description: 'Você pode ter no máximo 10 destaques.' })
       return
     }
     const newOrder = featuredPlaces.length + 1
-    updatePlace(selectedHighlight, { featured: true, featuredOrder: newOrder })
     setSelectedHighlight('')
     setSearchHighlight('')
     setIsSearchOpen(false)
-    toast.success('Destaque adicionado!')
+    if (await updatePlace(selectedHighlight, { featured: true, featuredOrder: newOrder })) {
+      toast.success('Destaque adicionado!')
+    }
   }
 
-  const handleRemoveHighlight = (id: string) => {
-    updatePlace(id, { featured: false, featuredOrder: undefined })
-    toast.success('Destaque removido!')
+  const handleRemoveHighlight = async (id: string) => {
+    if (await updatePlace(id, { featured: false, featuredOrder: undefined })) {
+      toast.success('Destaque removido!')
+    }
   }
 
   const handleDragStart = (e: React.DragEvent, id: string) => {
@@ -74,7 +76,7 @@ export function AdminDisplayManager() {
     e.dataTransfer.dropEffect = 'move'
   }
 
-  const handleDrop = (e: React.DragEvent, targetId: string) => {
+  const handleDrop = async (e: React.DragEvent, targetId: string) => {
     e.preventDefault()
     if (!draggedId || draggedId === targetId) return
 
@@ -87,15 +89,15 @@ export function AdminDisplayManager() {
     const [draggedItem] = newOrderList.splice(draggedIdx, 1)
     newOrderList.splice(targetIdx, 0, draggedItem)
 
-    newOrderList.forEach((place, index) => {
-      const newOrder = index + 1
-      if (place.featuredOrder !== newOrder) {
-        updatePlace(place.id, { featuredOrder: newOrder })
-      }
-    })
-
     setDraggedId(null)
-    toast.success('Ordem dos destaques atualizada!')
+    const results = await Promise.all(
+      newOrderList.map((place, index) =>
+        place.featuredOrder !== index + 1
+          ? updatePlace(place.id, { featuredOrder: index + 1 })
+          : true,
+      ),
+    )
+    if (results.every(Boolean)) toast.success('Ordem dos destaques atualizada!')
   }
 
   // Ordering State
@@ -119,30 +121,30 @@ export function AdminDisplayManager() {
     )
   }, [searchOrder, places])
 
-  const handleAddOrder = () => {
+  const handleAddOrder = async () => {
     if (!selectedOrder) return
     if (orderedPlaces.length >= 20) {
       toast.error('Limite atingido', { description: 'Você pode ordenar no máximo 20 locais.' })
       return
     }
     const newOrder = orderedPlaces.length + 1
-    updatePlace(selectedOrder, { order: newOrder })
     setSelectedOrder('')
     setSearchOrder('')
     setIsSearchOrderOpen(false)
-    toast.success('Local adicionado à ordenação!')
+    if (await updatePlace(selectedOrder, { order: newOrder })) {
+      toast.success('Local adicionado à ordenação!')
+    }
   }
 
-  const handleRemoveOrder = (id: string) => {
-    updatePlace(id, { order: undefined })
+  const handleRemoveOrder = async (id: string) => {
+    if (!(await updatePlace(id, { order: undefined }))) return
     const newOrderList = orderedPlaces.filter((p) => p.id !== id)
-    newOrderList.forEach((place, index) => {
-      const newOrder = index + 1
-      if (place.order !== newOrder) {
-        updatePlace(place.id, { order: newOrder })
-      }
-    })
-    toast.success('Local removido da ordenação!')
+    const results = await Promise.all(
+      newOrderList.map((place, index) =>
+        place.order !== index + 1 ? updatePlace(place.id, { order: index + 1 }) : true,
+      ),
+    )
+    if (results.every(Boolean)) toast.success('Local removido da ordenação!')
   }
 
   const handleOrderDragStart = (e: React.DragEvent, id: string) => {
@@ -155,7 +157,7 @@ export function AdminDisplayManager() {
     e.dataTransfer.dropEffect = 'move'
   }
 
-  const handleOrderDrop = (e: React.DragEvent, targetId: string) => {
+  const handleOrderDrop = async (e: React.DragEvent, targetId: string) => {
     e.preventDefault()
     if (!draggedOrderId || draggedOrderId === targetId) return
 
@@ -168,18 +170,20 @@ export function AdminDisplayManager() {
     const [draggedItem] = newOrderList.splice(draggedIdx, 1)
     newOrderList.splice(targetIdx, 0, draggedItem)
 
-    newOrderList.forEach((place, index) => {
-      const newOrder = index + 1
-      if (place.order !== newOrder) {
-        updatePlace(place.id, { order: newOrder })
-      }
-    })
-
     setDraggedOrderId(null)
-    toast.success('Ordem de exibição atualizada!')
+    const results = await Promise.all(
+      newOrderList.map((place, index) =>
+        place.order !== index + 1 ? updatePlace(place.id, { order: index + 1 }) : true,
+      ),
+    )
+    if (results.every(Boolean)) toast.success('Ordem de exibição atualizada!')
   }
 
+  // A normalização automática para de tentar se uma gravação falhar — sem isso,
+  // o rollback da falha dispararia o efeito de novo, em loop.
+  const normalizeFailed = useRef(false)
   useEffect(() => {
+    if (normalizeFailed.current) return
     const withOrder = places
       .filter((p) => typeof p.order === 'number')
       .sort((a, b) => (a.order as number) - (b.order as number))
@@ -197,12 +201,10 @@ export function AdminDisplayManager() {
 
     if (needsUpdate) {
       const timer = setTimeout(() => {
-        withOrder.forEach((p, i) => {
-          if (i < 20) {
-            if (p.order !== i + 1) updatePlace(p.id, { order: i + 1 })
-          } else {
-            updatePlace(p.id, { order: undefined })
-          }
+        withOrder.forEach(async (p, i) => {
+          if (i < 20 && p.order === i + 1) return
+          const ok = await updatePlace(p.id, { order: i < 20 ? i + 1 : undefined })
+          if (!ok) normalizeFailed.current = true
         })
       }, 0)
       return () => clearTimeout(timer)

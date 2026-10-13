@@ -55,21 +55,20 @@ export default function Admin() {
     setActiveTab('form')
   }
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (confirm('Tem certeza que deseja excluir este local permanentemente?')) {
-      deletePlace(id)
-      toast.success('Local excluído com sucesso')
+      if (await deletePlace(id)) toast.success('Local excluído com sucesso')
     }
   }
 
-  const handleSave = (place: Place) => {
-    if (editingPlace) {
-      updatePlace(place.id, place)
-      toast.success('Local atualizado com sucesso!')
-    } else {
-      addPlace({ ...place, id: place.id || Math.random().toString(36).substr(2, 9) })
-      toast.success('Novo local cadastrado com sucesso!')
-    }
+  // Só fecha o formulário depois que o banco confirmou a gravação —
+  // se falhar, o que foi digitado continua na tela para salvar de novo.
+  const handleSave = async (place: Place) => {
+    const saved = editingPlace
+      ? await updatePlace(place.id, place)
+      : await addPlace({ ...place, id: place.id || Math.random().toString(36).substr(2, 9) })
+    if (!saved) return
+    toast.success(editingPlace ? 'Local atualizado com sucesso!' : 'Novo local cadastrado com sucesso!')
     setEditingPlace(undefined)
     setActiveTab('list')
   }

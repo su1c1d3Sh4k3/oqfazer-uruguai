@@ -162,3 +162,47 @@ export function rowToUser(profile: Record<string, any>, email?: string) {
     children: profile.children ?? 0,
   }
 }
+
+// ── Gravações verificadas ────────────────────────────────────────────
+// Sem sessão válida (expirou, logout/login em outra aba), o RLS NÃO gera erro em
+// UPDATE/DELETE: o Postgres só não encontra linhas e a API responde 204 "ok".
+// Por isso toda gravação pede as linhas afetadas (.select('id')) e passa por
+// checkWrite(), que trata "0 linhas" como falha e confere a sessão.
+
+/** Registrado pelo AuthContext: confere a sessão e abre o login se ela caiu. Retorna true se está ok. */
+let sessionCheck: (() => Promise<boolean>) | null = null
+export function setSessionCheck(fn: (() => Promise<boolean>) | null) {
+  sessionCheck = fn
+}
+
+export interface WriteResult {
+  ok: boolean
+  /** A gravação falhou porque o usuário não está mais logado */
+  sessionLost: boolean
+  error: any
+}
+
+export async function checkWrite(
+  query: PromiseLike<{ data: any; error: any }>,
+): Promise<WriteResult> {
+  let data: any = null
+  let error: any = null
+  try {
+    ;({ data, error } = await query)
+  } catch (e) {
+    error = e
+  }
+  const rows = Array.isArray(data) ? data.length : data ? 1 : 0
+  if (!error && rows > 0) return { ok: true, sessionLost: false, error: null }
+
+  const sessionOk = sessionCheck ? await sessionCheck() : true
+  if (!error) console.error('[checkWrite] Nenhuma linha foi gravada (RLS/sessão)')
+  return { ok: false, sessionLost: !sessionOk, error: error ?? new Error('NO_ROWS_AFFECTED') }
+}
+
+/** Texto padrão para o toast de falha de gravação */
+export function writeFailMessage(result: WriteResult) {
+  return result.sessionLost
+    ? 'Sua sessão expirou e NADA foi salvo. Entre novamente e salve de novo.'
+    : 'Nada foi salvo. Verifique sua conexão e tente novamente.'
+}

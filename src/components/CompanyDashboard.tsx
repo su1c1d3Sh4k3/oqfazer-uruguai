@@ -71,7 +71,7 @@ export function CompanyDashboard() {
       toast.error('A nova senha deve ter no mínimo 6 caracteres.')
       return
     }
-    await updateProfile({ password: newPwd })
+    if (!(await updateProfile({ password: newPwd }))) return
     toast.success('Senha atualizada com sucesso!')
     setCurrentPwd('')
     setNewPwd('')
@@ -89,7 +89,7 @@ export function CompanyDashboard() {
         'Tem certeza que deseja solicitar a exclusão da sua conta? Isso será analisado pela administração.',
       )
     ) {
-      await updateProfile({ deletionRequested: true })
+      if (!(await updateProfile({ deletionRequested: true }))) return
       sendTemplatedEmail('deletion', 'contato@brasileirosnouruguai.com.br', 'Solicitacao de Exclusao de Conta - ' + (managedPlace?.name || ''), {
         empresa: managedPlace?.name || 'N/A',
         nome: currentUser?.responsibleName || currentUser?.name || '',
@@ -355,9 +355,10 @@ export function CompanyDashboard() {
               <AdminPlaceForm
                 initialData={managedPlace}
                 categories={[]}
-                onSave={(data) => {
-                  updatePlace(managedPlace!.id, data)
-                  toast.success('Estabelecimento atualizado com sucesso!')
+                onSave={async (data) => {
+                  if (await updatePlace(managedPlace!.id, data)) {
+                    toast.success('Estabelecimento atualizado com sucesso!')
+                  }
                 }}
                 isCompanyView
               />

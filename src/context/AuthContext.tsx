@@ -7,11 +7,15 @@
  * 3. Logout = limpar localStorage + reload da página. Sem signOut().
  * 4. Sem onAuthStateChange — causa race conditions com login()
  * 5. Timeout de segurança no init — loading NUNCA fica true pra sempre
+ * 6. Sessão que cai com a tela aberta (expirou, logout/login em outra aba) NÃO desloga
+ *    sozinha: abre o SessionExpiredDialog para entrar de novo sem perder o que foi
+ *    digitado. Gravações usam checkWrite() (lib/supabase), que chama verifySession.
  */
 
-import React, { createContext, useContext, useState, useEffect } from 'react'
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react'
 import { toast } from 'sonner'
-import { supabase, rowToUser } from '@/lib/supabase'
+import { supabase, rowToUser, checkWrite, setSessionCheck, writeFailMessage } from '@/lib/supabase'
+import { SessionExpiredDialog } from '@/components/SessionExpiredDialog'
 
 export interface User {
   id: string
@@ -37,7 +41,11 @@ interface AuthContextType {
   loading: boolean
   login: (email: string, pass: string) => Promise<User | null>
   logout: () => void
-  updateProfile: (data: Partial<User>, silent?: boolean) => Promise<void>
+  /** Retorna false se nada foi gravado */
+  updateProfile: (data: Partial<User>, silent?: boolean) => Promise<boolean>
+  /** A sessão do Supabase caiu com o usuário ainda "logado" na tela */
+  sessionExpired: boolean
+  dismissSessionExpired: () => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -66,6 +74,27 @@ async function fetchProfile(userId: string, email: string): Promise<User | null>
   }
 }
 
+/**
+ * A sessão do Supabase ainda pertence ao usuário da tela?
+ * 'unknown' quando getSession não responde a tempo (não dá para afirmar nada).
+ */
+async function checkSession(userId: string): Promise<'ok' | 'lost' | 'unknown'> {
+  try {
+    const result = await Promise.race([
+      supabase.auth.getSession(),
+      new Promise<null>((resolve) => setTimeout(() => resolve(null), 5000)),
+    ])
+    if (!result) return 'unknown'
+    const session = result.data.session
+    if (!session?.user || session.user.id !== userId) return 'lost'
+    // getSession já tenta renovar; se ainda está vencido, a renovação falhou
+    if (session.expires_at && session.expires_at * 1000 <= Date.now()) return 'lost'
+    return 'ok'
+  } catch {
+    return 'unknown'
+  }
+}
+
 /** Remove tokens do Supabase do localStorage (síncrono, nunca falha) */
 function clearTokens() {
   try {
@@ -79,6 +108,9 @@ function clearTokens() {
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [currentUser, setCurrentUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  const [sessionExpired, setSessionExpired] = useState(false)
+  const userIdRef = useRef<string | null>(null)
+  userIdRef.current = currentUser?.id ?? null
 
   // ── Inicialização: verifica se existe sessão válida ──────────────
   useEffect(() => {
@@ -126,6 +158,52 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
+  // ── Sessão que cai com a tela aberta ──────────────────────────────
+  // Falha de gravação: confere a sessão (inclusive 'unknown' conta como perdida,
+  // pois a gravação já falhou) e pede login de novo.
+  useEffect(() => {
+    setSessionCheck(async () => {
+      const userId = userIdRef.current
+      if (!userId) return true
+      const status = await checkSession(userId)
+      if (status !== 'ok') {
+        if (userIdRef.current === userId) setSessionExpired(true)
+        return false
+      }
+      return true
+    })
+    return () => setSessionCheck(null)
+  }, [])
+
+  // Verificação preventiva: ao voltar para a aba, a cada minuto e quando outra aba
+  // mexe nos tokens (login/logout em outra aba troca a sessão desta também).
+  useEffect(() => {
+    const userId = currentUser?.id
+    if (!userId) return
+    let running = false
+    const verify = async () => {
+      if (running) return
+      running = true
+      const status = await checkSession(userId)
+      running = false
+      if (status === 'lost' && userIdRef.current === userId) setSessionExpired(true)
+    }
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') verify()
+    }
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === null || e.key.startsWith('sb-')) verify()
+    }
+    const timer = setInterval(verify, 60000)
+    document.addEventListener('visibilitychange', onVisible)
+    window.addEventListener('storage', onStorage)
+    return () => {
+      clearInterval(timer)
+      document.removeEventListener('visibilitychange', onVisible)
+      window.removeEventListener('storage', onStorage)
+    }
+  }, [currentUser?.id])
+
   // ── Login ─────────────────────────────────────────────────────────
   const login = async (email: string, pass: string): Promise<User | null> => {
     // Limpa tokens antigos (síncrono, instantâneo)
@@ -162,6 +240,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     setCurrentUser(user)
+    setSessionExpired(false)
 
     const greetings: Record<string, string> = {
       admin: 'Bem-vindo ao painel administrativo.',
@@ -189,7 +268,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // ── Atualizar perfil ──────────────────────────────────────────────
   const updateProfile = async (data: Partial<User>, silent = false) => {
-    if (!currentUser) return
+    if (!currentUser) return false
 
     const dbData: Record<string, any> = {}
     if (data.name !== undefined) dbData.name = data.name
@@ -208,21 +287,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     dbData.updated_at = new Date().toISOString()
 
-    const { error } = await supabase
-      .from('profiles')
-      .update(dbData)
-      .eq('id', currentUser.id)
+    const result = await checkWrite(
+      supabase.from('profiles').update(dbData).eq('id', currentUser.id).select('id'),
+    )
 
-    if (error) {
-      toast.error('Erro ao atualizar perfil')
-      return
+    if (!result.ok) {
+      toast.error('Erro ao atualizar perfil', { description: writeFailMessage(result) })
+      return false
     }
 
     if (data.password) {
       const { error: pwdError } = await supabase.auth.updateUser({ password: data.password })
       if (pwdError) {
         toast.error('Erro ao atualizar senha')
-        return
+        return false
       }
     }
 
@@ -230,7 +308,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { error: emailError } = await supabase.auth.updateUser({ email: data.email })
       if (emailError) {
         toast.error('Erro ao atualizar e-mail')
-        return
+        return false
       }
     }
 
@@ -239,12 +317,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!silent) {
       toast.success('Perfil atualizado com sucesso!')
     }
+    return true
   }
 
   return React.createElement(
     AuthContext.Provider,
-    { value: { currentUser, loading, login, logout, updateProfile } },
+    {
+      value: {
+        currentUser,
+        loading,
+        login,
+        logout,
+        updateProfile,
+        sessionExpired,
+        dismissSessionExpired: () => setSessionExpired(false),
+      },
+    },
     children,
+    currentUser && sessionExpired ? React.createElement(SessionExpiredDialog) : null,
   )
 }
 

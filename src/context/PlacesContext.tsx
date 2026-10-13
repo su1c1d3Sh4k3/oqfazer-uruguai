@@ -1,6 +1,14 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import { Place, FlashOffer } from '@/data/places'
-import { supabase, placeToRow, partialPlaceToRow, rowToPlace } from '@/lib/supabase'
+import {
+  supabase,
+  placeToRow,
+  partialPlaceToRow,
+  rowToPlace,
+  checkWrite,
+  writeFailMessage,
+  WriteResult,
+} from '@/lib/supabase'
 import { canRoleViewPlace, isPlaceActive } from '@/lib/utils'
 import { useAuth } from '@/context/AuthContext'
 import { toast } from 'sonner'
@@ -23,10 +31,11 @@ interface PlacesContextType {
   countries: string[]
   badges: string[]
   loading: boolean
-  addPlace: (p: Place) => Promise<void>
+  /** As gravações retornam false se nada foi gravado no banco */
+  addPlace: (p: Place) => Promise<boolean>
   updatePlace: (id: string, p: Partial<Place>) => Promise<boolean>
   setPlaceActive: (id: string, active: boolean, reactivateAt?: string | null) => Promise<boolean>
-  deletePlace: (id: string) => Promise<void>
+  deletePlace: (id: string) => Promise<boolean>
   addCategory: (c: string) => Promise<void>
   deleteCategory: (c: string) => Promise<void>
   addCity: (c: string) => Promise<void>
@@ -41,7 +50,11 @@ interface PlacesContextType {
   recordAccess: (id: string) => void
   recordCouponClick: (id: string) => void
   recordHighlightClick: (id: string) => void
-  createFlashOffer: (id: string, offer: FlashOffer | undefined) => Promise<void>
+  createFlashOffer: (id: string, offer: FlashOffer | undefined) => Promise<boolean>
+}
+
+function failToast(title: string, result: WriteResult) {
+  toast.error(title, { description: writeFailMessage(result), duration: 10000 })
 }
 
 const PlacesContext = createContext<PlacesContextType | undefined>(undefined)
@@ -151,13 +164,15 @@ export function PlacesProvider({ children }: { children: React.ReactNode }) {
     // Optimistic update
     setPlaces((prev) => [...prev, p])
 
-    const { error } = await supabase.from('places').insert(row)
-    if (error) {
+    const result = await checkWrite(supabase.from('places').insert(row).select('id'))
+    if (!result.ok) {
       // Revert
       setPlaces((prev) => prev.filter((x) => x.id !== p.id))
-      toast.error('Erro ao cadastrar local')
-      console.error(error)
+      failToast('Erro ao cadastrar local', result)
+      console.error(result.error)
+      return false
     }
+    return true
   }
 
   const updatePlace = async (id: string, data: Partial<Place>) => {
@@ -170,17 +185,19 @@ export function PlacesProvider({ children }: { children: React.ReactNode }) {
     const updateData = partialPlaceToRow(data)
     updateData.updated_at = new Date().toISOString()
 
-    const { error } = await supabase.from('places').update(updateData).eq('id', id)
-    if (error) {
-      // Rollback on error
+    const result = await checkWrite(
+      supabase.from('places').update(updateData).eq('id', id).select('id'),
+    )
+    if (!result.ok) {
+      // Rollback: a tela volta a mostrar o que está de fato no banco
       if (backup) setPlaces((prev) => prev.map((p) => (p.id === id ? backup : p)))
-      console.error('Error updating place:', error)
-      if (error.message?.includes('PLACE_HAS_ACTIVE_CHECKINS')) {
+      console.error('Error updating place:', result.error)
+      if (result.error?.message?.includes('PLACE_HAS_ACTIVE_CHECKINS')) {
         toast.error('Não é possível desativar', {
           description: 'Este local tem check-ins ativos. Tente novamente quando expirarem.',
         })
       } else {
-        toast.error('Erro ao atualizar local')
+        failToast('Erro ao salvar local', result)
       }
       return false
     }
@@ -214,81 +231,94 @@ export function PlacesProvider({ children }: { children: React.ReactNode }) {
     const backup = places.find((p) => p.id === id)
     setPlaces((prev) => prev.filter((p) => p.id !== id))
 
-    const { error } = await supabase.from('places').delete().eq('id', id)
-    if (error) {
+    const result = await checkWrite(supabase.from('places').delete().eq('id', id).select('id'))
+    if (!result.ok) {
       if (backup) setPlaces((prev) => [...prev, backup])
-      toast.error('Erro ao excluir local')
-      console.error(error)
+      failToast('Erro ao excluir local', result)
+      console.error(result.error)
+      return false
     }
+    return true
   }
 
   const addCategory = async (c: string) => {
     if (categories.includes(c)) return
     setCategories((prev) => [...prev, c])
-    const { error } = await supabase.from('categories').insert({ name: c, sort_order: categories.length })
-    if (error) {
+    const result = await checkWrite(
+      supabase.from('categories').insert({ name: c, sort_order: categories.length }).select('name'),
+    )
+    if (!result.ok) {
       setCategories((prev) => prev.filter((cat) => cat !== c))
-      toast.error('Erro ao adicionar categoria')
+      failToast('Erro ao adicionar categoria', result)
     }
   }
 
   const deleteCategory = async (c: string) => {
     setCategories((prev) => prev.filter((cat) => cat !== c))
-    const { error } = await supabase.from('categories').delete().eq('name', c)
-    if (error) {
+    const result = await checkWrite(supabase.from('categories').delete().eq('name', c).select('name'))
+    if (!result.ok) {
       setCategories((prev) => [...prev, c])
-      toast.error('Erro ao remover categoria')
+      failToast('Erro ao remover categoria', result)
     }
   }
 
   const addCity = async (c: string) => {
     if (cities.includes(c)) return
     setCityData((prev) => [...prev, { name: c, lat: null, lng: null, country: 'Uruguai' }])
-    const { error } = await supabase.from('cities').insert({ name: c, sort_order: cityData.length })
-    if (error) {
+    const result = await checkWrite(
+      supabase.from('cities').insert({ name: c, sort_order: cityData.length }).select('name'),
+    )
+    if (!result.ok) {
       setCityData((prev) => prev.filter((city) => city.name !== c))
-      toast.error('Erro ao adicionar cidade')
+      failToast('Erro ao adicionar cidade', result)
     }
   }
 
   const deleteCity = async (c: string) => {
     const backup = cityData.find((city) => city.name === c)
     setCityData((prev) => prev.filter((city) => city.name !== c))
-    const { error } = await supabase.from('cities').delete().eq('name', c)
-    if (error) {
+    const result = await checkWrite(supabase.from('cities').delete().eq('name', c).select('name'))
+    if (!result.ok) {
       if (backup) setCityData((prev) => [...prev, backup])
-      toast.error('Erro ao remover cidade')
+      failToast('Erro ao remover cidade', result)
     }
   }
 
   const updateCityCoordinates = async (name: string, lat: number | null, lng: number | null) => {
     const backup = cityData.find((c) => c.name === name)
     setCityData((prev) => prev.map((c) => (c.name === name ? { ...c, lat, lng } : c)))
-    const { error } = await supabase.from('cities').update({ lat, lng }).eq('name', name)
-    if (error) {
+    const result = await checkWrite(
+      supabase.from('cities').update({ lat, lng }).eq('name', name).select('name'),
+    )
+    if (!result.ok) {
       if (backup) setCityData((prev) => prev.map((c) => (c.name === name ? backup : c)))
-      toast.error('Erro ao atualizar coordenadas')
-      console.error(error)
+      failToast('Erro ao atualizar coordenadas', result)
+      console.error(result.error)
     }
   }
 
   const updateCityCountry = async (name: string, country: string) => {
     const backup = cityData.find((c) => c.name === name)
     setCityData((prev) => prev.map((c) => (c.name === name ? { ...c, country } : c)))
-    const { error } = await supabase.from('cities').update({ country }).eq('name', name)
-    if (error) {
+    const result = await checkWrite(
+      supabase.from('cities').update({ country }).eq('name', name).select('name'),
+    )
+    if (!result.ok) {
       if (backup) setCityData((prev) => prev.map((c) => (c.name === name ? backup : c)))
-      toast.error('Erro ao atualizar país')
-      console.error(error)
+      failToast('Erro ao atualizar país', result)
+      console.error(result.error)
     }
   }
 
   /** Troca o item de posição com o vizinho e grava a nova ordem completa. */
   const persistOrder = async (table: 'cities' | 'categories', names: string[]) => {
     const results = await Promise.all(
-      names.map((name, i) => supabase.from(table).update({ sort_order: i }).eq('name', name)),
+      names.map((name, i) =>
+        checkWrite(supabase.from(table).update({ sort_order: i }).eq('name', name).select('name')),
+      ),
     )
-    return !results.some((r) => r.error)
+    // Primeira falha (ou null se tudo foi gravado)
+    return results.find((r) => !r.ok) ?? null
   }
 
   const swap = <T,>(list: T[], index: number, direction: -1 | 1) => {
@@ -304,9 +334,10 @@ export function PlacesProvider({ children }: { children: React.ReactNode }) {
     if (!next) return
     const backup = cityData
     setCityData(next)
-    if (!(await persistOrder('cities', next.map((c) => c.name)))) {
+    const failed = await persistOrder('cities', next.map((c) => c.name))
+    if (failed) {
       setCityData(backup)
-      toast.error('Erro ao salvar a ordem das cidades')
+      failToast('Erro ao salvar a ordem das cidades', failed)
     }
   }
 
@@ -315,28 +346,29 @@ export function PlacesProvider({ children }: { children: React.ReactNode }) {
     if (!next) return
     const backup = categories
     setCategories(next)
-    if (!(await persistOrder('categories', next))) {
+    const failed = await persistOrder('categories', next)
+    if (failed) {
       setCategories(backup)
-      toast.error('Erro ao salvar a ordem das categorias')
+      failToast('Erro ao salvar a ordem das categorias', failed)
     }
   }
 
   const addBadge = async (b: string) => {
     if (badges.includes(b)) return
     setBadges((prev) => [...prev, b])
-    const { error } = await supabase.from('badges').insert({ name: b })
-    if (error) {
+    const result = await checkWrite(supabase.from('badges').insert({ name: b }).select('name'))
+    if (!result.ok) {
       setBadges((prev) => prev.filter((badge) => badge !== b))
-      toast.error('Erro ao adicionar badge')
+      failToast('Erro ao adicionar badge', result)
     }
   }
 
   const deleteBadge = async (b: string) => {
     setBadges((prev) => prev.filter((badge) => badge !== b))
-    const { error } = await supabase.from('badges').delete().eq('name', b)
-    if (error) {
+    const result = await checkWrite(supabase.from('badges').delete().eq('name', b).select('name'))
+    if (!result.ok) {
       setBadges((prev) => [...prev, b])
-      toast.error('Erro ao remover badge')
+      failToast('Erro ao remover badge', result)
     }
   }
 
@@ -378,15 +410,20 @@ export function PlacesProvider({ children }: { children: React.ReactNode }) {
   const createFlashOffer = async (id: string, offer: FlashOffer | undefined) => {
     const backup = places.find((p) => p.id === id)
     setPlaces((prev) => prev.map((p) => (p.id === id ? { ...p, flashOffer: offer } : p)))
-    const { error } = await supabase
-      .from('places')
-      .update({ flash_offer: offer ?? null, updated_at: new Date().toISOString() })
-      .eq('id', id)
-    if (error) {
+    const result = await checkWrite(
+      supabase
+        .from('places')
+        .update({ flash_offer: offer ?? null, updated_at: new Date().toISOString() })
+        .eq('id', id)
+        .select('id'),
+    )
+    if (!result.ok) {
       if (backup) setPlaces((prev) => prev.map((p) => (p.id === id ? backup : p)))
-      console.error('Error updating flash offer:', error)
-      toast.error('Erro ao atualizar oferta relâmpago')
+      console.error('Error updating flash offer:', result.error)
+      failToast('Erro ao atualizar oferta relâmpago', result)
+      return false
     }
+    return true
   }
 
   return React.createElement(
