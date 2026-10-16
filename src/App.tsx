@@ -24,6 +24,8 @@ const Profile = lazy(() => import('@/pages/Profile'))
 const UserProfile = lazy(() => import('@/pages/UserProfile'))
 const Auth = lazy(() => import('@/pages/Auth'))
 const ResetPassword = lazy(() => import('@/pages/ResetPassword'))
+const Signup = lazy(() => import('@/pages/Signup'))
+const AcceptInvite = lazy(() => import('@/pages/AcceptInvite'))
 const TopRestaurants = lazy(() => import('@/pages/TopRestaurants'))
 
 const PageFallback = () => (
@@ -54,6 +56,8 @@ const App = () => (
                     <Route path="/perfil" element={<UserProfile />} />
                     <Route path="/auth" element={<Auth />} />
                     <Route path="/reset-password" element={<ResetPassword />} />
+                    <Route path="/cadastro" element={<Signup />} />
+                    <Route path="/convite/:token" element={<AcceptInvite />} />
                     <Route path="/admin" element={<Admin />} />
                     <Route path="/empresa" element={<EstablishmentAdmin />} />
                     <Route path="/top" element={<TopRestaurants />} />

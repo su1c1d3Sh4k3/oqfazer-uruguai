@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Users, UserPlus, Download, Check, Trash2, Edit } from 'lucide-react'
+import { Users, UserPlus, Download, Check, Trash2, Edit, Mail } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
@@ -30,9 +30,13 @@ import { toast } from 'sonner'
 import { PlaceSearchCombobox } from './PlaceSearchCombobox'
 import { supabase, checkWrite, writeFailMessage } from '@/lib/supabase'
 import { sendTemplatedEmail } from '@/lib/emailService'
+import { callAccounts } from '@/lib/accounts'
+import { AdminSignupRequests } from './AdminSignupRequests'
+import { AdminInvites } from './AdminInvites'
 
 export function AdminUsersList() {
-  const [users, setUsers] = useState<any[]>([])
+  const [allUsers, setAllUsers] = useState<any[]>([])
+  const [isInviteOpen, setIsInviteOpen] = useState(false)
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingUser, setEditingUser] = useState<any>(null)
@@ -41,11 +45,18 @@ export function AdminUsersList() {
   const loadUsers = async () => {
     const { data, error } = await supabase.from('profiles').select('*')
     if (!error && data) {
-      setUsers(data)
+      setAllUsers(data)
     } else {
-      setUsers([])
+      setAllUsers([])
     }
   }
+
+  // Solicitações ainda não aprovadas ficam fora da lista de contas
+  const pendingRequests = useMemo(
+    () => allUsers.filter((u) => u.account_status === 'pending'),
+    [allUsers],
+  )
+  const users = useMemo(() => allUsers.filter((u) => u.account_status !== 'pending'), [allUsers])
 
   useEffect(() => {
     loadUsers()
@@ -148,68 +159,40 @@ export function AdminUsersList() {
 
       toast.success('Usuário atualizado!')
     } else {
-      // Create new user via Supabase Auth
+      // Cria pela Edge Function (o cadastro público do Supabase Auth está desligado)
       if (!formData.password) {
         toast.error('Senha é obrigatória para novos usuários.')
         return
       }
 
-      // Salva a sessão do admin antes do signUp (signUp pode trocar a sessão)
-      const { data: { session: adminSession } } = await supabase.auth.getSession()
+      const result = await callAccounts(
+        'create-user',
+        {
+          email: formData.email,
+          password: formData.password,
+          role: formData.role,
+          profile: {
+            name: formData.name,
+            phone: formData.phone,
+            cpf: formData.cpf,
+            ci: formData.ci,
+            responsibleName: formData.responsibleName,
+            managedPlaceId: formData.managedPlaceId,
+            travelPeriod: formData.travelPeriod,
+            adults: formData.adults,
+            children: formData.children,
+          },
+        },
+        true,
+      )
 
-      // Cria o usuário no Supabase Auth (trigger cria profile com role='user')
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-      })
-
-      if (authError || !authData.user) {
-        if (adminSession) {
-          await supabase.auth.setSession({
-            access_token: adminSession.access_token,
-            refresh_token: adminSession.refresh_token,
-          })
-        }
-        toast.error('Erro ao criar usuário: ' + (authError?.message || 'Erro desconhecido'))
+      if (!result.success) {
+        toast.error('Erro ao criar usuário: ' + (result.error || 'Erro desconhecido'))
         return
       }
 
-      // Restaura a sessão do admin (signUp pode ter trocado)
-      if (adminSession) {
-        await supabase.auth.setSession({
-          access_token: adminSession.access_token,
-          refresh_token: adminSession.refresh_token,
-        })
-      }
-
-      // Delay para o trigger handle_new_user() completar
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      // UPDATE direto no profile (o trigger já criou a row com role='user')
-      // Usamos UPDATE ao invés de UPSERT para evitar problemas com RLS no INSERT
-      const { error: profileError } = await checkWrite(
-        supabase
-        .from('profiles')
-        .update({
-          role: formData.role,
-          name: formData.name || null,
-          phone: formData.phone || null,
-          cpf: formData.cpf || null,
-          ci: formData.ci || null,
-          responsible_name: formData.responsibleName || null,
-          managed_place_id: formData.managedPlaceId || null,
-          travel_period: formData.travelPeriod || null,
-          adults: formData.adults ?? 1,
-          children: formData.children ?? 0,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', authData.user.id)
-        .select('id'),
-      )
-
-      if (profileError) {
-        console.error('Error updating profile:', profileError)
-        toast.error('Usuário criado mas houve erro ao salvar dados do perfil.')
+      if (result.warning) {
+        toast.error(result.warning)
       } else {
         toast.success('Usuário criado com sucesso!')
         sendTemplatedEmail('welcome', formData.email, 'Bem-vindo ao O que Fazer no Uruguai!', {
@@ -291,15 +274,20 @@ export function AdminUsersList() {
             Crie, edite e acompanhe solicitações de exclusão de usuários e empresas.
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button onClick={exportExcel} variant="outline" className="gap-2">
             <Download className="h-4 w-4" /> Exportar
+          </Button>
+          <Button onClick={() => setIsInviteOpen(true)} variant="outline" className="gap-2">
+            <Mail className="h-4 w-4" /> Convidar
           </Button>
           <Button onClick={() => handleOpenDialog()} className="gap-2">
             <UserPlus className="h-4 w-4" /> Nova Conta
           </Button>
         </div>
       </div>
+
+      <AdminSignupRequests requests={pendingRequests} onChange={loadUsers} />
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-xl">
@@ -470,6 +458,8 @@ export function AdminUsersList() {
         </Card>
       </div>
 
+      <AdminInvites open={isInviteOpen} onOpenChange={setIsInviteOpen} />
+
       <div className="rounded-2xl border border-border/50 bg-card overflow-x-auto shadow-sm">
         <Table>
           <TableHeader className="bg-muted/30">
@@ -482,7 +472,7 @@ export function AdminUsersList() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {users
+            {[...users]
               .sort((a, b) => (b.first_login_at || 0) - (a.first_login_at || 0))
               .map((u) => (
                 <TableRow key={u.id}>

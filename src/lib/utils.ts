@@ -68,6 +68,22 @@ export function getSpDate(timestamp?: number): Date {
 /** Validade de um check-in (ticket, status no mapa e registro no banco). */
 export const CHECKIN_DURATION_MS = 24 * 60 * 60 * 1000
 
+/** Período de uso liberado para o usuário comum. */
+export const TRIAL_DAYS = 20
+
+/**
+ * Início dos 20 dias: contas novas contam do primeiro acesso (login);
+ * contas antigas (trialFromFirstAccess = false) continuam do primeiro check-in.
+ * undefined = ainda não começou.
+ */
+export function getTrialStart(user: {
+  trialFromFirstAccess?: boolean
+  firstAccessAt?: number
+  firstCheckInAt?: number
+}): number | undefined {
+  return user.trialFromFirstAccess ? user.firstAccessAt : user.firstCheckInAt
+}
+
 /** Converts "HH:MM" to minutes since midnight for reliable numeric comparison. */
 export function timeToMinutes(time: string): number {
   const [h, m] = time.split(':').map(Number)

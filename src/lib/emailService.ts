@@ -55,6 +55,29 @@ const DEFAULT_TEMPLATES: Record<string, string> = {
     <p style="color:#64748b;font-size:13px;margin-top:20px">Seu email de acesso: <strong>{{email}}</strong></p>
   ${WRAPPER_END}`,
 
+  invite: `${WRAPPER_START}${HEADER}
+    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:16px;margin-bottom:20px">
+      <p style="color:#1e40af;font-weight:bold;margin:0">Voce foi convidado(a)!</p>
+    </div>
+    <p style="color:#334155;font-size:14px;line-height:1.6">Voce recebeu um convite para criar sua conta no app <strong>O que Fazer no Uruguai?</strong> como <strong>{{tipo_conta}}</strong>.</p>
+    <p style="color:#334155;font-size:14px;line-height:1.6">Clique no botao abaixo para definir sua senha e concluir o cadastro:</p>
+    <div style="text-align:center;margin:24px 0">
+      <a href="{{link}}" style="display:inline-block;background:#003399;color:white;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:14px">Criar Minha Conta</a>
+    </div>
+    <p style="color:#64748b;font-size:12px;line-height:1.5">O convite e pessoal, vale para o email <strong>{{email}}</strong> e expira em {{validade}}.</p>
+  ${WRAPPER_END}`,
+
+  signup_approved: `${WRAPPER_START}${HEADER}
+    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:16px;margin-bottom:20px">
+      <p style="color:#166534;font-weight:bold;margin:0">Cadastro aprovado!</p>
+    </div>
+    <p style="color:#334155;font-size:14px;line-height:1.6">Ola, <strong>{{nome}}</strong>! Seu cadastro no app <strong>O que Fazer no Uruguai?</strong> foi aprovado.</p>
+    <p style="color:#334155;font-size:14px;line-height:1.6">Ja pode entrar com o email <strong>{{email}}</strong> e a senha que voce escolheu. Seus 20 dias de acesso comecam no primeiro login.</p>
+    <div style="text-align:center;margin:24px 0">
+      <a href="{{link}}" style="display:inline-block;background:#003399;color:white;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:14px">Entrar no App</a>
+    </div>
+  ${WRAPPER_END}`,
+
   expiration: `${WRAPPER_START}${HEADER}
     <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:16px;margin-bottom:20px">
       <p style="color:#991b1b;font-weight:bold;margin:0">Seu periodo de utilizacao expirou</p>

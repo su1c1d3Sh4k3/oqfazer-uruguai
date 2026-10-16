@@ -4,7 +4,7 @@ import { useAuth } from './AuthContext'
 import { supabase } from '@/lib/supabase'
 import { sendTemplatedEmail } from '@/lib/emailService'
 import type { AppliedDiscount } from '@/data/places'
-import { CHECKIN_DURATION_MS } from '@/lib/utils'
+import { CHECKIN_DURATION_MS, TRIAL_DAYS, getTrialStart } from '@/lib/utils'
 
 export interface AccessRecord {
   placeId: string
@@ -135,9 +135,10 @@ export function AccessProvider({ children }: { children: React.ReactNode }) {
     checkIn(placeId, discount)
   }
 
+  const trialStart = currentUser ? getTrialStart(currentUser) : undefined
   const isExpired =
-    currentUser?.role === 'user' && currentUser.firstCheckInAt
-      ? now > currentUser.firstCheckInAt + 20 * 24 * 60 * 60 * 1000
+    currentUser?.role === 'user' && trialStart
+      ? now > trialStart + TRIAL_DAYS * 24 * 60 * 60 * 1000
       : false
 
   const expirationEmailSentRef = useRef(false)

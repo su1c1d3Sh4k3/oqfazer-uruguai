@@ -32,6 +32,11 @@ export interface User {
   responsibleName?: string
   deletionRequested?: boolean
   firstCheckInAt?: number
+  /** Primeiro login de verdade (firstLoginAt é a data de criação da conta) */
+  firstAccessAt?: number
+  /** Contas novas: os 20 dias contam do primeiro acesso, não do primeiro check-in */
+  trialFromFirstAccess?: boolean
+  accountStatus?: 'active' | 'pending'
   adults: number
   children: number
 }
@@ -72,6 +77,18 @@ async function fetchProfile(userId: string, email: string): Promise<User | null>
     console.error('[Auth] Exceção ao buscar perfil:', e)
     return null
   }
+}
+
+/**
+ * Grava o primeiro acesso (só na primeira vez; o banco ignora as demais).
+ * Não bloqueia o login: o valor local é usado até o próximo carregamento.
+ */
+function registerFirstAccess(user: User): User {
+  if (user.firstAccessAt) return user
+  supabase.rpc('register_first_access').then(({ error }) => {
+    if (error) console.error('[Auth] Erro ao registrar primeiro acesso:', error.message)
+  })
+  return { ...user, firstAccessAt: Date.now() }
 }
 
 /**
@@ -134,7 +151,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
 
         // Token válido — busca perfil
-        const user = await fetchProfile(session.user.id, session.user.email || '')
+        const profile = await fetchProfile(session.user.id, session.user.email || '')
+        const user = profile ? registerFirstAccess(profile) : null
         if (active) {
           setCurrentUser(user) // null se perfil não existe, tudo bem
           setLoading(false)
@@ -216,6 +234,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     })
 
     if (error) {
+      // Solicitação de cadastro ainda não aprovada: a conta fica banida no Auth
+      if (error.code === 'user_banned' || /banned/i.test(error.message)) {
+        toast.error('Cadastro aguardando aprovação', {
+          description: 'Você receberá um e-mail assim que o administrador aprovar seu acesso.',
+        })
+        return null
+      }
       const isInvalid = error.message.includes('Invalid login credentials')
       toast.error(isInvalid ? 'Credenciais inválidas' : 'Erro ao fazer login', {
         description: isInvalid ? 'Verifique seu e-mail e senha.' : error.message,
@@ -229,9 +254,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     // Busca perfil
-    const user = await fetchProfile(data.user.id, data.user.email || '')
+    const profile = await fetchProfile(data.user.id, data.user.email || '')
 
-    if (!user) {
+    if (!profile) {
       toast.error('Perfil não encontrado', {
         description: 'Contate o administrador para verificar sua conta.',
       })
@@ -239,6 +264,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return null
     }
 
+    const user = registerFirstAccess(profile)
     setCurrentUser(user)
     setSessionExpired(false)
 

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useAuth } from '@/context/AuthContext'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -82,7 +82,7 @@ export default function Auth() {
           </div>
           <h1 className="text-2xl font-bold text-slate-900 font-display">Bem-vindo(a)</h1>
           <p className="text-slate-500 text-sm mt-2">
-            Faça login para acessar sua conta. O cadastro de novos usuários é restrito.
+            Faça login para acessar sua conta.
           </p>
         </div>
 
@@ -128,6 +128,13 @@ export default function Auth() {
             {isLoading ? 'Entrando...' : 'Entrar'}
           </Button>
         </form>
+
+        <p className="text-center text-sm text-slate-500 mt-6">
+          Ainda não tem conta?{' '}
+          <Link to="/cadastro" className="font-medium text-primary hover:underline">
+            Solicitar cadastro
+          </Link>
+        </p>
 
         <Dialog open={showForgot} onOpenChange={setShowForgot}>
           <DialogContent className="sm:max-w-sm rounded-2xl">

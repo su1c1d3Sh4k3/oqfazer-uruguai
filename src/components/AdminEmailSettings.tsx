@@ -20,9 +20,23 @@ const TEMPLATES: TemplateConfig[] = [
   {
     key: 'welcome',
     title: 'Email de Boas-Vindas',
-    description: 'Enviado ao usuario quando sua conta e criada pelo admin.',
+    description: 'Enviado ao usuario quando sua conta e criada pelo admin ou pelo convite.',
     subjectDefault: 'Bem-vindo ao O que Fazer no Uruguai!',
     variables: ['nome', 'email'],
+  },
+  {
+    key: 'invite',
+    title: 'Convite de Cadastro',
+    description: 'Enviado quando o admin convida alguem (usuario, empresa ou agencia).',
+    subjectDefault: 'Seu convite para o O que Fazer no Uruguai?',
+    variables: ['email', 'tipo_conta', 'link', 'validade'],
+  },
+  {
+    key: 'signup_approved',
+    title: 'Cadastro Aprovado',
+    description: 'Enviado quando o admin aprova uma solicitacao de cadastro.',
+    subjectDefault: 'Seu cadastro foi aprovado!',
+    variables: ['nome', 'email', 'link'],
   },
   {
     key: 'expiration',

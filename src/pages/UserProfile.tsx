@@ -29,7 +29,7 @@ import { Calendar } from '@/components/ui/calendar'
 import { format, parse, addDays } from 'date-fns'
 import { DateRange } from 'react-day-picker'
 import { toast } from 'sonner'
-import { cn } from '@/lib/utils'
+import { cn, getTrialStart, TRIAL_DAYS } from '@/lib/utils'
 
 export default function UserProfile() {
   const { currentUser, logout, updateProfile } = useAuth()
@@ -123,7 +123,7 @@ export default function UserProfile() {
           </div>
         </CardHeader>
         <CardContent className="p-6">
-          {currentUser.firstCheckInAt ? (
+          {getTrialStart(currentUser) ? (
             <div className="flex items-center gap-4">
               <div className="h-12 w-12 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 shrink-0">
                 <Clock className="h-6 w-6" />
@@ -131,7 +131,7 @@ export default function UserProfile() {
               <div>
                 <p className="text-sm font-medium text-slate-500">Sua conta expira em:</p>
                 <p className="text-lg font-bold text-slate-900">
-                  {format(addDays(new Date(currentUser.firstCheckInAt), 20), 'dd/MM/yyyy')}
+                  {format(addDays(new Date(getTrialStart(currentUser)!), TRIAL_DAYS), 'dd/MM/yyyy')}
                 </p>
               </div>
             </div>
@@ -143,7 +143,9 @@ export default function UserProfile() {
               <div>
                 <p className="text-sm font-medium text-slate-500">Status do Acesso:</p>
                 <p className="text-lg font-bold text-slate-900">
-                  O período de 20 dias iniciará no seu primeiro check-in.
+                  {currentUser.trialFromFirstAccess
+                    ? `O período de ${TRIAL_DAYS} dias iniciará no seu primeiro acesso.`
+                    : `O período de ${TRIAL_DAYS} dias iniciará no seu primeiro check-in.`}
                 </p>
               </div>
             </div>

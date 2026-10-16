@@ -23,6 +23,7 @@ export default function Admin() {
   const [activeTab, setActiveTab] = useState('dashboard')
   const [editingPlace, setEditingPlace] = useState<Place | undefined>(undefined)
   const [establishmentUsers, setEstablishmentUsers] = useState<any[]>([])
+  const [pendingSignups, setPendingSignups] = useState(0)
 
   useEffect(() => {
     supabase
@@ -33,6 +34,16 @@ export default function Admin() {
         if (data) setEstablishmentUsers(data)
       })
   }, [])
+
+  // Aviso na aba Usuários quando há solicitações de cadastro aguardando aprovação
+  useEffect(() => {
+    if (currentUser?.role !== 'admin') return
+    supabase
+      .from('profiles')
+      .select('id', { count: 'exact', head: true })
+      .eq('account_status', 'pending')
+      .then(({ count }) => setPendingSignups(count || 0))
+  }, [currentUser?.role, activeTab])
 
   // Admin access: check if user has admin role
   const isAdmin = currentUser?.role === 'admin'
@@ -127,6 +138,14 @@ export default function Admin() {
           >
             <Users className="h-4 w-4" />
             <span className="hidden sm:inline">Usuários</span>
+            {pendingSignups > 0 && (
+              <span
+                className="ml-1 rounded-full bg-amber-500 px-1.5 text-[10px] font-bold leading-4 text-white"
+                title="Solicitações de cadastro aguardando aprovação"
+              >
+                {pendingSignups}
+              </span>
+            )}
           </TabsTrigger>
           <TabsTrigger
             value="list"
