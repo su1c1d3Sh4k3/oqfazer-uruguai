@@ -20,8 +20,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useState, useMemo } from 'react'
 import { PlaceActiveToggle } from './PlaceActiveToggle'
+
+type PlaceTab = 'restaurant' | 'tour'
+
+const isTourPlace = (p: Place) => p.type === 'tour'
 
 interface Props {
   places: Place[]
@@ -31,9 +36,19 @@ interface Props {
   establishmentUsers?: any[]
 }
 
-export function AdminPlacesList({ places, categories, onEdit, onDelete, establishmentUsers = [] }: Props) {
+export function AdminPlacesList({
+  places,
+  categories,
+  onEdit,
+  onDelete,
+  establishmentUsers = [],
+}: Props) {
   const [searchTerm, setSearchTerm] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('Todas')
+  const [tab, setTab] = useState<PlaceTab>('restaurant')
+
+  const tourCount = useMemo(() => places.filter(isTourPlace).length, [places])
+  const restaurantCount = places.length - tourCount
 
   const ownerByPlaceId = useMemo(() => {
     const map = new Map<string, any>()
@@ -45,19 +60,39 @@ export function AdminPlacesList({ places, categories, onEdit, onDelete, establis
 
   const filteredPlaces = useMemo(() => {
     return places.filter((p) => {
+      if (isTourPlace(p) !== (tab === 'tour')) return false
       const matchName = p.name.toLowerCase().includes(searchTerm.toLowerCase())
       const matchCat = categoryFilter === 'Todas' || p.category === categoryFilter
       return matchName && matchCat
     })
-  }, [places, searchTerm, categoryFilter])
+  }, [places, searchTerm, categoryFilter, tab])
 
   return (
     <div className="space-y-4">
+      <Tabs value={tab} onValueChange={(v) => setTab(v as PlaceTab)}>
+        <TabsList className="h-auto p-1 bg-muted/50">
+          <TabsTrigger
+            value="restaurant"
+            className="py-2 px-4 rounded-xl data-[state=active]:bg-background data-[state=active]:shadow-sm"
+          >
+            Restaurantes ({restaurantCount})
+          </TabsTrigger>
+          <TabsTrigger
+            value="tour"
+            className="py-2 px-4 rounded-xl data-[state=active]:bg-background data-[state=active]:shadow-sm"
+          >
+            Passeios ({tourCount})
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
+
       <div className="flex flex-col sm:flex-row gap-3 bg-muted/30 p-4 rounded-xl border border-border/50">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Buscar por nome..."
+            placeholder={
+              tab === 'tour' ? 'Buscar passeio por nome...' : 'Buscar restaurante por nome...'
+            }
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-9 bg-background"
@@ -185,7 +220,7 @@ export function AdminPlacesList({ places, categories, onEdit, onDelete, establis
             {filteredPlaces.length === 0 && (
               <TableRow>
                 <TableCell colSpan={9} className="text-center text-muted-foreground py-12">
-                  Nenhum local encontrado.
+                  {tab === 'tour' ? 'Nenhum passeio encontrado.' : 'Nenhum restaurante encontrado.'}
                 </TableCell>
               </TableRow>
             )}
@@ -205,7 +240,7 @@ export function AdminPlacesList({ places, categories, onEdit, onDelete, establis
                 >
                   <img
                     src={place.coverThumb || place.coverImage}
-                        loading="lazy"
+                    loading="lazy"
                     alt={place.name}
                     className="object-cover w-full h-full"
                   />
@@ -275,7 +310,9 @@ export function AdminPlacesList({ places, categories, onEdit, onDelete, establis
           </Card>
         ))}
         {filteredPlaces.length === 0 && (
-          <div className="text-center text-muted-foreground py-8">Nenhum local encontrado.</div>
+          <div className="text-center text-muted-foreground py-8">
+            {tab === 'tour' ? 'Nenhum passeio encontrado.' : 'Nenhum restaurante encontrado.'}
+          </div>
         )}
       </div>
     </div>

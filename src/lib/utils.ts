@@ -243,9 +243,13 @@ export function isPlaceActive(place: Place, timestamp = Date.now()) {
   return !!place.reactivateAt && Date.parse(place.reactivateAt) <= timestamp
 }
 
-/** Agência vê apenas restaurantes/estabelecimentos (não vê passeios). */
+/**
+ * Passeios só aparecem para quem está logado e não é agência.
+ * Visitante sem login e agência veem apenas restaurantes/estabelecimentos.
+ */
 export function canRoleViewPlace(place: Place, role?: string) {
-  return role === 'agency' ? place.type !== 'tour' : true
+  if (place.type !== 'tour') return true
+  return !!role && role !== 'agency'
 }
 
 export const PRICE_LEVELS: { value: PriceLevel; label: string; description: string }[] = [

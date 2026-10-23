@@ -53,7 +53,7 @@ export default function PlaceDetails() {
   const navigate = useNavigate()
   const { currentUser } = useAuth()
   const { isFavorite, toggleFavorite } = useFavorites()
-  const { places, loading, recordAccess, recordCouponClick } = usePlaces()
+  const { places, allPlaces, loading, recordAccess, recordCouponClick } = usePlaces()
   const { calculateDistance } = useGeo()
   const { isExpired, getPlaceCheckIn, getPlaceCheckInDiscount, recordCheckIn } = useAccess()
   const [showCheckInDialog, setShowCheckInDialog] = useState(false)
@@ -99,7 +99,16 @@ export default function PlaceDetails() {
       </div>
     )
   }
-  // Inativo ou fora do perfil (ex.: agência abrindo restaurante) também cai aqui
+  // Passeio aberto por link direto sem login: só aparece para quem entra na conta
+  if (!place && !currentUser && allPlaces.some((p) => p.id === id && p.type === 'tour')) {
+    return (
+      <div className="p-8 text-center space-y-4">
+        <p className="text-xl font-bold">Faça login para ver este passeio</p>
+        <Button onClick={() => navigate('/auth')}>Entrar</Button>
+      </div>
+    )
+  }
+  // Inativo ou fora do perfil (ex.: agência abrindo passeio) também cai aqui
   if (!place) return <div className="p-8 text-center text-xl font-bold">Local não encontrado ou indisponível</div>
 
   const isTour = place.type === 'tour'

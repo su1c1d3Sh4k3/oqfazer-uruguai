@@ -87,8 +87,17 @@ function writeCache(cache: PlacesCache) {
   }
 }
 
+/** Há tokens do Supabase salvos (o usuário provavelmente está logado). */
+function hasStoredSession() {
+  try {
+    return Object.keys(localStorage).some((k) => k.startsWith('sb-'))
+  } catch {
+    return false
+  }
+}
+
 export function PlacesProvider({ children }: { children: React.ReactNode }) {
-  const { currentUser } = useAuth()
+  const { currentUser, loading: authLoading } = useAuth()
   const [cached] = useState(readCache)
   const [allPlaces, setPlaces] = useState<Place[]>(cached?.places ?? [])
   const [categories, setCategories] = useState<string[]>(cached?.categories ?? [])
@@ -109,9 +118,12 @@ export function PlacesProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const role = currentUser?.role
+  // Enquanto o perfil carrega, quem tem sessão salva continua vendo os passeios
+  // (evita que sumam e voltem na tela). O perfil real decide logo em seguida.
+  const viewerRole = role ?? (authLoading && hasStoredSession() ? 'user' : undefined)
   const visiblePlaces = useMemo(
-    () => allPlaces.filter((p) => isPlaceActive(p, now) && canRoleViewPlace(p, role)),
-    [allPlaces, now, role],
+    () => allPlaces.filter((p) => isPlaceActive(p, now) && canRoleViewPlace(p, viewerRole)),
+    [allPlaces, now, viewerRole],
   )
 
   // Recarrega ao trocar de usuário: admin e empresa enxergam lugares inativos (RLS)

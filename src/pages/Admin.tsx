@@ -189,7 +189,7 @@ export default function Admin() {
           <div className="mb-4">
             <h2 className="text-xl font-semibold">Lista de Estabelecimentos e Passeios</h2>
             <p className="text-sm text-muted-foreground">
-              Gerencie todos os locais ativos disponíveis no aplicativo.
+              Gerencie todos os restaurantes e passeios cadastrados (ativos e inativos).
             </p>
           </div>
           <AdminPlacesList
