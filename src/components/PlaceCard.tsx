@@ -120,12 +120,10 @@ export function PlaceCard({ place, activeCheckIn, eager }: PlaceCardProps) {
               {isTour ? place.city : `${displayDistance} • ${place.city}`}
             </span>
           </div>
-          {!isTour && (
-            // O card inteiro já é o link; o "botão" só deixa o caminho evidente
-            <span className="mt-3 flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-secondary text-sm font-bold text-secondary-foreground shadow-sm transition-colors group-hover:bg-secondary/90">
-              <Ticket className="h-4 w-4" /> Ver desconto
-            </span>
-          )}
+          {/* O card inteiro já é o link; o "botão" só deixa o caminho evidente */}
+          <span className="mt-3 flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-[#0A7F3B] text-sm font-bold text-white shadow-sm transition-colors group-hover:bg-[#0A7F3B]/90">
+            <Ticket className="h-4 w-4" /> Ver desconto
+          </span>
         </div>
       </div>
     </Link>
