@@ -156,7 +156,7 @@ export default function Index() {
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
                       <div className="absolute bottom-0 left-0 p-4 md:p-6">
-                        <Badge className="mb-2 border-none bg-brand-yellow text-brand-yellow-foreground shadow-sm hover:bg-brand-yellow/90">
+                        <Badge className="mb-2 border-none bg-brand-yellow px-3 py-1 text-sm font-extrabold text-brand-yellow-foreground shadow-sm hover:bg-brand-yellow/90 sm:text-base">
                           {getDiscountBadgeText(place, now)}
                         </Badge>
                         <h3 className="font-display text-xl font-bold text-white md:text-3xl">

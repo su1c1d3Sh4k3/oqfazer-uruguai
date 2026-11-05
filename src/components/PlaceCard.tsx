@@ -1,4 +1,4 @@
-import { Heart, MapPin } from 'lucide-react'
+import { Heart, MapPin, Ticket } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { Place } from '@/data/places'
@@ -73,7 +73,7 @@ export function PlaceCard({ place, activeCheckIn, eager }: PlaceCardProps) {
               </Badge>
             )}
             {discountText && (
-              <Badge className="border-none bg-brand-yellow font-bold text-brand-yellow-foreground shadow-md hover:bg-brand-yellow/90">
+              <Badge className="border-none bg-brand-yellow px-3 py-1 text-sm font-extrabold text-brand-yellow-foreground shadow-md hover:bg-brand-yellow/90 sm:text-base">
                 {discountText}
               </Badge>
             )}
@@ -120,6 +120,12 @@ export function PlaceCard({ place, activeCheckIn, eager }: PlaceCardProps) {
               {isTour ? place.city : `${displayDistance} • ${place.city}`}
             </span>
           </div>
+          {!isTour && (
+            // O card inteiro já é o link; o "botão" só deixa o caminho evidente
+            <span className="mt-3 flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-secondary text-sm font-bold text-secondary-foreground shadow-sm transition-colors group-hover:bg-secondary/90">
+              <Ticket className="h-4 w-4" /> Ver desconto
+            </span>
+          )}
         </div>
       </div>
     </Link>

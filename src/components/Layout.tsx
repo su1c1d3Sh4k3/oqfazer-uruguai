@@ -1,4 +1,4 @@
-import { Link, Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { Link, Navigate, Outlet, useLocation, useNavigate, useNavigationType } from 'react-router-dom'
 import {
   Compass,
   Heart,
@@ -34,6 +34,13 @@ export function Layout() {
   const navigate = useNavigate()
   const { isExpired, isGranted } = useAccess()
   const { currentUser, logout } = useAuth()
+  const navigationType = useNavigationType()
+
+  // Página nova abre no topo (o SPA mantinha a rolagem da lista — o restaurante
+  // abria no rodapé). Voltar (POP) mantém a posição da lista.
+  useEffect(() => {
+    if (navigationType !== 'POP') window.scrollTo(0, 0)
+  }, [location.pathname, navigationType])
 
   const isAdminMaster = currentUser?.role === 'admin'
 
