@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dialog'
 import { useAccess, type VoucherState } from '@/context/AccessContext'
 import type { AppliedDiscount, DiscountRule } from '@/data/places'
-import { subscribeLink, useSupportWhatsapp } from './VoucherBanner'
+import { SUBSCRIBE_URL } from './VoucherBanner'
 
 interface Props {
   placeId: string
@@ -55,7 +55,6 @@ export function VoucherCard({ placeId, ...rest }: Props) {
 /** Barra de check-in da conta cupom (substitui a barra normal). */
 export function VoucherCheckInBar(props: Props) {
   const { voucher, redeemVoucher } = useAccess()
-  const whatsapp = useSupportWhatsapp()
   const [open, setOpen] = useState(false)
   const [saving, setSaving] = useState(false)
 
@@ -66,11 +65,7 @@ export function VoucherCheckInBar(props: Props) {
   if (voucher.placeId !== props.placeId || voucher.status === 'used') {
     return (
       <Button asChild className={barClass}>
-        <a
-          href={whatsapp ? subscribeLink(whatsapp) : 'https://brasileirosnouruguai.com.br'}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        <a href={SUBSCRIBE_URL} target="_blank" rel="noopener noreferrer">
           <Sparkles className="mr-2 h-5 w-5 text-brand-yellow" />
           Assine o guia para fazer check-in aqui
         </a>

@@ -1,25 +1,10 @@
-import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Gift, Sparkles } from 'lucide-react'
 import { useAccess } from '@/context/AccessContext'
 import { usePlaces } from '@/context/PlacesContext'
-import { getAppSetting } from '@/lib/appSettings'
 
-export function subscribeLink(whatsapp: string) {
-  const msg = encodeURIComponent(
-    'Olá! Ganhei um cupom no sorteio do O que Fazer no Uruguai? e quero assinar o guia completo.',
-  )
-  return `https://wa.me/${whatsapp}?text=${msg}`
-}
-
-/** Número do WhatsApp de suporte (usado no convite para assinar). */
-export function useSupportWhatsapp() {
-  const [whatsapp, setWhatsapp] = useState('')
-  useEffect(() => {
-    getAppSetting('whatsapp_support').then(setWhatsapp)
-  }, [])
-  return whatsapp
-}
+/** Página de vendas do guia (convite para assinar da conta cupom) */
+export const SUBSCRIBE_URL = 'https://brasileirosnouruguai.com.br/guia-de-descontos-no-uruguai/'
 
 /**
  * Faixa no topo para a conta cupom (sorteio): leva ao restaurante enquanto o
@@ -29,7 +14,6 @@ export function VoucherBanner() {
   const { voucher } = useAccess()
   const { allPlaces } = usePlaces()
   const location = useLocation()
-  const whatsapp = useSupportWhatsapp()
 
   if (!voucher) return null
   const place = allPlaces.find((p) => p.id === voucher.placeId)
@@ -53,7 +37,7 @@ export function VoucherBanner() {
 
   return (
     <a
-      href={whatsapp ? subscribeLink(whatsapp) : 'https://brasileirosnouruguai.com.br'}
+      href={SUBSCRIBE_URL}
       target="_blank"
       rel="noopener noreferrer"
       className="flex items-center justify-center gap-2 bg-primary px-4 py-2.5 text-center text-sm font-bold text-white hover:brightness-110"
