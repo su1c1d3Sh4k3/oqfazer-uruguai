@@ -22,7 +22,7 @@ export interface User {
   email: string
   password?: string
   firstLoginAt: number
-  role?: 'user' | 'establishment' | 'admin' | 'agency'
+  role?: 'user' | 'establishment' | 'admin' | 'agency' | 'voucher'
   managedPlaceId?: string
   name?: string
   cpf?: string
@@ -37,6 +37,12 @@ export interface User {
   /** Contas novas: os 20 dias contam do primeiro acesso, não do primeiro check-in */
   trialFromFirstAccess?: boolean
   accountStatus?: 'active' | 'pending'
+  /** Conta cupom (sorteio): restaurante, desconto (vazio = padrão do lugar) e validade */
+  voucherPlaceId?: string
+  voucherDiscount?: string
+  voucherHoursOnly?: boolean
+  voucherExpiresAt?: number
+  voucherUsedAt?: number
   adults: number
   children: number
 }
@@ -273,6 +279,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       establishment: 'Bem-vindo ao painel da empresa.',
       user: 'Bem-vindo(a) de volta!',
       agency: 'Bem-vindo(a)! Confira os estabelecimentos disponíveis.',
+      voucher: 'Bem-vindo(a)! Seu cupom está te esperando.',
     }
     toast.success('Login realizado!', {
       description: greetings[user.role || 'user'],

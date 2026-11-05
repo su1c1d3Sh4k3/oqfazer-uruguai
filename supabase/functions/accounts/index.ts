@@ -6,6 +6,7 @@ import { createClient, SupabaseClient } from "jsr:@supabase/supabase-js@2";
 //   Públicas (sem login):
 //     invite-info     { token }                 → dados do convite (email, tipo)
 //     accept-invite   { token, password, ... }  → cria a conta com o tipo do convite
+//                     (role 'voucher' = cupom de sorteio de um restaurante)
 //     request-signup  { email, password, ... }  → cria conta 'pending' (banida até aprovar)
 //   Só admin:
 //     create-user     { email, password, role, ... } → cria conta direto
@@ -59,6 +60,19 @@ function profileFields(body: Record<string, unknown>, role: string) {
     fields.children = int(body.children, 0, 0, 20);
   }
   return fields;
+}
+
+/** Cupom de sorteio: copia os dados do convite para o perfil */
+function voucherFields(invite: Record<string, any>) {
+  if (invite.role !== "voucher") return {};
+  return {
+    voucher_place_id: invite.voucher_place_id,
+    voucher_discount: invite.voucher_discount ?? null,
+    voucher_hours_only: !!invite.voucher_hours_only,
+    voucher_expires_at: invite.voucher_expires_at
+      ? new Date(invite.voucher_expires_at).getTime()
+      : null,
+  };
 }
 
 function authErrorMessage(message: string) {
@@ -135,11 +149,12 @@ Deno.serve(async (req: Request) => {
       const { invite, problem } = await getInvite(admin, str(body.token, 100));
       if (problem || !invite) return fail(problem || "Convite inválido.", 404);
       let placeName: string | null = null;
-      if (invite.managed_place_id) {
+      const placeId = invite.role === "voucher" ? invite.voucher_place_id : invite.managed_place_id;
+      if (placeId) {
         const { data: place } = await admin
           .from("places")
           .select("name")
-          .eq("id", invite.managed_place_id)
+          .eq("id", placeId)
           .maybeSingle();
         placeName = place?.name ?? null;
       }
@@ -149,6 +164,8 @@ Deno.serve(async (req: Request) => {
         role: invite.role,
         placeName,
         expiresAt: invite.expires_at,
+        voucherDiscount: invite.voucher_discount ?? null,
+        voucherExpiresAt: invite.voucher_expires_at ?? null,
       });
     }
 
@@ -160,6 +177,9 @@ Deno.serve(async (req: Request) => {
 
       const { invite, problem } = await getInvite(admin, token);
       if (problem || !invite) return fail(problem || "Convite inválido.", 404);
+      if (invite.role === "voucher" && !invite.voucher_place_id) {
+        return fail("O restaurante deste cupom não está mais disponível.", 404);
+      }
 
       // Reserva o convite antes de criar a conta (evita uso duplo simultâneo)
       const { data: claimed } = await admin
@@ -185,6 +205,7 @@ Deno.serve(async (req: Request) => {
       const profileError = await updateProfile(admin, userId, {
         role: invite.role,
         managed_place_id: invite.role === "establishment" ? invite.managed_place_id : null,
+        ...voucherFields(invite),
         ...profileFields(body, invite.role),
       });
       if (profileError) {

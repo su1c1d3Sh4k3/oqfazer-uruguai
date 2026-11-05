@@ -26,7 +26,7 @@ export interface DiscountRule {
 
 // Desconto efetivamente aplicado (gravado no check-in)
 export interface AppliedDiscount {
-  source: 'flash' | 'rule' | 'badge'
+  source: 'flash' | 'rule' | 'badge' | 'voucher'
   label: string
   description?: string
 }

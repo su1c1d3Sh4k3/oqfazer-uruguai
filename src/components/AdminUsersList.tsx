@@ -248,7 +248,9 @@ export function AdminUsersList() {
             ? 'Admin'
             : u.role === 'agency'
               ? 'Agência'
-              : 'Usuário'
+              : u.role === 'voucher'
+                ? 'Cupom (sorteio)'
+                : 'Usuário'
       const date = u.first_login_at ? new Date(u.first_login_at).toLocaleDateString() : ''
       const status = u.deletion_requested ? 'Exclusão Solicitada' : 'Ativo'
 
@@ -309,6 +311,10 @@ export function AdminUsersList() {
                   <SelectItem value="establishment">Empresa / Estabelecimento</SelectItem>
                   <SelectItem value="agency">Agência (vê apenas restaurantes)</SelectItem>
                   <SelectItem value="admin">Administrador</SelectItem>
+                  {/* Conta cupom só nasce por convite; trocar para "Usuário Comum" = assinatura */}
+                  {formData.role === 'voucher' && (
+                    <SelectItem value="voucher">Cupom de restaurante (sorteio)</SelectItem>
+                  )}
                 </SelectContent>
               </Select>
             </div>
@@ -503,6 +509,10 @@ export function AdminUsersList() {
                     ) : u.role === 'agency' ? (
                       <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
                         Agência
+                      </Badge>
+                    ) : u.role === 'voucher' ? (
+                      <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-300">
+                        Cupom
                       </Badge>
                     ) : (
                       <Badge variant="outline" className="bg-slate-50 text-slate-600">

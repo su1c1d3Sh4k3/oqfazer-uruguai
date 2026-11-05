@@ -3,12 +3,13 @@ import { supabase } from './supabase'
 // Chamadas à Edge Function `accounts` — o cadastro público do Supabase Auth está
 // desligado, então toda conta nova (convite, solicitação, admin) nasce lá.
 
-export type InviteRole = 'user' | 'establishment' | 'agency'
+export type InviteRole = 'user' | 'establishment' | 'agency' | 'voucher'
 
 export const INVITE_ROLE_LABELS: Record<InviteRole, string> = {
   user: 'Usuário',
   establishment: 'Empresa / Estabelecimento',
   agency: 'Agência',
+  voucher: 'Cupom de restaurante (sorteio)',
 }
 
 /** Validade do convite (default de invites.expires_at no banco) */

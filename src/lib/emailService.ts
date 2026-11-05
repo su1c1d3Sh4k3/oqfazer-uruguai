@@ -67,6 +67,19 @@ const DEFAULT_TEMPLATES: Record<string, string> = {
     <p style="color:#64748b;font-size:12px;line-height:1.5">O convite e pessoal, vale para o email <strong>{{email}}</strong> e expira em {{validade}}.</p>
   ${WRAPPER_END}`,
 
+  voucher: `${WRAPPER_START}${HEADER}
+    <div style="background:#fefce8;border:2px dashed #FFD700;border-radius:12px;padding:20px;margin-bottom:20px;text-align:center">
+      <p style="color:#854d0e;font-weight:bold;margin:0 0 6px;font-size:13px">Voce ganhou um cupom!</p>
+      <p style="color:#0f172a;font-weight:900;margin:0;font-size:26px">{{desconto}}</p>
+      <p style="color:#334155;font-weight:bold;margin:6px 0 0;font-size:14px">em {{restaurante}}</p>
+    </div>
+    <p style="color:#334155;font-size:14px;line-height:1.6">Parabens! Para usar o seu cupom, crie sua senha no app <strong>O que Fazer no Uruguai?</strong> e, quando estiver no restaurante, toque em <strong>Usar meu cupom</strong>.</p>
+    <div style="text-align:center;margin:24px 0">
+      <a href="{{link}}" style="display:inline-block;background:#003399;color:white;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:14px">Resgatar Meu Cupom</a>
+    </div>
+    <p style="color:#64748b;font-size:12px;line-height:1.5">O cupom e pessoal, de uso unico, vale para o email <strong>{{email}}</strong> e pode ser usado ate {{validade}}.</p>
+  ${WRAPPER_END}`,
+
   signup_approved: `${WRAPPER_START}${HEADER}
     <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:16px;margin-bottom:20px">
       <p style="color:#166534;font-weight:bold;margin:0">Cadastro aprovado!</p>

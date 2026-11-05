@@ -25,6 +25,7 @@ import logoUrl from '@/assets/favicon-bnu-9afaa.jpg'
 import { useAccess } from '@/context/AccessContext'
 import { useAuth } from '@/context/AuthContext'
 import { AccessExpired } from '@/pages/AccessExpired'
+import { VoucherBanner } from '@/components/VoucherBanner'
 import { Suspense, useEffect } from 'react'
 import { toast } from 'sonner'
 
@@ -95,8 +96,10 @@ export function Layout() {
     { name: 'Perfil', path: '/perfil', icon: User, show: isUser },
   ].filter((item) => item.show !== false)
 
+  // Conta cupom (sorteio) também não tem progresso/perfil de viajante
+  const isVoucher = currentUser?.role === 'voucher'
   const agencyBlockedPaths = ['/profile', '/perfil']
-  if (isAgency && agencyBlockedPaths.includes(location.pathname)) {
+  if ((isAgency || isVoucher) && agencyBlockedPaths.includes(location.pathname)) {
     return <Navigate to="/" replace />
   }
 
@@ -251,6 +254,8 @@ export function Layout() {
           </div>
         </div>
       </header>
+
+      {isVoucher && <VoucherBanner />}
 
       <main className="flex-1 flex flex-col relative w-full bg-slate-50/50 dark:bg-slate-900/50 min-h-0">
         {isBlockedPath ? (

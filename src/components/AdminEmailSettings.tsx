@@ -32,6 +32,13 @@ const TEMPLATES: TemplateConfig[] = [
     variables: ['email', 'tipo_conta', 'link', 'validade'],
   },
   {
+    key: 'voucher',
+    title: 'Cupom de Sorteio',
+    description: 'Enviado ao ganhador quando o admin cria um convite de cupom de restaurante.',
+    subjectDefault: 'Você ganhou um cupom no O que Fazer no Uruguai?',
+    variables: ['email', 'restaurante', 'desconto', 'link', 'validade'],
+  },
+  {
     key: 'signup_approved',
     title: 'Cadastro Aprovado',
     description: 'Enviado quando o admin aprova uma solicitacao de cadastro.',

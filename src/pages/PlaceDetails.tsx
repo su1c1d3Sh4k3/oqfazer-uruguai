@@ -46,6 +46,7 @@ import {
 } from '@/lib/utils'
 import { PlaceMapSection } from '@/components/PlaceMapSection'
 import { PlaceCheckInTicket } from '@/components/PlaceCheckInTicket'
+import { VoucherCard, VoucherCheckInBar } from '@/components/VoucherCheckIn'
 import { PrivateReviews } from '@/components/PrivateReviews'
 
 export default function PlaceDetails() {
@@ -73,6 +74,7 @@ export default function PlaceDetails() {
   const place = places.find((p) => p.id === id)
   const isCompany = currentUser?.role === 'establishment'
   const isAgency = currentUser?.role === 'agency'
+  const isVoucher = currentUser?.role === 'voucher'
 
   useEffect(() => {
     if (place) {
@@ -458,6 +460,15 @@ END:VCALENDAR`
               )
             ))}
 
+          {!isTour && isVoucher && !checkInTime && (
+            <VoucherCard
+              placeId={place.id}
+              currentDiscount={currentDiscount}
+              canCheckInNow={canCheckInNow}
+              nextRule={nextRule}
+            />
+          )}
+
           {isFlashOfferActive && (
             <div className="animate-in fade-in zoom-in relative mb-8 overflow-hidden rounded-2xl border border-red-200 bg-red-50 p-5 shadow-sm duration-500">
               <div className="absolute right-0 top-0 flex items-center gap-1 rounded-bl-xl bg-red-500 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
@@ -661,7 +672,14 @@ END:VCALENDAR`
 
         {!isTour && !checkInTime && !isCheckInLoading && (
           <div className="pb-safe fixed bottom-0 left-0 right-0 z-40 border-t bg-white p-4 shadow-[0_-10px_15px_-3px_rgb(0,0,0,0.05)] lg:sticky lg:border-none lg:bg-transparent lg:px-8 lg:pb-8 lg:shadow-none">
-            {isCompany || isAgency ? (
+            {isVoucher ? (
+              <VoucherCheckInBar
+                placeId={place.id}
+                currentDiscount={currentDiscount}
+                canCheckInNow={canCheckInNow}
+                nextRule={nextRule}
+              />
+            ) : isCompany || isAgency ? (
               <Button
                 disabled
                 className="h-14 w-full cursor-not-allowed rounded-2xl text-lg font-bold shadow-xl opacity-50"

@@ -13,6 +13,23 @@ export interface AccessRecord {
   discount?: AppliedDiscount | null
 }
 
+/** Cupom de sorteio da conta 'voucher': um check-in, num restaurante só */
+export interface VoucherState {
+  placeId: string
+  /** Desconto específico; vazio = desconto padrão do restaurante */
+  discount?: string
+  hoursOnly: boolean
+  expiresAt?: number
+  status: 'available' | 'used' | 'expired'
+}
+
+const VOUCHER_ERRORS: Record<string, string> = {
+  VOUCHER_ALREADY_USED: 'Este cupom já foi utilizado.',
+  VOUCHER_EXPIRED: 'Este cupom expirou.',
+  VOUCHER_PLACE_UNAVAILABLE: 'O restaurante do cupom está indisponível no momento.',
+  VOUCHER_NO_DISCOUNT_NOW: 'Fora do horário de desconto do restaurante.',
+}
+
 interface AccessContextType {
   accesses: AccessRecord[]
   checkIn: (placeId: string, discount?: AppliedDiscount | null) => void
@@ -22,6 +39,9 @@ interface AccessContextType {
   recordCheckIn: (placeId: string, discount?: AppliedDiscount | null) => void
   isExpired: boolean
   isGranted: boolean
+  voucher: VoucherState | null
+  /** Usa o cupom (check-in único). Retorna false se não foi gravado. */
+  redeemVoucher: (currentDiscount: AppliedDiscount | null) => Promise<boolean>
 }
 
 const AccessContext = createContext<AccessContextType | undefined>(undefined)
@@ -66,7 +86,8 @@ export function AccessProvider({ children }: { children: React.ReactNode }) {
 
   const checkIn = async (placeId: string, discount: AppliedDiscount | null = null) => {
     // Agência só consulta os estabelecimentos; não faz check-in
-    if (!currentUser || currentUser.role === 'agency') return
+    // Conta cupom faz check-in só pelo redeemVoucher
+    if (!currentUser || currentUser.role === 'agency' || currentUser.role === 'voucher') return
 
     // O desconto vale conforme o momento do check-in (snapshot)
     const newRecord: AccessRecord = {
@@ -158,6 +179,52 @@ export function AccessProvider({ children }: { children: React.ReactNode }) {
 
   const isGranted = currentUser?.role === 'establishment' || currentUser?.role === 'admin'
 
+  const voucher: VoucherState | null =
+    currentUser?.role === 'voucher' && currentUser.voucherPlaceId
+      ? {
+          placeId: currentUser.voucherPlaceId,
+          discount: currentUser.voucherDiscount,
+          hoursOnly: !!currentUser.voucherHoursOnly,
+          expiresAt: currentUser.voucherExpiresAt,
+          status:
+            currentUser.voucherUsedAt ||
+            accesses.some((a) => a.placeId === currentUser.voucherPlaceId)
+              ? 'used'
+              : currentUser.voucherExpiresAt && now > currentUser.voucherExpiresAt
+                ? 'expired'
+                : 'available',
+        }
+      : null
+
+  // O check-in do cupom é validado e gravado no banco (RPC use_voucher)
+  const redeemVoucher = async (currentDiscount: AppliedDiscount | null) => {
+    if (!voucher || voucher.status !== 'available') return false
+    const { data, error } = await supabase.rpc('use_voucher', {
+      p_label: currentDiscount?.label ?? null,
+      p_description: currentDiscount?.description ?? null,
+    })
+    if (error || !data) {
+      const code = Object.keys(VOUCHER_ERRORS).find((k) => error?.message?.includes(k))
+      toast.error('Não foi possível usar o cupom', {
+        description: code ? VOUCHER_ERRORS[code] : 'Verifique sua conexão e tente novamente.',
+      })
+      return false
+    }
+    setAccesses((prev) => [
+      ...prev.filter((a) => a.placeId !== data.placeId),
+      {
+        placeId: data.placeId,
+        timestamp: data.timestamp,
+        expiresAt: data.expiresAt,
+        discount: data.discount,
+      },
+    ])
+    toast.success('Cupom utilizado!', {
+      description: 'Mostre o ticket no restaurante para receber o desconto.',
+    })
+    return true
+  }
+
   return React.createElement(
     AccessContext.Provider,
     {
@@ -170,6 +237,8 @@ export function AccessProvider({ children }: { children: React.ReactNode }) {
         recordCheckIn,
         isExpired,
         isGranted,
+        voucher,
+        redeemVoucher,
       },
     },
     children,

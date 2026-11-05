@@ -73,7 +73,9 @@ export function PlaceCheckInTicket({
         {discount && (
           <div className="flex items-center justify-between gap-3 text-sm">
             <span className="text-green-50 font-medium">Desconto:</span>
-            <span className="text-right font-black text-brand-yellow">{discount.label}</span>
+            <span className="text-right font-black text-brand-yellow">
+              {discount.source === 'voucher' ? `${discount.label} (sorteio)` : discount.label}
+            </span>
           </div>
         )}
         <div className="flex items-center justify-between text-sm">
@@ -89,6 +91,8 @@ export function PlaceCheckInTicket({
         </p>
         <p className="text-lg font-black leading-tight text-slate-900">
           {(() => {
+            // Cupom de sorteio: uso único, sem contagem de pessoas do perfil de viajante
+            if (discount?.source === 'voucher') return 'Cupom do sorteio · uso único · válido até'
             const adults = currentUser?.adults ?? 1
             const children = currentUser?.children ?? 0
             let pessoasText = `${adults} pessoa${adults > 1 ? 's' : ''}`

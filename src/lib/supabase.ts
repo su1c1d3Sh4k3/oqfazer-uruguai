@@ -147,7 +147,7 @@ export function rowToUser(profile: Record<string, any>, email?: string) {
   return {
     id: profile.id,
     email: email || profile.email,
-    role: profile.role as 'user' | 'establishment' | 'admin' | 'agency',
+    role: profile.role as 'user' | 'establishment' | 'admin' | 'agency' | 'voucher',
     managedPlaceId: profile.managed_place_id ?? undefined,
     name: profile.name ?? undefined,
     cpf: profile.cpf ?? undefined,
@@ -161,6 +161,11 @@ export function rowToUser(profile: Record<string, any>, email?: string) {
     firstAccessAt: profile.first_access_at ?? undefined,
     trialFromFirstAccess: profile.trial_from_first_access ?? false,
     accountStatus: (profile.account_status ?? 'active') as 'active' | 'pending',
+    voucherPlaceId: profile.voucher_place_id ?? undefined,
+    voucherDiscount: profile.voucher_discount ?? undefined,
+    voucherHoursOnly: profile.voucher_hours_only ?? false,
+    voucherExpiresAt: profile.voucher_expires_at ?? undefined,
+    voucherUsedAt: profile.voucher_used_at ?? undefined,
     adults: profile.adults ?? 1,
     children: profile.children ?? 0,
   }

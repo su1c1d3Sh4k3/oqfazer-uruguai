@@ -36,6 +36,9 @@ export default function Auth() {
           navigate('/empresa')
         } else if (user.role === 'agency') {
           navigate('/')
+        } else if (user.role === 'voucher') {
+          // Cupom ainda não usado: direto para o restaurante do sorteio
+          navigate(user.voucherPlaceId && !user.voucherUsedAt ? `/place/${user.voucherPlaceId}` : '/')
         } else {
           navigate('/profile')
         }

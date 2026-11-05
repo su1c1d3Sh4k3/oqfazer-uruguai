@@ -244,12 +244,12 @@ export function isPlaceActive(place: Place, timestamp = Date.now()) {
 }
 
 /**
- * Passeios só aparecem para quem está logado e não é agência.
- * Visitante sem login e agência veem apenas restaurantes/estabelecimentos.
+ * Passeios só aparecem para quem está logado e não é agência nem conta cupom.
+ * Visitante sem login, agência e conta cupom veem apenas restaurantes/estabelecimentos.
  */
 export function canRoleViewPlace(place: Place, role?: string) {
   if (place.type !== 'tour') return true
-  return !!role && role !== 'agency'
+  return !!role && role !== 'agency' && role !== 'voucher'
 }
 
 export const PRICE_LEVELS: { value: PriceLevel; label: string; description: string }[] = [

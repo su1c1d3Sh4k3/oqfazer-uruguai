@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { MailOpen, Loader2 } from 'lucide-react'
+import { Gift, MailOpen, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { useAuth } from '@/context/AuthContext'
 import { callAccounts, INVITE_ROLE_LABELS, InviteRole } from '@/lib/accounts'
@@ -13,6 +13,8 @@ interface InviteInfo {
   email: string
   role: InviteRole
   placeName: string | null
+  voucherDiscount: string | null
+  voucherExpiresAt: string | null
 }
 
 // Aceite de convite: o tipo de conta (e o estabelecimento) vêm travados do
@@ -37,7 +39,13 @@ export default function AcceptInvite() {
   useEffect(() => {
     callAccounts('invite-info', { token }).then((result) => {
       if (result.success) {
-        setInvite({ email: result.email, role: result.role, placeName: result.placeName })
+        setInvite({
+          email: result.email,
+          role: result.role,
+          placeName: result.placeName,
+          voucherDiscount: result.voucherDiscount ?? null,
+          voucherExpiresAt: result.voucherExpiresAt ?? null,
+        })
       } else {
         setError(result.error || 'Convite inválido.')
       }
@@ -74,20 +82,46 @@ export default function AcceptInvite() {
       navigate('/auth')
       return
     }
-    navigate(user.role === 'establishment' ? '/empresa' : user.role === 'agency' ? '/' : '/profile')
+    navigate(
+      user.role === 'establishment'
+        ? '/empresa'
+        : user.role === 'voucher' && user.voucherPlaceId
+          ? `/place/${user.voucherPlaceId}`
+          : user.role === 'agency'
+            ? '/'
+            : '/profile',
+    )
   }
 
   const isUser = invite?.role === 'user'
+  const isVoucher = invite?.role === 'voucher'
 
   return (
     <div className="flex flex-1 flex-col items-center justify-center p-4 min-h-[calc(100vh-140px)] py-10">
       <div className="w-full max-w-md p-8 bg-white rounded-3xl shadow-sm border border-slate-100">
         <div className="flex flex-col items-center mb-8 text-center">
           <div className="h-16 w-16 bg-primary/10 rounded-full flex items-center justify-center mb-4 text-primary">
-            <MailOpen className="h-8 w-8" />
+            {isVoucher ? <Gift className="h-8 w-8" /> : <MailOpen className="h-8 w-8" />}
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 font-display">Criar sua conta</h1>
-          {invite && (
+          <h1 className="text-2xl font-bold text-slate-900 font-display">
+            {isVoucher ? 'Você ganhou um cupom!' : 'Criar sua conta'}
+          </h1>
+          {invite && isVoucher ? (
+            <div className="mt-4 w-full rounded-2xl border-2 border-dashed border-brand-yellow bg-brand-yellow/10 p-4">
+              <p className="text-2xl font-black text-slate-900">
+                {invite.voucherDiscount || 'Desconto exclusivo'}
+              </p>
+              {invite.placeName && (
+                <p className="mt-1 text-sm font-bold text-slate-700">em {invite.placeName}</p>
+              )}
+              <p className="mt-2 text-xs text-slate-500">
+                Uso único
+                {invite.voucherExpiresAt &&
+                  ` · válido até ${new Date(invite.voucherExpiresAt).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })}`}
+                . Crie sua senha para acessar o cupom ({invite.email}).
+              </p>
+            </div>
+          ) : invite && (
             <p className="text-slate-500 text-sm mt-2">
               Convite para <strong>{invite.email}</strong> como{' '}
               <strong>{INVITE_ROLE_LABELS[invite.role]}</strong>
